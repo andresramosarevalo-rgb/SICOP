@@ -9,6 +9,11 @@ export type User = {
     [key: string]: unknown;
 };
 
+export type Permisos = {
+    gestionarNomina: boolean;
+};
+
 export type Auth = {
     user: User;
+    permisos: Permisos;
 };
