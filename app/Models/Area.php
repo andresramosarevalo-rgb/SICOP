@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Database\Factories\AreaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -29,6 +31,17 @@ class Area extends Model
      * @var string
      */
     protected $table = 'areas';
+
+    /**
+     * Limita la consulta a las áreas activas, que son las que se ofrecen al registrar empleados.
+     *
+     * @param  Builder<Area>  $query
+     */
+    #[Scope]
+    protected function activas(Builder $query): void
+    {
+        $query->where('es_activa', true);
+    }
 
     /**
      * Get the attributes that should be cast.
