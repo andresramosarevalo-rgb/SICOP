@@ -3,7 +3,11 @@
 namespace App\Actions\Nomina;
 
 use App\Enums\ConceptoSistema;
+use App\Enums\FormaCalculo;
+use App\Enums\TipoConcepto;
 use App\Enums\TipoNovedad;
+use App\Models\AsignacionConcepto;
+use App\Models\ConceptoNomina;
 use App\Models\Contrato;
 use App\Models\Novedad;
 use App\Models\ParametroNomina;
@@ -14,8 +18,8 @@ use RoundingMode;
 /**
  * Calcula los devengos y las deducciones de ley de un empleado en un periodo.
  *
- * No consulta la base de datos: recibe el contrato, los parámetros, el periodo y las novedades
- * ya cargados. Cada valor se redondea al peso y la proporción se calcula
+ * No consulta la base de datos: recibe el contrato, los parámetros, el periodo, las novedades y
+ * los conceptos asignados ya cargados. Cada valor se redondea al peso y la proporción se calcula
  * sobre el mes comercial de 30 días. Las faltas, incapacidades y vacaciones se restan de los días
  * de salario; las novedades por días solo cuentan los días que caen dentro del periodo.
  */
@@ -25,12 +29,14 @@ final class CalculadoraNomina
 
     /**
      * @param  array<int, Novedad>  $novedades
+     * @param  array<int, AsignacionConcepto>  $asignaciones
      */
     public function calcular(
         Contrato $contrato,
         ParametroNomina $parametros,
         PeriodoNomina $periodo,
         array $novedades = [],
+        array $asignaciones = [],
     ): ResultadoLiquidacion {
         $dias = $contrato->periodicidad_pago->dias();
         $salarioMensual = new Number($contrato->valor_salario_base);
@@ -83,6 +89,19 @@ final class CalculadoraNomina
             $lineas[] = $this->linea(ConceptoSistema::DescuentoRetardo, $this->redondear($valorHora * $minutosRetardo / 60), $minutosRetardo);
         }
 
+        foreach ($asignaciones as $asignacion) {
+            if ($this->estaVigente($asignacion, $periodo)) {
+                $lineas[] = $this->lineaDeConcepto($asignacion->concepto, $this->valorAsignado($asignacion, $salario));
+            }
+        }
+
+        foreach ($novedades as $novedad) {
+            if ($novedad->tipo === TipoNovedad::ConceptoEventual && $novedad->concepto !== null
+                && $novedad->fecha_inicio->between($periodo->fecha_inicio, $periodo->fecha_fin)) {
+                $lineas[] = $this->lineaDeConcepto($novedad->concepto, $this->redondear(new Number($novedad->valor_eventual ?? '0')));
+            }
+        }
+
         $baseCotizacion = new Number('0');
 
         foreach ($lineas as $linea) {
@@ -133,6 +152,37 @@ final class CalculadoraNomina
         }
 
         return $cantidad;
+    }
+
+    /**
+     * Indica si la asignación está vigente en algún día del periodo.
+     */
+    private function estaVigente(AsignacionConcepto $asignacion, PeriodoNomina $periodo): bool
+    {
+        return $asignacion->fecha_inicio->lte($periodo->fecha_fin)
+            && ($asignacion->fecha_fin === null || $asignacion->fecha_fin->gte($periodo->fecha_inicio));
+    }
+
+    /**
+     * Valor de un concepto asignado: un porcentaje del salario del periodo, o el valor asignado
+     * (o en su defecto el del concepto) cuando es de valor fijo.
+     */
+    private function valorAsignado(AsignacionConcepto $asignacion, Number $salario): Number
+    {
+        $concepto = $asignacion->concepto;
+
+        if ($concepto->forma_calculo === FormaCalculo::Porcentaje) {
+            return $this->porcentaje($salario, $concepto->porcentaje_base ?? '0');
+        }
+
+        return $this->redondear(new Number($asignacion->valor_asignado ?? $concepto->valor_base ?? '0'));
+    }
+
+    private function lineaDeConcepto(ConceptoNomina $concepto, Number $valor): LineaLiquidacion
+    {
+        $esConstitutivo = $concepto->tipo === TipoConcepto::Devengo && $concepto->es_constitutivo_salario;
+
+        return new LineaLiquidacion($concepto->codigo, $concepto->tipo, $concepto->nombre, null, $valor, $esConstitutivo);
     }
 
     /**

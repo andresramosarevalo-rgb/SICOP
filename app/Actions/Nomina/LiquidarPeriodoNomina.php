@@ -17,7 +17,7 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * Liquida un periodo: genera un recibo por cada empleado activo con contrato vigente de la misma
- * periodicidad, con sus novedades. Si el periodo ya estaba liquidado, reemplaza
+ * periodicidad, con sus novedades y conceptos asignados. Si el periodo ya estaba liquidado, reemplaza
  * los recibos anteriores. Las novedades que entran en la liquidación quedan asociadas al periodo.
  */
 final class LiquidarPeriodoNomina
@@ -53,17 +53,18 @@ final class LiquidarPeriodoNomina
                 ->where('fecha_inicio', '<=', $periodo->fecha_fin)
                 ->whereHas('empleado', fn (Builder $query) => $query->where('es_activo', true))
                 ->with([
-                    'empleado.novedades' => fn (Relation $query) => $query
+                    'empleado.novedades' => fn (Relation $query) => $query->with('concepto')
                         ->where('fecha_inicio', '<=', $periodo->fecha_fin)
                         ->where(fn (Builder $query) => $query->where('fecha_fin', '>=', $periodo->fecha_inicio)
                             ->orWhere(fn (Builder $query) => $query->whereNull('fecha_fin')->where('fecha_inicio', '>=', $periodo->fecha_inicio))),
+                    'empleado.asignacionesConcepto.concepto',
                 ])
                 ->get();
 
             foreach ($contratos as $contrato) {
                 $novedades = $contrato->empleado->novedades;
                 $resultado = $this->calculadora->calcular(
-                    $contrato, $parametros, $periodo, $novedades->all(),
+                    $contrato, $parametros, $periodo, $novedades->all(), $contrato->empleado->asignacionesConcepto->all(),
                 );
 
                 $recibo = $periodo->recibos()->create([

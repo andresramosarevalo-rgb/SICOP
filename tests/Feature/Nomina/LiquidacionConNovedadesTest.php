@@ -3,6 +3,8 @@
 use App\Actions\Nomina\LiquidarPeriodoNomina;
 use App\Enums\ConceptoSistema;
 use App\Enums\TipoNovedad;
+use App\Models\AsignacionConcepto;
+use App\Models\ConceptoNomina;
 use App\Models\Contrato;
 use App\Models\Novedad;
 use App\Models\PeriodoNomina;
@@ -41,6 +43,16 @@ test('la liquidación aplica las horas extra y las faltas registradas del emplea
             ConceptoSistema::Salario->value => '2030000.00',
         ])
         ->and(ReciboNomina::sole()->dias_liquidados)->toBe(29);
+});
+
+// Issue #14, criterio 4
+test('la liquidación incluye los conceptos recurrentes vigentes del empleado', function () {
+    $bono = ConceptoNomina::factory()->create(['codigo' => 'BONO_PERMANENCIA', 'valor_base' => '100000']);
+    AsignacionConcepto::factory()->for($this->contrato->empleado)->create(['concepto_nomina_id' => $bono->id, 'valor_asignado' => null]);
+
+    ($this->liquidar)();
+
+    expect(valoresDelRecibo())->toHaveKey('BONO_PERMANENCIA', '100000.00');
 });
 
 // Issue #14, criterio 5
