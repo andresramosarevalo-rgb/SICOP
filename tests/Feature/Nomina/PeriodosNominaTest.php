@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\EstadoPeriodo;
 use App\Enums\Rol;
 use App\Models\Contrato;
 use App\Models\PeriodoNomina;
@@ -41,6 +42,16 @@ test('liquidar un periodo cerrado devuelve el error al usuario', function () {
         ->assertSessionHasErrors(['periodo' => 'El periodo está cerrado y no se puede volver a liquidar.']);
 });
 
+test('no se pueden crear dos periodos con la misma periodicidad y fecha de inicio', function () {
+    PeriodoNomina::factory()->create();
+
+    $this->actingAs($this->auxiliar)
+        ->post(route('nomina.periodos.store'), [
+            'periodicidad_pago' => 'mensual', 'fecha_inicio' => '2026-02-01', 'fecha_fin' => '2026-02-28',
+        ])
+        ->assertSessionHasErrors(['fecha_inicio' => 'Ya existe un periodo con esa periodicidad y fecha de inicio.']);
+});
+
 test('el listado muestra los periodos con su cantidad de recibos', function () {
     PeriodoNomina::factory()->create();
 
@@ -49,4 +60,14 @@ test('el listado muestra los periodos con su cantidad de recibos', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->component('Nomina/Periodos/Index')
             ->where('periodos.0.recibos_count', 0));
+});
+
+test('un periodo nuevo se crea en borrador', function () {
+    $this->actingAs($this->auxiliar)
+        ->post(route('nomina.periodos.store'), [
+            'periodicidad_pago' => 'mensual', 'fecha_inicio' => '2026-02-01', 'fecha_fin' => '2026-02-28',
+        ])
+        ->assertRedirect(route('nomina.periodos.show', PeriodoNomina::sole()));
+
+    expect(PeriodoNomina::sole()->estado)->toBe(EstadoPeriodo::Borrador);
 });
