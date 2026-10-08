@@ -40,8 +40,43 @@ test('el listado muestra primero los devengos y luego las deducciones', function
             ->where('conceptos.1.nombre', 'Libranza'));
 });
 
+// Issue #10, criterio 1
+test('al crear un concepto de valor fijo aparece en el listado', function () {
+    $this->actingAs($this->auxiliar)
+        ->post(route('nomina.conceptos.store'), [
+            'codigo' => 'BONO_VENTAS',
+            'nombre' => 'Bono por ventas',
+            'tipo' => 'devengo',
+            'forma_calculo' => 'valor_fijo',
+            'valor_base' => '150000',
+            'es_constitutivo_salario' => '0',
+        ])
+        ->assertRedirect(route('nomina.conceptos.index'));
+
+    $this->actingAs($this->auxiliar)
+        ->get(route('nomina.conceptos.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Nomina/Conceptos/Index')
+            ->has('conceptos', 1)
+            ->where('conceptos.0.codigo', 'BONO_VENTAS')
+            ->where('conceptos.0.valor_base', '150000.00'));
+});
+
+// Issue #10, criterio 1
+test('un concepto de porcentaje exige el porcentaje', function () {
+    $this->actingAs($this->auxiliar)
+        ->post(route('nomina.conceptos.store'), [
+            'codigo' => 'LIBRANZA',
+            'nombre' => 'Libranza',
+            'tipo' => 'deduccion',
+            'forma_calculo' => 'porcentaje',
+            'es_constitutivo_salario' => '0',
+        ])
+        ->assertSessionHasErrors(['porcentaje_base' => 'Indique el porcentaje del concepto.']);
+});
+
 // Issue #10, criterio 2
-test('un concepto de sistema no se puede eliminar', function () {
+test('un concepto de sistema no se puede eliminar ni editar', function () {
     $salario = ConceptoNomina::factory()->create([
         'codigo' => ConceptoSistema::Salario->value,
         'forma_calculo' => FormaCalculo::Sistema,
@@ -50,6 +85,10 @@ test('un concepto de sistema no se puede eliminar', function () {
 
     $this->actingAs($this->auxiliar)
         ->delete(route('nomina.conceptos.destroy', $salario))
+        ->assertForbidden();
+
+    $this->actingAs($this->auxiliar)
+        ->put(route('nomina.conceptos.update', $salario), ['codigo' => 'OTRO'])
         ->assertForbidden();
 
     expect($salario->fresh())->not->toBeNull()
@@ -65,4 +104,22 @@ test('un concepto que no es de sistema sí se puede eliminar', function () {
         ->assertRedirect(route('nomina.conceptos.index'));
 
     expect($bono->fresh())->toBeNull();
+});
+
+// Issue #10, criterio 3
+test('no se puede crear un concepto con un código que ya existe', function () {
+    ConceptoNomina::factory()->create(['codigo' => 'BONO_VENTAS']);
+
+    $this->actingAs($this->auxiliar)
+        ->post(route('nomina.conceptos.store'), [
+            'codigo' => 'BONO_VENTAS',
+            'nombre' => 'Otro bono',
+            'tipo' => 'devengo',
+            'forma_calculo' => 'valor_fijo',
+            'valor_base' => '1000',
+            'es_constitutivo_salario' => '0',
+        ])
+        ->assertSessionHasErrors(['codigo' => 'Ya existe un concepto con ese código.']);
+
+    expect(ConceptoNomina::count())->toBe(1);
 });
