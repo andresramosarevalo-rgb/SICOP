@@ -137,3 +137,12 @@ export type ReciboNomina = {
     valor_neto: string;
     fecha_envio: string | null;
 };
+
+export type DetalleReciboNomina = {
+    id: number;
+    concepto_nomina_id: number;
+    tipo: 'devengo' | 'deduccion';
+    descripcion: string;
+    cantidad: number | null;
+    valor_concepto: string;
+};

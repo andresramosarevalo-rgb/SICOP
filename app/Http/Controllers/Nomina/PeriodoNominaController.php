@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Nomina;
 
 use App\Actions\Nomina\LiquidarPeriodoNomina;
+use App\Enums\EstadoPeriodo;
 use App\Enums\PeriodicidadPago;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Nomina\StorePeriodoNominaRequest;
 use App\Models\PeriodoNomina;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -70,6 +72,22 @@ class PeriodoNominaController extends Controller
         $liquidarPeriodo->ejecutar($periodo, $request->user());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Periodo liquidado.']);
+
+        return to_route('nomina.periodos.show', $periodo);
+    }
+
+    /**
+     * Cierra un periodo liquidado. Un periodo cerrado ya no se puede volver a liquidar.
+     */
+    public function cerrar(PeriodoNomina $periodo): RedirectResponse
+    {
+        if ($periodo->estado !== EstadoPeriodo::Liquidado) {
+            throw ValidationException::withMessages(['periodo' => 'Solo se puede cerrar un periodo liquidado.']);
+        }
+
+        $periodo->forceFill(['estado' => EstadoPeriodo::Cerrado, 'fecha_cierre' => now()])->save();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Periodo cerrado.']);
 
         return to_route('nomina.periodos.show', $periodo);
     }
