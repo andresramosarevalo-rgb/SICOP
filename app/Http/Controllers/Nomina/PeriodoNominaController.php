@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Nomina;
 
 use App\Actions\Nomina\LiquidarPeriodoNomina;
+use App\Enums\PeriodicidadPago;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Nomina\StorePeriodoNominaRequest;
 use App\Models\PeriodoNomina;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,6 +26,29 @@ class PeriodoNominaController extends Controller
                 ->latest('fecha_inicio')
                 ->get(),
         ]);
+    }
+
+    /**
+     * Muestra el formulario para crear un periodo.
+     */
+    public function create(): Response
+    {
+        return Inertia::render('Nomina/Periodos/Create', [
+            'periodicidades' => collect(PeriodicidadPago::cases())
+                ->map(fn (PeriodicidadPago $periodicidad) => ['valor' => $periodicidad->value, 'etiqueta' => $periodicidad->etiqueta()]),
+        ]);
+    }
+
+    /**
+     * Crea un periodo en borrador.
+     */
+    public function store(StorePeriodoNominaRequest $request): RedirectResponse
+    {
+        $periodo = PeriodoNomina::create($request->validated());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Periodo creado.']);
+
+        return to_route('nomina.periodos.show', $periodo);
     }
 
     /**

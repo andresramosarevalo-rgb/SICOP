@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
 import EstadoPeriodo from '@/components/Nomina/EstadoPeriodo.vue';
+import { Button } from '@/components/ui/button';
 import { formatearPesos } from '@/lib/formato';
 import nomina from '@/routes/nomina';
 import type { PeriodoNomina } from '@/types';
@@ -29,6 +30,9 @@ defineProps<{
                 title="Periodos de nómina"
                 description="Cree un periodo y liquídelo para generar los recibos de pago."
             />
+            <Button as-child>
+                <Link :href="nomina.periodos.create()">Nuevo periodo</Link>
+            </Button>
         </div>
 
         <div v-if="periodos.length" class="overflow-x-auto rounded-xl border">
