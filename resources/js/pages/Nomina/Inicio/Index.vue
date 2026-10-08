@@ -26,6 +26,15 @@ defineOptions({
 
         <nav class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <Link
+                :href="nomina.empleados.index()"
+                class="rounded-xl border p-4 transition-colors hover:bg-accent"
+            >
+                <p class="font-medium">Empleados</p>
+                <p class="text-sm text-muted-foreground">
+                    Expedientes de los trabajadores.
+                </p>
+            </Link>
+            <Link
                 :href="nomina.areas.index()"
                 class="rounded-xl border p-4 transition-colors hover:bg-accent"
             >
