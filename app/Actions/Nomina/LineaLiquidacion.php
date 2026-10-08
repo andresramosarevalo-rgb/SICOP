@@ -7,6 +7,7 @@ use BcMath\Number;
 
 /**
  * Línea calculada de un recibo: un devengo o una deducción, con su valor ya redondeado al peso.
+ * Los devengos constitutivos de salario forman la base de los aportes a salud y pensión.
  */
 final readonly class LineaLiquidacion
 {
@@ -16,5 +17,6 @@ final readonly class LineaLiquidacion
         public string $descripcion,
         public ?int $cantidad,
         public Number $valor,
+        public bool $esConstitutivoSalario = false,
     ) {}
 }

@@ -5,6 +5,7 @@ use App\Enums\ConceptoSistema;
 use App\Enums\PeriodicidadPago;
 use App\Models\Contrato;
 use App\Models\ParametroNomina;
+use App\Models\PeriodoNomina;
 use Database\Seeders\NominaSeeder;
 
 /**
@@ -15,13 +16,23 @@ function contratoDe(string $salario, PeriodicidadPago $periodicidad = Periodicid
     return new Contrato(['valor_salario_base' => $salario, 'periodicidad_pago' => $periodicidad]);
 }
 
+/**
+ * Periodo sin guardar de la periodicidad indicada, que empieza el 1 de febrero de 2026.
+ */
+function periodoDe(PeriodicidadPago $periodicidad = PeriodicidadPago::Mensual): PeriodoNomina
+{
+    $fin = ['semanal' => '2026-02-07', 'quincenal' => '2026-02-15', 'mensual' => '2026-02-28'][$periodicidad->value];
+
+    return new PeriodoNomina(['periodicidad_pago' => $periodicidad, 'fecha_inicio' => '2026-02-01', 'fecha_fin' => $fin]);
+}
+
 beforeEach(function () {
     $this->parametros = new ParametroNomina(NominaSeeder::PARAMETROS_2026);
 });
 
 // Issue #13, criterio 1
 test('un salario mínimo mensual recibe auxilio de transporte y paga salud y pensión del 4 %', function () {
-    $resultado = (new CalculadoraNomina)->calcular(contratoDe('1750905'), $this->parametros);
+    $resultado = (new CalculadoraNomina)->calcular(contratoDe('1750905'), $this->parametros, periodoDe());
 
     expect((string) $resultado->valorDe(ConceptoSistema::Salario->value))->toBe('1750905')
         ->and((string) $resultado->valorDe(ConceptoSistema::AuxilioTransporte->value))->toBe('249095')
@@ -35,7 +46,7 @@ test('un salario mínimo mensual recibe auxilio de transporte y paga salud y pen
 
 // Issue #13, criterio 2
 test('el auxilio de transporte solo se paga hasta dos salarios mínimos', function (string $salario, bool $tieneAuxilio) {
-    $resultado = (new CalculadoraNomina)->calcular(contratoDe($salario), $this->parametros);
+    $resultado = (new CalculadoraNomina)->calcular(contratoDe($salario), $this->parametros, periodoDe());
 
     expect($resultado->valorDe(ConceptoSistema::AuxilioTransporte->value) > 0)->toBe($tieneAuxilio);
 })->with([
@@ -46,7 +57,7 @@ test('el auxilio de transporte solo se paga hasta dos salarios mínimos', functi
 
 // Issue #13, criterio 3
 test('una quincena liquida 15 de 30 días del salario y del auxilio', function () {
-    $resultado = (new CalculadoraNomina)->calcular(contratoDe('2000000', PeriodicidadPago::Quincenal), $this->parametros);
+    $resultado = (new CalculadoraNomina)->calcular(contratoDe('2000000', PeriodicidadPago::Quincenal), $this->parametros, periodoDe(PeriodicidadPago::Quincenal));
 
     expect((string) $resultado->valorDe(ConceptoSistema::Salario->value))->toBe('1000000')
         ->and((string) $resultado->valorDe(ConceptoSistema::AuxilioTransporte->value))->toBe('124548')
@@ -55,7 +66,7 @@ test('una quincena liquida 15 de 30 días del salario y del auxilio', function (
 });
 
 test('una semana liquida 7 de 30 días del salario', function () {
-    $resultado = (new CalculadoraNomina)->calcular(contratoDe('3000000', PeriodicidadPago::Semanal), $this->parametros);
+    $resultado = (new CalculadoraNomina)->calcular(contratoDe('3000000', PeriodicidadPago::Semanal), $this->parametros, periodoDe(PeriodicidadPago::Semanal));
 
     expect((string) $resultado->valorDe(ConceptoSistema::Salario->value))->toBe('700000')
         ->and($resultado->diasLiquidados)->toBe(7);
