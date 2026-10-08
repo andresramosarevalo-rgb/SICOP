@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Nomina\AreaController;
+use App\Http\Controllers\Nomina\ConceptoNominaController;
 use App\Http\Controllers\Nomina\ContratoController;
 use App\Http\Controllers\Nomina\EmpleadoController;
 use App\Http\Controllers\Nomina\ParametroNominaController;
@@ -17,4 +18,5 @@ Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
         Route::patch('empleados/{empleado}/estado', [EmpleadoController::class, 'cambiarEstado'])->name('empleados.estado');
         Route::resource('empleados.contratos', ContratoController::class)->only(['create', 'store']);
         Route::resource('parametros', ParametroNominaController::class)->except(['show', 'destroy']);
+        Route::resource('conceptos', ConceptoNominaController::class)->only(['index', 'destroy']);
     });

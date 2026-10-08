@@ -56,3 +56,16 @@ export type ParametroNomina = {
     porcentaje_recargo_dominical_festivo: string;
     porcentaje_incapacidad: string;
 };
+
+export type ConceptoNomina = {
+    id: number;
+    codigo: string;
+    nombre: string;
+    tipo: 'devengo' | 'deduccion';
+    forma_calculo: 'valor_fijo' | 'porcentaje' | 'sistema';
+    valor_base: string | null;
+    porcentaje_base: string | null;
+    es_constitutivo_salario: boolean;
+    es_sistema: boolean;
+    es_activo: boolean;
+};
