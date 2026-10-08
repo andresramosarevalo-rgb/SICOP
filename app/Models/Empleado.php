@@ -87,6 +87,16 @@ class Empleado extends Model
     }
 
     /**
+     * Novedades de asistencia y de pago del empleado.
+     *
+     * @return HasMany<Novedad, $this>
+     */
+    public function novedades(): HasMany
+    {
+        return $this->hasMany(Novedad::class);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
