@@ -48,3 +48,25 @@ function something()
 {
     // ..
 }
+
+/**
+ * Datos válidos para registrar un empleado.
+ *
+ * @param  array<string, mixed>  $cambios
+ * @return array<string, mixed>
+ */
+function datosEmpleado(array $cambios = []): array
+{
+    return [
+        'tipo_documento' => 'CC',
+        'numero_documento' => '1012345678',
+        'nombres' => 'Laura',
+        'apellidos' => 'Gómez',
+        'email' => 'laura@example.com',
+        'telefono' => '3001234567',
+        'direccion' => 'Calle 1 # 2-3',
+        'fecha_nacimiento' => '1995-04-10',
+        'cargo' => 'Asesora',
+        ...$cambios,
+    ];
+}
