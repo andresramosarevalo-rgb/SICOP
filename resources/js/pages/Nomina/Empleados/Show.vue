@@ -3,14 +3,16 @@ import { Form, Head, Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import EmpleadoController from '@/actions/App/Http/Controllers/Nomina/EmpleadoController';
 import Heading from '@/components/Heading.vue';
+import TablaContratos from '@/components/Nomina/TablaContratos.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import nomina from '@/routes/nomina';
-import type { Empleado } from '@/types';
+import type { Contrato, Empleado } from '@/types';
 
 const props = defineProps<{
     empleado: Empleado;
     tipoDocumento: string;
+    contratos: Contrato[];
 }>();
 
 defineOptions({
@@ -78,5 +80,24 @@ const datos = computed(() => [
                 </Button>
             </Form>
         </div>
+
+        <section class="flex flex-col gap-4">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <Heading
+                    variant="small"
+                    title="Contratos"
+                    description="El más reciente primero."
+                />
+                <Button variant="outline" as-child>
+                    <Link :href="nomina.empleados.contratos.create(empleado.id)"
+                        >Nuevo contrato</Link
+                    >
+                </Button>
+            </div>
+            <TablaContratos v-if="contratos.length" :contratos="contratos" />
+            <p v-else class="text-sm text-muted-foreground">
+                El empleado no tiene contratos registrados.
+            </p>
+        </section>
     </div>
 </template>
