@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\Nomina;
 
+use App\Enums\TipoNovedad;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Nomina\StoreNovedadRequest;
+use App\Models\ConceptoNomina;
 use App\Models\Empleado;
 use App\Models\Novedad;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -39,5 +43,44 @@ class NovedadController extends Controller
             'filtros' => $filtros,
             'empleados' => Empleado::query()->orderBy('apellidos')->get(['id', 'nombres', 'apellidos']),
         ]);
+    }
+
+    /**
+     * Muestra el formulario para registrar una novedad.
+     */
+    public function create(): Response
+    {
+        return Inertia::render('Nomina/Novedades/Create', $this->opcionesFormulario());
+    }
+
+    /**
+     * Registra la novedad y vuelve al formulario para registrar la siguiente.
+     */
+    public function store(StoreNovedadRequest $request): RedirectResponse
+    {
+        Novedad::create($request->validated());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Novedad registrada.']);
+
+        return to_route('nomina.novedades.create');
+    }
+
+    /**
+     * Opciones de los selectores del formulario de novedad.
+     *
+     * @return array<string, mixed>
+     */
+    private function opcionesFormulario(): array
+    {
+        return [
+            'empleados' => Empleado::query()->where('es_activo', true)->orderBy('apellidos')->get(['id', 'nombres', 'apellidos']),
+            'tipos' => collect(TipoNovedad::cases())->map(fn (TipoNovedad $tipo) => [
+                'valor' => $tipo->value,
+                'etiqueta' => $tipo->etiqueta(),
+                'unidad' => $tipo->unidad(),
+                'es_por_dias' => $tipo->esPorDias(),
+            ]),
+            'conceptos' => ConceptoNomina::query()->where('es_activo', true)->where('es_sistema', false)->orderBy('nombre')->get(['id', 'nombre']),
+        ];
     }
 }

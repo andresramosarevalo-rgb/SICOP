@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, Link } from '@inertiajs/vue3';
 import NovedadController from '@/actions/App/Http/Controllers/Nomina/NovedadController';
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
@@ -48,6 +48,9 @@ function describirDetalle(novedad: Novedad): string {
                 title="Novedades"
                 description="Incidencias de asistencia y pagos eventuales que entran en la liquidación."
             />
+            <Button as-child>
+                <Link :href="nomina.novedades.create()">Registrar novedad</Link>
+            </Button>
         </div>
 
         <Form
