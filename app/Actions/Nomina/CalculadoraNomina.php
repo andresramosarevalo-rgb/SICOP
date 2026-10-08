@@ -21,11 +21,29 @@ use RoundingMode;
  * No consulta la base de datos: recibe el contrato, los parámetros, el periodo, las novedades y
  * los conceptos asignados ya cargados. Cada valor se redondea al peso y la proporción se calcula
  * sobre el mes comercial de 30 días. Las faltas, incapacidades y vacaciones se restan de los días
- * de salario; las novedades por días solo cuentan los días que caen dentro del periodo.
+ * de salario; las novedades por días solo cuentan los días que caen dentro del periodo. El Fondo de
+ * Solidaridad Pensional y la retención en la fuente (procedimiento 1) se calculan sobre el equivalente
+ * mensual y se proporcionan al periodo; la retención se redondea al múltiplo de mil más cercano.
  */
 final class CalculadoraNomina
 {
     private const DIAS_MES = 30;
+
+    private const TOPE_RENTA_EXENTA_ANUAL_UVT = 790;
+
+    /**
+     * Tabla del art. 383 del Estatuto Tributario: [desde (UVT), porcentaje marginal, UVT adicionales].
+     *
+     * @var list<array{int, int, int}>
+     */
+    private const TABLA_RETENCION_UVT = [
+        [95, 19, 0],
+        [150, 28, 10],
+        [360, 33, 69],
+        [640, 35, 162],
+        [945, 37, 268],
+        [2300, 39, 770],
+    ];
 
     /**
      * @param  array<int, Novedad>  $novedades
@@ -110,10 +128,66 @@ final class CalculadoraNomina
             }
         }
 
-        $lineas[] = $this->linea(ConceptoSistema::Salud, $this->porcentaje($baseCotizacion, $parametros->porcentaje_salud_empleado));
-        $lineas[] = $this->linea(ConceptoSistema::Pension, $this->porcentaje($baseCotizacion, $parametros->porcentaje_pension_empleado));
+        $salud = $this->porcentaje($baseCotizacion, $parametros->porcentaje_salud_empleado);
+        $pension = $this->porcentaje($baseCotizacion, $parametros->porcentaje_pension_empleado);
+        $lineas[] = $this->linea(ConceptoSistema::Salud, $salud);
+        $lineas[] = $this->linea(ConceptoSistema::Pension, $pension);
+
+        // El FSP y la retención se calculan sobre el equivalente mensual y se proporcionan al periodo.
+        $aMensual = new Number(self::DIAS_MES) / $dias;
+        $salarioMinimo = new Number($parametros->valor_salario_minimo);
+        $porcentajeFsp = $this->porcentajeFondoSolidaridad($baseCotizacion * $aMensual / $salarioMinimo);
+        $fondoSolidaridad = $this->redondear($baseCotizacion * $porcentajeFsp / 100);
+
+        if ($fondoSolidaridad > 0) {
+            $lineas[] = $this->linea(ConceptoSistema::FondoSolidaridadPensional, $fondoSolidaridad);
+        }
+
+        $ingresosLaborales = (new ResultadoLiquidacion($lineas, $diasTrabajados))->totalDevengado();
+        $depurado = ($ingresosLaborales - $salud - $pension - $fondoSolidaridad) * $aMensual;
+        $retencion = $this->retencionMensual($depurado, new Number($parametros->valor_uvt)) / $aMensual;
+        $retencion = ($retencion / 1000)->round(0, RoundingMode::HalfAwayFromZero) * 1000;
+
+        if ($retencion > 0) {
+            $lineas[] = $this->linea(ConceptoSistema::RetencionFuente, $retencion);
+        }
 
         return new ResultadoLiquidacion($lineas, $diasTrabajados);
+    }
+
+    /**
+     * Porcentaje del Fondo de Solidaridad Pensional según la base de cotización en salarios mínimos.
+     */
+    private function porcentajeFondoSolidaridad(Number $salariosMinimos): Number
+    {
+        return match (true) {
+            $salariosMinimos < 4 => new Number('0'),
+            $salariosMinimos < 16 => new Number('1'),
+            $salariosMinimos < 20 => new Number('1.2') + ($salariosMinimos - 16)->floor() * new Number('0.2'),
+            default => new Number('2'),
+        };
+    }
+
+    /**
+     * Retención en la fuente mensual por el procedimiento 1 (art. 383 del Estatuto Tributario).
+     *
+     * Al ingreso ya depurado de aportes obligatorios se le resta la renta exenta del 25 %, con tope
+     * de 790 UVT al año, y a la base en UVT se le aplica la tabla de la ley.
+     */
+    private function retencionMensual(Number $ingresoDepurado, Number $uvt): Number
+    {
+        $topeRentaExenta = $uvt * self::TOPE_RENTA_EXENTA_ANUAL_UVT / 12;
+        $rentaExenta = $ingresoDepurado * new Number('0.25');
+        $rentaExenta = $rentaExenta > $topeRentaExenta ? $topeRentaExenta : $rentaExenta;
+        $baseUvt = ($ingresoDepurado - $rentaExenta) / $uvt;
+
+        foreach (array_reverse(self::TABLA_RETENCION_UVT) as [$desde, $porcentaje, $uvtAdicionales]) {
+            if ($baseUvt > $desde) {
+                return (($baseUvt - $desde) * $porcentaje / 100 + $uvtAdicionales) * $uvt;
+            }
+        }
+
+        return new Number('0');
     }
 
     /**
