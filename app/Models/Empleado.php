@@ -77,6 +77,16 @@ class Empleado extends Model
     }
 
     /**
+     * Conceptos recurrentes asignados al empleado.
+     *
+     * @return HasMany<AsignacionConcepto, $this>
+     */
+    public function asignacionesConcepto(): HasMany
+    {
+        return $this->hasMany(AsignacionConcepto::class)->latest('fecha_inicio');
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

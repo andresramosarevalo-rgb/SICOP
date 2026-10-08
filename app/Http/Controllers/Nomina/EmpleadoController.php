@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Nomina\StoreEmpleadoRequest;
 use App\Http\Requests\Nomina\UpdateEmpleadoRequest;
 use App\Models\Area;
+use App\Models\ConceptoNomina;
 use App\Models\Contrato;
 use App\Models\Empleado;
 use Illuminate\Database\Eloquent\Builder;
@@ -66,7 +67,7 @@ class EmpleadoController extends Controller
     }
 
     /**
-     * Muestra el expediente del empleado con su historial de contratos.
+     * Muestra el expediente del empleado con su historial de contratos y sus conceptos recurrentes.
      */
     public function show(Empleado $empleado): Response
     {
@@ -78,6 +79,10 @@ class EmpleadoController extends Controller
                 'tipo_contrato' => $contrato->tipo_contrato->etiqueta(),
                 'periodicidad_pago' => $contrato->periodicidad_pago->etiqueta(),
             ]),
+            'asignaciones' => $empleado->asignacionesConcepto()->with('concepto:id,codigo,nombre,tipo,forma_calculo,valor_base,porcentaje_base')->get(),
+            'conceptosDisponibles' => ConceptoNomina::query()
+                ->where('es_activo', true)->where('es_sistema', false)
+                ->orderBy('nombre')->get(['id', 'nombre', 'tipo', 'forma_calculo', 'valor_base', 'porcentaje_base']),
         ]);
     }
 
