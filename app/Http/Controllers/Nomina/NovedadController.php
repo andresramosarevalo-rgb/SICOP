@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Nomina;
 use App\Enums\TipoNovedad;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Nomina\StoreNovedadRequest;
+use App\Http\Requests\Nomina\UpdateNovedadRequest;
 use App\Models\ConceptoNomina;
 use App\Models\Empleado;
 use App\Models\Novedad;
@@ -63,6 +64,42 @@ class NovedadController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Novedad registrada.']);
 
         return to_route('nomina.novedades.create');
+    }
+
+    /**
+     * Muestra el formulario de edición de una novedad que aún no se ha liquidado.
+     */
+    public function edit(Novedad $novedad): Response
+    {
+        abort_if($novedad->estaLiquidada(), 403, 'La novedad ya fue liquidada.');
+
+        return Inertia::render('Nomina/Novedades/Edit', ['novedad' => $novedad, ...$this->opcionesFormulario()]);
+    }
+
+    /**
+     * Actualiza una novedad que aún no se ha liquidado.
+     */
+    public function update(UpdateNovedadRequest $request, Novedad $novedad): RedirectResponse
+    {
+        $novedad->update($request->validated());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Novedad actualizada.']);
+
+        return to_route('nomina.novedades.index');
+    }
+
+    /**
+     * Elimina una novedad que aún no se ha liquidado.
+     */
+    public function destroy(Novedad $novedad): RedirectResponse
+    {
+        abort_if($novedad->estaLiquidada(), 403, 'La novedad ya fue liquidada.');
+
+        $novedad->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Novedad eliminada.']);
+
+        return to_route('nomina.novedades.index');
     }
 
     /**

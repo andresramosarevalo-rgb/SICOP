@@ -21,7 +21,7 @@ Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
         Route::resource('empleados.contratos', ContratoController::class)->only(['create', 'store']);
         Route::resource('empleados.asignaciones', AsignacionConceptoController::class)
             ->only(['store', 'destroy'])->shallow()->parameters(['asignaciones' => 'asignacion']);
-        Route::resource('novedades', NovedadController::class)->only(['index', 'create', 'store'])->parameters(['novedades' => 'novedad']);
+        Route::resource('novedades', NovedadController::class)->except(['show'])->parameters(['novedades' => 'novedad']);
         Route::resource('parametros', ParametroNominaController::class)->except(['show', 'destroy']);
         Route::resource('conceptos', ConceptoNominaController::class)->except(['show']);
     });

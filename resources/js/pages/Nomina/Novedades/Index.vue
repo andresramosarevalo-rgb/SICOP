@@ -121,6 +121,31 @@ function describirDetalle(novedad: Novedad): string {
                                 variant="outline"
                                 >Liquidada</Badge
                             >
+                            <div v-else class="flex justify-end gap-2">
+                                <Button variant="outline" size="sm" as-child>
+                                    <Link
+                                        :href="
+                                            nomina.novedades.edit(novedad.id)
+                                        "
+                                        >Editar</Link
+                                    >
+                                </Button>
+                                <Form
+                                    v-bind="
+                                        NovedadController.destroy.form(
+                                            novedad.id,
+                                        )
+                                    "
+                                    v-slot="{ processing }"
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        :disabled="processing"
+                                        >Eliminar</Button
+                                    >
+                                </Form>
+                            </div>
                         </td>
                     </tr>
                 </tbody>

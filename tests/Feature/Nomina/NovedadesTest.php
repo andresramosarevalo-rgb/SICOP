@@ -62,6 +62,20 @@ test('una incapacidad o vacaciones con fecha de fin anterior a la de inicio se r
     expect(Novedad::count())->toBe(0);
 })->with([TipoNovedad::Incapacidad, TipoNovedad::Vacaciones]);
 
+// Issue #12, criterio 2
+test('una incapacidad registrada abarca los días de su rango', function () {
+    $this->actingAs($this->auxiliar)
+        ->post(route('nomina.novedades.store'), [
+            'empleado_id' => $this->empleado->id,
+            'tipo' => TipoNovedad::Incapacidad->value,
+            'fecha_inicio' => '2026-02-10',
+            'fecha_fin' => '2026-02-12',
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect(Novedad::sole()->dias())->toBe(3);
+});
+
 test('un concepto eventual exige el concepto y el valor', function () {
     $this->actingAs($this->auxiliar)
         ->post(route('nomina.novedades.store'), [
@@ -102,4 +116,46 @@ test('el filtro por empleado y rango de fechas solo muestra las novedades que co
             ->has('novedades', 2)
             ->where('novedades.0.id', $buscada->id)
             ->where('novedades.1.id', $incapacidad->id));
+});
+
+// Issue #12, criterio 4
+test('una novedad ya liquidada no se puede editar ni eliminar', function () {
+    $novedad = Novedad::factory()->for($this->empleado)->liquidada()->create();
+
+    $this->actingAs($this->auxiliar)
+        ->put(route('nomina.novedades.update', $novedad), [
+            'empleado_id' => $this->empleado->id,
+            'tipo' => TipoNovedad::HoraExtraDiurna->value,
+            'fecha_inicio' => '2026-02-10',
+            'cantidad' => 8,
+        ])
+        ->assertForbidden();
+
+    $this->actingAs($this->auxiliar)
+        ->delete(route('nomina.novedades.destroy', $novedad))
+        ->assertForbidden();
+
+    expect($novedad->fresh()->cantidad)->toBe(2);
+});
+
+// Issue #12, criterio 4
+test('una novedad sin liquidar se puede editar y eliminar', function () {
+    $novedad = Novedad::factory()->for($this->empleado)->create();
+
+    $this->actingAs($this->auxiliar)
+        ->put(route('nomina.novedades.update', $novedad), [
+            'empleado_id' => $this->empleado->id,
+            'tipo' => TipoNovedad::HoraExtraDiurna->value,
+            'fecha_inicio' => '2026-02-10',
+            'cantidad' => 8,
+        ])
+        ->assertRedirect(route('nomina.novedades.index'));
+
+    expect($novedad->fresh()->cantidad)->toBe(8);
+
+    $this->actingAs($this->auxiliar)
+        ->delete(route('nomina.novedades.destroy', $novedad))
+        ->assertRedirect(route('nomina.novedades.index'));
+
+    expect($novedad->fresh())->toBeNull();
 });
