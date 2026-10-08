@@ -52,6 +52,15 @@ defineOptions({
                     SMMLV, UVT, aportes y recargos por año.
                 </p>
             </Link>
+            <Link
+                :href="nomina.conceptos.index()"
+                class="rounded-xl border p-4 transition-colors hover:bg-accent"
+            >
+                <p class="font-medium">Conceptos</p>
+                <p class="text-sm text-muted-foreground">
+                    Devengos y deducciones del recibo.
+                </p>
+            </Link>
         </nav>
     </div>
 </template>
