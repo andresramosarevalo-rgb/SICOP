@@ -45,3 +45,34 @@ test('el listado de parámetros muestra los años registrados', function () {
             ->component('Nomina/Parametros/Index')
             ->where('parametros.0.anio', 2026));
 });
+
+// Issue #9, criterio 2
+test('al editar un valor de los parámetros de un año queda registrado', function () {
+    $auxiliar = User::factory()->conRol(Rol::AuxiliarNomina)->create();
+    $parametro = ParametroNomina::factory()->create();
+
+    $this->actingAs($auxiliar)
+        ->put(route('nomina.parametros.update', $parametro), [
+            ...NominaSeeder::PARAMETROS_2026,
+            'valor_uvt' => '53000',
+        ])
+        ->assertRedirect(route('nomina.parametros.index'));
+
+    expect($parametro->fresh()->valor_uvt)->toBe('53000.00');
+});
+
+// Issue #9, criterio 3
+test('no se pueden registrar dos veces los parámetros del mismo año', function () {
+    $auxiliar = User::factory()->conRol(Rol::AuxiliarNomina)->create();
+    ParametroNomina::factory()->create();
+
+    $this->actingAs($auxiliar)
+        ->post(route('nomina.parametros.store'), NominaSeeder::PARAMETROS_2026)
+        ->assertSessionHasErrors(['anio' => 'Ya existen parámetros para ese año.']);
+
+    $this->actingAs($auxiliar)
+        ->post(route('nomina.parametros.store'), [...NominaSeeder::PARAMETROS_2026, 'anio' => 2027])
+        ->assertRedirect(route('nomina.parametros.index'));
+
+    expect(ParametroNomina::pluck('anio')->sort()->values()->all())->toBe([2026, 2027]);
+});

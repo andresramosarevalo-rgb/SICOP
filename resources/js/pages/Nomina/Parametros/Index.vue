@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
+import { Button } from '@/components/ui/button';
 import { formatearPesos } from '@/lib/formato';
 import nomina from '@/routes/nomina';
 import type { ParametroNomina } from '@/types';
@@ -28,6 +29,9 @@ defineProps<{
                 title="Parámetros legales"
                 description="Valores de ley por año que usa el cálculo de la nómina. Confírmelos con el contador."
             />
+            <Button as-child>
+                <Link :href="nomina.parametros.create()">Nuevo año</Link>
+            </Button>
         </div>
 
         <ul v-if="parametros.length" class="divide-y rounded-xl border px-4">
@@ -45,6 +49,11 @@ defineProps<{
                         {{ formatearPesos(parametro.valor_uvt) }}
                     </p>
                 </div>
+                <Button variant="outline" size="sm" as-child>
+                    <Link :href="nomina.parametros.edit(parametro.id)"
+                        >Editar</Link
+                    >
+                </Button>
             </li>
         </ul>
         <p v-else class="text-sm text-muted-foreground">
