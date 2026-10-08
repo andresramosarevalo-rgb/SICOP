@@ -8,6 +8,7 @@ use App\Http\Controllers\Nomina\EmpleadoController;
 use App\Http\Controllers\Nomina\NovedadController;
 use App\Http\Controllers\Nomina\ParametroNominaController;
 use App\Http\Controllers\Nomina\PeriodoNominaController;
+use App\Http\Controllers\Nomina\ReciboNominaController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
@@ -27,4 +28,6 @@ Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
         Route::resource('conceptos', ConceptoNominaController::class)->except(['show']);
         Route::resource('periodos', PeriodoNominaController::class)->only(['index', 'create', 'store', 'show']);
         Route::post('periodos/{periodo}/liquidar', [PeriodoNominaController::class, 'liquidar'])->name('periodos.liquidar');
+        Route::post('periodos/{periodo}/cerrar', [PeriodoNominaController::class, 'cerrar'])->name('periodos.cerrar');
+        Route::resource('recibos', ReciboNominaController::class)->only(['show']);
     });
