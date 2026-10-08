@@ -3,16 +3,24 @@ import { Form, Head, Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import EmpleadoController from '@/actions/App/Http/Controllers/Nomina/EmpleadoController';
 import Heading from '@/components/Heading.vue';
+import ConceptosRecurrentes from '@/components/Nomina/ConceptosRecurrentes.vue';
 import TablaContratos from '@/components/Nomina/TablaContratos.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import nomina from '@/routes/nomina';
-import type { Contrato, Empleado } from '@/types';
+import type {
+    AsignacionConcepto,
+    ConceptoNomina,
+    Contrato,
+    Empleado,
+} from '@/types';
 
 const props = defineProps<{
     empleado: Empleado;
     tipoDocumento: string;
     contratos: Contrato[];
+    asignaciones: AsignacionConcepto[];
+    conceptosDisponibles: ConceptoNomina[];
 }>();
 
 defineOptions({
@@ -99,5 +107,11 @@ const datos = computed(() => [
                 El empleado no tiene contratos registrados.
             </p>
         </section>
+
+        <ConceptosRecurrentes
+            :empleado-id="empleado.id"
+            :asignaciones="asignaciones"
+            :conceptos-disponibles="conceptosDisponibles"
+        />
     </div>
 </template>

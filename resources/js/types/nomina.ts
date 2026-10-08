@@ -69,3 +69,21 @@ export type ConceptoNomina = {
     es_sistema: boolean;
     es_activo: boolean;
 };
+
+export type AsignacionConcepto = {
+    id: number;
+    concepto_nomina_id: number;
+    concepto: Pick<
+        ConceptoNomina,
+        | 'id'
+        | 'codigo'
+        | 'nombre'
+        | 'tipo'
+        | 'forma_calculo'
+        | 'valor_base'
+        | 'porcentaje_base'
+    >;
+    valor_asignado: string | null;
+    fecha_inicio: string;
+    fecha_fin: string | null;
+};
