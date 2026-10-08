@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -52,6 +54,26 @@ class Empleado extends Model
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class);
+    }
+
+    /**
+     * Contratos del empleado, del más reciente al más antiguo.
+     *
+     * @return HasMany<Contrato, $this>
+     */
+    public function contratos(): HasMany
+    {
+        return $this->hasMany(Contrato::class)->latest('fecha_inicio');
+    }
+
+    /**
+     * Contrato vigente del empleado, si lo tiene.
+     *
+     * @return HasOne<Contrato, $this>
+     */
+    public function contratoVigente(): HasOne
+    {
+        return $this->hasOne(Contrato::class)->where('es_vigente', true);
     }
 
     /**
