@@ -18,8 +18,8 @@ use Illuminate\Support\Carbon;
  * @property string $nombre
  * @property TipoConcepto $tipo
  * @property FormaCalculo $forma_calculo
- * @property string|null $valor_base
- * @property string|null $porcentaje_base
+ * @property numeric-string|null $valor_base
+ * @property numeric-string|null $porcentaje_base
  * @property bool $es_constitutivo_salario
  * @property bool $es_sistema
  * @property bool $es_activo

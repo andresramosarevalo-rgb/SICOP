@@ -13,17 +13,17 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $anio
- * @property string $valor_salario_minimo
- * @property string $valor_auxilio_transporte
- * @property string $valor_uvt
- * @property string $porcentaje_salud_empleado
- * @property string $porcentaje_pension_empleado
+ * @property numeric-string $valor_salario_minimo
+ * @property numeric-string $valor_auxilio_transporte
+ * @property numeric-string $valor_uvt
+ * @property numeric-string $porcentaje_salud_empleado
+ * @property numeric-string $porcentaje_pension_empleado
  * @property int $horas_mensuales
- * @property string $porcentaje_recargo_hora_extra_diurna
- * @property string $porcentaje_recargo_hora_extra_nocturna
- * @property string $porcentaje_recargo_nocturno
- * @property string $porcentaje_recargo_dominical_festivo
- * @property string $porcentaje_incapacidad
+ * @property numeric-string $porcentaje_recargo_hora_extra_diurna
+ * @property numeric-string $porcentaje_recargo_hora_extra_nocturna
+ * @property numeric-string $porcentaje_recargo_nocturno
+ * @property numeric-string $porcentaje_recargo_dominical_festivo
+ * @property numeric-string $porcentaje_incapacidad
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */

@@ -20,7 +20,7 @@ use Illuminate\Support\Carbon;
  * @property PeriodicidadPago $periodicidad_pago
  * @property Carbon $fecha_inicio
  * @property Carbon|null $fecha_fin
- * @property string $valor_salario_base
+ * @property numeric-string $valor_salario_base
  * @property bool $es_vigente
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
