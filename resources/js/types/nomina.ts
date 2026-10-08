@@ -19,3 +19,8 @@ export type Empleado = {
     cargo: string;
     es_activo: boolean;
 };
+
+export type OpcionTipoDocumento = {
+    valor: string;
+    etiqueta: string;
+};
