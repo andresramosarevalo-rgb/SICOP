@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
 import nomina from '@/routes/nomina';
 
@@ -23,5 +23,17 @@ defineOptions({
             title="Nómina"
             description="Expedientes de trabajadores, novedades y liquidación de la nómina."
         />
+
+        <nav class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <Link
+                :href="nomina.areas.index()"
+                class="rounded-xl border p-4 transition-colors hover:bg-accent"
+            >
+                <p class="font-medium">Áreas</p>
+                <p class="text-sm text-muted-foreground">
+                    Departamentos de los empleados.
+                </p>
+            </Link>
+        </nav>
     </div>
 </template>
