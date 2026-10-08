@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Nomina;
 
+use App\Actions\Nomina\EnviarRecibosPeriodo;
 use App\Enums\TipoConcepto;
 use App\Http\Controllers\Controller;
 use App\Models\DetalleReciboNomina;
 use App\Models\ReciboNomina;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -34,5 +36,17 @@ class ReciboNominaController extends Controller
             'devengos' => $devengos->values(),
             'deducciones' => $deducciones->values(),
         ]);
+    }
+
+    /**
+     * Vuelve a enviar por correo un recibo de un periodo cerrado.
+     */
+    public function reenviar(ReciboNomina $recibo, EnviarRecibosPeriodo $enviarRecibos): RedirectResponse
+    {
+        $enviarRecibos->reenviar($recibo);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Recibo reenviado.']);
+
+        return to_route('nomina.periodos.show', $recibo->periodo_nomina_id);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Nomina;
 
+use App\Actions\Nomina\EnviarRecibosPeriodo;
 use App\Actions\Nomina\LiquidarPeriodoNomina;
 use App\Enums\EstadoPeriodo;
 use App\Enums\PeriodicidadPago;
@@ -88,6 +89,18 @@ class PeriodoNominaController extends Controller
         $periodo->forceFill(['estado' => EstadoPeriodo::Cerrado, 'fecha_cierre' => now()])->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Periodo cerrado.']);
+
+        return to_route('nomina.periodos.show', $periodo);
+    }
+
+    /**
+     * Envía por correo los recibos del periodo cerrado que aún no se han enviado.
+     */
+    public function enviarRecibos(PeriodoNomina $periodo, EnviarRecibosPeriodo $enviarRecibos): RedirectResponse
+    {
+        $enviados = $enviarRecibos->ejecutar($periodo);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => "Se enviaron {$enviados} recibos por correo."]);
 
         return to_route('nomina.periodos.show', $periodo);
     }

@@ -2,6 +2,7 @@
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import PeriodoNominaController from '@/actions/App/Http/Controllers/Nomina/PeriodoNominaController';
+import ReciboNominaController from '@/actions/App/Http/Controllers/Nomina/ReciboNominaController';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import EstadoPeriodo from '@/components/Nomina/EstadoPeriodo.vue';
@@ -47,9 +48,21 @@ const totalNeto = computed(() =>
             <EstadoPeriodo :estado="periodo.estado" />
         </div>
 
-        <div v-if="periodo.estado !== 'cerrado'" class="flex flex-col gap-2">
+        <div class="flex flex-col gap-2">
             <div class="flex flex-wrap gap-2">
                 <Form
+                    v-if="periodo.estado === 'cerrado'"
+                    v-bind="
+                        PeriodoNominaController.enviarRecibos.form(periodo.id)
+                    "
+                    v-slot="{ processing }"
+                >
+                    <Button :disabled="processing"
+                        >Enviar recibos por correo</Button
+                    >
+                </Form>
+                <Form
+                    v-else
                     v-bind="PeriodoNominaController.liquidar.form(periodo.id)"
                     v-slot="{ processing }"
                 >
@@ -89,6 +102,12 @@ const totalNeto = computed(() =>
                         <th class="px-4 py-2 text-right font-medium">
                             Neto a pagar
                         </th>
+                        <th
+                            v-if="periodo.estado === 'cerrado'"
+                            class="px-4 py-2 font-medium"
+                        >
+                            Correo
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="divide-y">
@@ -114,6 +133,36 @@ const totalNeto = computed(() =>
                         <td class="px-4 py-2 text-right font-medium">
                             {{ formatearPesos(recibo.valor_neto) }}
                         </td>
+                        <td
+                            v-if="periodo.estado === 'cerrado'"
+                            class="px-4 py-2"
+                        >
+                            <div class="flex items-center gap-2">
+                                <span class="text-muted-foreground">
+                                    {{
+                                        recibo.fecha_envio
+                                            ? `Enviado ${recibo.fecha_envio.slice(0, 10)}`
+                                            : 'Pendiente'
+                                    }}
+                                </span>
+                                <Form
+                                    v-if="recibo.fecha_envio"
+                                    v-bind="
+                                        ReciboNominaController.reenviar.form(
+                                            recibo.id,
+                                        )
+                                    "
+                                    v-slot="{ processing }"
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        :disabled="processing"
+                                        >Reenviar</Button
+                                    >
+                                </Form>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
                 <tfoot class="border-t font-medium">
@@ -122,6 +171,7 @@ const totalNeto = computed(() =>
                         <td class="px-4 py-2 text-right">
                             {{ formatearPesos(totalNeto) }}
                         </td>
+                        <td v-if="periodo.estado === 'cerrado'"></td>
                     </tr>
                 </tfoot>
             </table>
