@@ -19,4 +19,16 @@ enum PeriodicidadPago: string
             self::Mensual => 'Mensual',
         };
     }
+
+    /**
+     * Días que se liquidan en un periodo completo, según el mes comercial de 30 días.
+     */
+    public function dias(): int
+    {
+        return match ($this) {
+            self::Semanal => 7,
+            self::Quincenal => 15,
+            self::Mensual => 30,
+        };
+    }
 }
