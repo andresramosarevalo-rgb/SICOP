@@ -20,6 +20,7 @@ defineOptions({
 defineProps<{
     empleados: Empleado[];
     buscar: string;
+    estado: string;
 }>();
 </script>
 
@@ -50,6 +51,16 @@ defineProps<{
                 placeholder="Buscar por documento o nombre"
                 aria-label="Buscar empleados"
             />
+            <select
+                name="estado"
+                :value="estado"
+                aria-label="Estado"
+                class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs dark:bg-input/30"
+            >
+                <option value="">Todos</option>
+                <option value="activos">Activos</option>
+                <option value="inactivos">Inactivos</option>
+            </select>
             <Button variant="outline">Buscar</Button>
         </Form>
 

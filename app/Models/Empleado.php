@@ -63,7 +63,7 @@ class Empleado extends Model
     {
         return [
             'tipo_documento' => TipoDocumento::class,
-            'fecha_nacimiento' => 'date',
+            'fecha_nacimiento' => 'date:Y-m-d',
             'es_activo' => 'boolean',
         ];
     }
