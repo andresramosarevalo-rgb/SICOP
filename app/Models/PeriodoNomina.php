@@ -49,6 +49,16 @@ class PeriodoNomina extends Model
     ];
 
     /**
+     * Recibos generados en la última liquidación del periodo.
+     *
+     * @return HasMany<ReciboNomina, $this>
+     */
+    public function recibos(): HasMany
+    {
+        return $this->hasMany(ReciboNomina::class);
+    }
+
+    /**
      * Novedades que entraron en la liquidación del periodo.
      *
      * @return HasMany<Novedad, $this>
