@@ -75,11 +75,11 @@ sail npm run format:check   # Vue/JS (formato)
 | Columnas | snake_case | `fecha_emision` |
 | Llave foránea | `<tabla_en_singular>_id` | `empleado_id` |
 | Nombre de ruta | `modulo.recurso.accion` | `nomina.liquidaciones.store` |
-| Página Inertia | `resources/js/Pages/<Modulo>/<Recurso>/<Accion>.vue`, PascalCase | `Pages/Nomina/Liquidaciones/Index.vue` |
+| Página Inertia | `resources/js/pages/<Modulo>/<Recurso>/<Accion>.vue`; carpeta `pages` en minúscula (la configura el starter kit en `config/inertia.php`), módulo, recurso y acción en PascalCase | `pages/Nomina/Liquidaciones/Index.vue` |
 | Componente Vue | PascalCase, mínimo dos palabras | `TablaFacturas.vue`, `ModalCierreCaja.vue` |
 | Props y eventos Vue | camelCase en `<script>`, kebab-case en `<template>` | `valorTotal` / `:valor-total` |
 
-Módulos válidos para `<Modulo>`: `Pos`, `Contabilidad`, `Nomina`, `Admin`. Se exceptúan las páginas generadas por el starter kit (p. ej. `Auth/`).
+Módulos válidos para `<Modulo>`: `Pos`, `Contabilidad`, `Nomina`, `Admin`. Se exceptúan las páginas generadas por el starter kit (`auth/`, `settings/`, `Dashboard.vue` y `Welcome.vue`).
 
 ### 1.5 Reglas propias de nombres
 
