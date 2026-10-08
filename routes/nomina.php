@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Nomina\AreaController;
+use App\Http\Controllers\Nomina\EmpleadoController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
@@ -10,4 +11,5 @@ Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
         Route::inertia('/', 'Nomina/Inicio/Index')->name('inicio.index');
 
         Route::resource('areas', AreaController::class)->only(['index', 'store', 'update']);
+        Route::resource('empleados', EmpleadoController::class)->only(['index']);
     });
