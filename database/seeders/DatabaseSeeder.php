@@ -23,5 +23,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
             'rol' => Rol::Administrador,
         ]);
+
+        $this->call(NominaSeeder::class);
     }
 }

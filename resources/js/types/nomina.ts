@@ -40,3 +40,19 @@ export type Contrato = {
     valor_salario_base: string;
     es_vigente: boolean;
 };
+
+export type ParametroNomina = {
+    id: number;
+    anio: number;
+    valor_salario_minimo: string;
+    valor_auxilio_transporte: string;
+    valor_uvt: string;
+    porcentaje_salud_empleado: string;
+    porcentaje_pension_empleado: string;
+    horas_mensuales: number;
+    porcentaje_recargo_hora_extra_diurna: string;
+    porcentaje_recargo_hora_extra_nocturna: string;
+    porcentaje_recargo_nocturno: string;
+    porcentaje_recargo_dominical_festivo: string;
+    porcentaje_incapacidad: string;
+};
