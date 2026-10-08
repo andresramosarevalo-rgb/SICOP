@@ -2,6 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ConceptoSistema;
+use App\Enums\FormaCalculo;
+use App\Models\ConceptoNomina;
 use App\Models\ParametroNomina;
 use Illuminate\Database\Seeder;
 
@@ -29,10 +32,20 @@ class NominaSeeder extends Seeder
     ];
 
     /**
-     * Carga los parámetros legales de nómina. Si el año ya existe, no lo modifica.
+     * Carga los parámetros legales y los conceptos de sistema. Lo que ya existe no se modifica.
      */
     public function run(): void
     {
         ParametroNomina::firstOrCreate(['anio' => 2026], self::PARAMETROS_2026);
+
+        foreach (ConceptoSistema::cases() as $concepto) {
+            ConceptoNomina::firstOrCreate(['codigo' => $concepto->value], [
+                'nombre' => $concepto->nombre(),
+                'tipo' => $concepto->tipo(),
+                'forma_calculo' => FormaCalculo::Sistema,
+                'es_constitutivo_salario' => $concepto->esConstitutivoSalario(),
+                'es_sistema' => true,
+            ]);
+        }
     }
 }
