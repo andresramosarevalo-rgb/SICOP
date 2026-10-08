@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import PeriodoNominaController from '@/actions/App/Http/Controllers/Nomina/PeriodoNominaController';
 import Heading from '@/components/Heading.vue';
@@ -25,6 +25,8 @@ const props = defineProps<{
     recibos: ReciboNomina[];
 }>();
 
+const page = usePage();
+
 const totalNeto = computed(() =>
     props.recibos.reduce(
         (total, recibo) => total + Number(recibo.valor_neto),
@@ -45,20 +47,32 @@ const totalNeto = computed(() =>
             <EstadoPeriodo :estado="periodo.estado" />
         </div>
 
-        <Form
-            v-if="periodo.estado !== 'cerrado'"
-            v-bind="PeriodoNominaController.liquidar.form(periodo.id)"
-            v-slot="{ errors, processing }"
-        >
-            <Button :disabled="processing">
-                {{
-                    periodo.estado === 'borrador'
-                        ? 'Liquidar periodo'
-                        : 'Volver a liquidar'
-                }}
-            </Button>
-            <InputError class="mt-2" :message="errors.periodo" />
-        </Form>
+        <div v-if="periodo.estado !== 'cerrado'" class="flex flex-col gap-2">
+            <div class="flex flex-wrap gap-2">
+                <Form
+                    v-bind="PeriodoNominaController.liquidar.form(periodo.id)"
+                    v-slot="{ processing }"
+                >
+                    <Button :disabled="processing">
+                        {{
+                            periodo.estado === 'borrador'
+                                ? 'Liquidar periodo'
+                                : 'Volver a liquidar'
+                        }}
+                    </Button>
+                </Form>
+                <Form
+                    v-if="periodo.estado === 'liquidado'"
+                    v-bind="PeriodoNominaController.cerrar.form(periodo.id)"
+                    v-slot="{ processing }"
+                >
+                    <Button variant="outline" :disabled="processing"
+                        >Cerrar periodo</Button
+                    >
+                </Form>
+            </div>
+            <InputError :message="page.props.errors.periodo" />
+        </div>
 
         <div v-if="recibos.length" class="overflow-x-auto rounded-xl border">
             <table class="w-full text-left text-sm">
@@ -80,8 +94,13 @@ const totalNeto = computed(() =>
                 <tbody class="divide-y">
                     <tr v-for="recibo in recibos" :key="recibo.id">
                         <td class="px-4 py-2">
-                            {{ recibo.empleado?.apellidos }},
-                            {{ recibo.empleado?.nombres }}
+                            <Link
+                                :href="nomina.recibos.show(recibo.id)"
+                                class="font-medium underline-offset-4 hover:underline"
+                            >
+                                {{ recibo.empleado?.apellidos }},
+                                {{ recibo.empleado?.nombres }}
+                            </Link>
                         </td>
                         <td class="px-4 py-2 text-right">
                             {{ recibo.dias_liquidados }}
