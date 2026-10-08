@@ -43,6 +43,15 @@ defineOptions({
                     Departamentos de los empleados.
                 </p>
             </Link>
+            <Link
+                :href="nomina.parametros.index()"
+                class="rounded-xl border p-4 transition-colors hover:bg-accent"
+            >
+                <p class="font-medium">Parámetros legales</p>
+                <p class="text-sm text-muted-foreground">
+                    SMMLV, UVT, aportes y recargos por año.
+                </p>
+            </Link>
         </nav>
     </div>
 </template>
