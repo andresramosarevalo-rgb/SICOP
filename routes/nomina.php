@@ -16,5 +16,5 @@ Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
         Route::resource('empleados', EmpleadoController::class)->except(['destroy']);
         Route::patch('empleados/{empleado}/estado', [EmpleadoController::class, 'cambiarEstado'])->name('empleados.estado');
         Route::resource('empleados.contratos', ContratoController::class)->only(['create', 'store']);
-        Route::resource('parametros', ParametroNominaController::class)->only(['index']);
+        Route::resource('parametros', ParametroNominaController::class)->except(['show', 'destroy']);
     });
