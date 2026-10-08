@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Nomina;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Nomina\StoreAreaRequest;
+use App\Http\Requests\Nomina\UpdateAreaRequest;
 use App\Models\Area;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -29,6 +30,18 @@ class AreaController extends Controller
         Area::create($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Área creada.']);
+
+        return to_route('nomina.areas.index');
+    }
+
+    /**
+     * Actualiza el nombre o el estado de un área. Las áreas no se eliminan: se desactivan.
+     */
+    public function update(UpdateAreaRequest $request, Area $area): RedirectResponse
+    {
+        $area->update($request->validated());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Área actualizada.']);
 
         return to_route('nomina.areas.index');
     }
