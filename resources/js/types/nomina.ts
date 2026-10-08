@@ -108,3 +108,32 @@ export type Novedad = {
     observacion: string | null;
     esta_liquidada?: boolean;
 };
+
+export type PeriodoNomina = {
+    id: number;
+    periodicidad_pago: 'semanal' | 'quincenal' | 'mensual';
+    fecha_inicio: string;
+    fecha_fin: string;
+    estado: 'borrador' | 'liquidado' | 'cerrado';
+    fecha_liquidacion: string | null;
+    fecha_cierre: string | null;
+    liquidador?: { id: number; name: string } | null;
+    recibos_count?: number;
+    recibos_sum_valor_neto?: string | null;
+};
+
+export type ReciboNomina = {
+    id: number;
+    periodo_nomina_id: number;
+    empleado_id: number;
+    empleado?: Pick<
+        Empleado,
+        'id' | 'nombres' | 'apellidos' | 'numero_documento'
+    >;
+    valor_salario_base: string;
+    dias_liquidados: number;
+    valor_total_devengado: string;
+    valor_total_deducciones: string;
+    valor_neto: string;
+    fecha_envio: string | null;
+};

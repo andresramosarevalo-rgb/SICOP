@@ -7,6 +7,7 @@ use App\Http\Controllers\Nomina\ContratoController;
 use App\Http\Controllers\Nomina\EmpleadoController;
 use App\Http\Controllers\Nomina\NovedadController;
 use App\Http\Controllers\Nomina\ParametroNominaController;
+use App\Http\Controllers\Nomina\PeriodoNominaController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
@@ -24,4 +25,6 @@ Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
         Route::resource('novedades', NovedadController::class)->except(['show'])->parameters(['novedades' => 'novedad']);
         Route::resource('parametros', ParametroNominaController::class)->except(['show', 'destroy']);
         Route::resource('conceptos', ConceptoNominaController::class)->except(['show']);
+        Route::resource('periodos', PeriodoNominaController::class)->only(['index', 'show']);
+        Route::post('periodos/{periodo}/liquidar', [PeriodoNominaController::class, 'liquidar'])->name('periodos.liquidar');
     });
