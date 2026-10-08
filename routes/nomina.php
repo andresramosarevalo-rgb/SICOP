@@ -11,5 +11,5 @@ Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
         Route::inertia('/', 'Nomina/Inicio/Index')->name('inicio.index');
 
         Route::resource('areas', AreaController::class)->only(['index', 'store', 'update']);
-        Route::resource('empleados', EmpleadoController::class)->only(['index']);
+        Route::resource('empleados', EmpleadoController::class)->only(['index', 'create', 'store']);
     });

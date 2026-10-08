@@ -48,6 +48,60 @@ test('un empleado conserva su área aunque el área se desactive', function () {
         ->assertInertia(fn (Assert $page) => $page->where('empleados.0.area.nombre', 'Caja'));
 });
 
+// Issue #6, criterio 1
+test('al registrar un empleado con datos válidos queda activo', function () {
+    $area = Area::factory()->create();
+
+    $this->actingAs($this->auxiliar)
+        ->post(route('nomina.empleados.store'), datosEmpleado(['area_id' => $area->id]))
+        ->assertRedirect(route('nomina.empleados.index'));
+
+    $empleado = Empleado::sole();
+    expect($empleado->numero_documento)->toBe('1012345678')
+        ->and($empleado->area_id)->toBe($area->id)
+        ->and($empleado->fresh()->es_activo)->toBeTrue();
+});
+
+// Issue #6, criterio 1
+test('no se registra un empleado sin los datos obligatorios', function () {
+    $this->actingAs($this->auxiliar)
+        ->post(route('nomina.empleados.store'), [])
+        ->assertSessionHasErrors([
+            'tipo_documento', 'numero_documento', 'nombres', 'apellidos', 'email', 'area_id', 'cargo',
+        ]);
+
+    expect(Empleado::count())->toBe(0);
+});
+
+// Issue #6, criterio 2
+test('no se registra un empleado con un número de documento ya registrado', function () {
+    $area = Area::factory()->create();
+    Empleado::factory()->create(['numero_documento' => '1012345678']);
+
+    $this->actingAs($this->auxiliar)
+        ->post(route('nomina.empleados.store'), datosEmpleado(['area_id' => $area->id]))
+        ->assertSessionHasErrors(['numero_documento' => 'Ya existe un empleado con ese número de documento.']);
+
+    expect(Empleado::count())->toBe(1);
+});
+
+// Issue #5, criterio 3
+test('al registrar un empleado solo se ofrecen y aceptan áreas activas', function () {
+    $activa = Area::factory()->create();
+    $inactiva = Area::factory()->create(['es_activa' => false]);
+
+    $this->actingAs($this->auxiliar)
+        ->get(route('nomina.empleados.create'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Nomina/Empleados/Create')
+            ->has('areas', 1)
+            ->where('areas.0.id', $activa->id));
+
+    $this->actingAs($this->auxiliar)
+        ->post(route('nomina.empleados.store'), datosEmpleado(['area_id' => $inactiva->id]))
+        ->assertSessionHasErrors(['area_id' => 'Seleccione un área activa.']);
+});
+
 test('un cajero no puede ver los empleados', function () {
     $cajero = User::factory()->conRol(Rol::Cajero)->create();
 
@@ -55,3 +109,25 @@ test('un cajero no puede ver los empleados', function () {
         ->get(route('nomina.empleados.index'))
         ->assertForbidden();
 });
+
+/**
+ * Datos válidos para registrar un empleado.
+ *
+ * @param  array<string, mixed>  $cambios
+ * @return array<string, mixed>
+ */
+function datosEmpleado(array $cambios = []): array
+{
+    return [
+        'tipo_documento' => 'CC',
+        'numero_documento' => '1012345678',
+        'nombres' => 'Laura',
+        'apellidos' => 'Gómez',
+        'email' => 'laura@example.com',
+        'telefono' => '3001234567',
+        'direccion' => 'Calle 1 # 2-3',
+        'fecha_nacimiento' => '1995-04-10',
+        'cargo' => 'Asesora',
+        ...$cambios,
+    ];
+}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, Link } from '@inertiajs/vue3';
 import EmpleadoController from '@/actions/App/Http/Controllers/Nomina/EmpleadoController';
 import Heading from '@/components/Heading.vue';
 import TablaEmpleados from '@/components/Nomina/TablaEmpleados.vue';
@@ -27,10 +27,17 @@ defineProps<{
     <Head title="Empleados" />
 
     <div class="flex h-full flex-1 flex-col gap-6 p-4">
-        <Heading
-            title="Empleados"
-            description="Expedientes de los trabajadores de COVIACOL."
-        />
+        <div class="flex flex-wrap items-start justify-between gap-4">
+            <Heading
+                title="Empleados"
+                description="Expedientes de los trabajadores de COVIACOL."
+            />
+            <Button as-child>
+                <Link :href="nomina.empleados.create()"
+                    >Registrar empleado</Link
+                >
+            </Button>
+        </div>
 
         <Form
             v-bind="EmpleadoController.index.form()"
