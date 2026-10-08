@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $empleado_id
  * @property int $concepto_nomina_id
- * @property string|null $valor_asignado
+ * @property numeric-string|null $valor_asignado
  * @property Carbon $fecha_inicio
  * @property Carbon|null $fecha_fin
  * @property Carbon|null $created_at

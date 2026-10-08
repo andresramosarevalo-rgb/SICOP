@@ -21,7 +21,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $fecha_fin
  * @property int|null $cantidad
  * @property int|null $concepto_nomina_id
- * @property string|null $valor_eventual
+ * @property numeric-string|null $valor_eventual
  * @property string|null $observacion
  * @property int|null $periodo_nomina_id
  * @property Carbon|null $created_at
