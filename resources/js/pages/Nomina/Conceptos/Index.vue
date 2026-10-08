@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, Link } from '@inertiajs/vue3';
 import ConceptoNominaController from '@/actions/App/Http/Controllers/Nomina/ConceptoNominaController';
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
@@ -43,6 +43,9 @@ function describirValor(concepto: ConceptoNomina): string {
                 title="Conceptos de nómina"
                 description="Devengos y deducciones que pueden aparecer en un recibo. Los de sistema los calcula la ley y no se modifican."
             />
+            <Button as-child>
+                <Link :href="nomina.conceptos.create()">Nuevo concepto</Link>
+            </Button>
         </div>
 
         <div class="overflow-x-auto rounded-xl border">
@@ -87,6 +90,14 @@ function describirValor(concepto: ConceptoNomina): string {
                                 v-if="!concepto.es_sistema"
                                 class="flex justify-end gap-2"
                             >
+                                <Button variant="outline" size="sm" as-child>
+                                    <Link
+                                        :href="
+                                            nomina.conceptos.edit(concepto.id)
+                                        "
+                                        >Editar</Link
+                                    >
+                                </Button>
                                 <Form
                                     v-bind="
                                         ConceptoNominaController.destroy.form(
