@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\TipoNovedad;
 use App\Models\Empleado;
 use App\Models\Novedad;
+use App\Models\PeriodoNomina;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -34,10 +35,10 @@ class NovedadFactory extends Factory
     /**
      * Indica que la novedad ya entró en la liquidación de un periodo.
      */
-    public function liquidada(int $periodoNominaId = 1): static
+    public function liquidada(?PeriodoNomina $periodo = null): static
     {
         return $this->state(fn (array $attributes) => [
-            'periodo_nomina_id' => $periodoNominaId,
+            'periodo_nomina_id' => $periodo ?? PeriodoNomina::factory(),
         ]);
     }
 }
