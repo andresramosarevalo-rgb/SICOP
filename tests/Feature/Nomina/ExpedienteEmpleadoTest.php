@@ -2,6 +2,7 @@
 
 use App\Enums\Rol;
 use App\Models\Area;
+use App\Models\Contrato;
 use App\Models\Empleado;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -80,4 +81,18 @@ test('un empleado desactivado sale del filtro de activos pero conserva su expedi
         ->get(route('nomina.empleados.show', $this->empleado))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page->where('empleado.es_activo', false));
+});
+
+// Issue #8, criterio 2
+test('el expediente muestra el historial de contratos del más reciente al más antiguo', function () {
+    Contrato::factory()->for($this->empleado)->create(['fecha_inicio' => '2025-01-01', 'es_vigente' => false]);
+    Contrato::factory()->for($this->empleado)->create(['fecha_inicio' => '2026-01-01']);
+
+    $this->actingAs($this->auxiliar)
+        ->get(route('nomina.empleados.show', $this->empleado))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('contratos', 2)
+            ->where('contratos.0.fecha_inicio', '2026-01-01')
+            ->where('contratos.0.tipo_contrato', 'Término indefinido')
+            ->where('contratos.1.es_vigente', false));
 });
