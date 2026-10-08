@@ -61,6 +61,15 @@ defineOptions({
                     Devengos y deducciones del recibo.
                 </p>
             </Link>
+            <Link
+                :href="nomina.novedades.index()"
+                class="rounded-xl border p-4 transition-colors hover:bg-accent"
+            >
+                <p class="font-medium">Novedades</p>
+                <p class="text-sm text-muted-foreground">
+                    Faltas, horas extra, incapacidades y vacaciones.
+                </p>
+            </Link>
         </nav>
     </div>
 </template>

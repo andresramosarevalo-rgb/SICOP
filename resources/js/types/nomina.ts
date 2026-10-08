@@ -87,3 +87,24 @@ export type AsignacionConcepto = {
     fecha_inicio: string;
     fecha_fin: string | null;
 };
+
+export type OpcionTipoNovedad = Opcion & {
+    unidad: 'horas' | 'minutos' | null;
+    es_por_dias: boolean;
+};
+
+export type Novedad = {
+    id: number;
+    empleado_id: number;
+    empleado?: Pick<Empleado, 'id' | 'nombres' | 'apellidos'>;
+    tipo: string;
+    tipo_etiqueta?: string;
+    fecha_inicio: string;
+    fecha_fin: string | null;
+    cantidad: number | null;
+    concepto_nomina_id: number | null;
+    concepto?: Pick<ConceptoNomina, 'id' | 'nombre'> | null;
+    valor_eventual: string | null;
+    observacion: string | null;
+    esta_liquidada?: boolean;
+};

@@ -5,6 +5,7 @@ use App\Http\Controllers\Nomina\AsignacionConceptoController;
 use App\Http\Controllers\Nomina\ConceptoNominaController;
 use App\Http\Controllers\Nomina\ContratoController;
 use App\Http\Controllers\Nomina\EmpleadoController;
+use App\Http\Controllers\Nomina\NovedadController;
 use App\Http\Controllers\Nomina\ParametroNominaController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,7 @@ Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
         Route::resource('empleados.contratos', ContratoController::class)->only(['create', 'store']);
         Route::resource('empleados.asignaciones', AsignacionConceptoController::class)
             ->only(['store', 'destroy'])->shallow()->parameters(['asignaciones' => 'asignacion']);
+        Route::resource('novedades', NovedadController::class)->only(['index'])->parameters(['novedades' => 'novedad']);
         Route::resource('parametros', ParametroNominaController::class)->except(['show', 'destroy']);
         Route::resource('conceptos', ConceptoNominaController::class)->except(['show']);
     });
