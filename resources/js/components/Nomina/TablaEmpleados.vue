@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { Link } from '@inertiajs/vue3';
 import { Badge } from '@/components/ui/badge';
+import nomina from '@/routes/nomina';
 import type { Empleado } from '@/types';
 
 defineProps<{
@@ -26,7 +28,12 @@ defineProps<{
                         {{ empleado.numero_documento }}
                     </td>
                     <td class="px-4 py-2">
-                        {{ empleado.apellidos }}, {{ empleado.nombres }}
+                        <Link
+                            :href="nomina.empleados.show(empleado.id)"
+                            class="font-medium underline-offset-4 hover:underline"
+                        >
+                            {{ empleado.apellidos }}, {{ empleado.nombres }}
+                        </Link>
                     </td>
                     <td class="px-4 py-2">{{ empleado.area?.nombre }}</td>
                     <td class="px-4 py-2">{{ empleado.cargo }}</td>
