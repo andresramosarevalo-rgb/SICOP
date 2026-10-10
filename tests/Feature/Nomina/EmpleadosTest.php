@@ -1,7 +1,9 @@
 <?php
 
+use App\Enums\PeriodicidadPago;
 use App\Enums\Rol;
 use App\Models\Area;
+use App\Models\Contrato;
 use App\Models\Empleado;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -48,18 +50,45 @@ test('un empleado conserva su área aunque el área se desactive', function () {
         ->assertInertia(fn (Assert $page) => $page->where('empleados.0.area.nombre', 'Caja'));
 });
 
-// Issue #6, criterio 1
-test('al registrar un empleado con datos válidos queda activo', function () {
+// Issue #6, criterio 1 · Issue #20, criterio 1
+test('al registrar un empleado con su contrato quedan los dos y se abre su expediente', function () {
     $area = Area::factory()->create();
 
     $this->actingAs($this->auxiliar)
         ->post(route('nomina.empleados.store'), datosEmpleado(['area_id' => $area->id]))
-        ->assertRedirect(route('nomina.empleados.index'));
+        ->assertRedirect(route('nomina.empleados.show', Empleado::sole()));
 
     $empleado = Empleado::sole();
+    $contrato = $empleado->contratoVigente()->sole();
     expect($empleado->numero_documento)->toBe('1012345678')
         ->and($empleado->area_id)->toBe($area->id)
-        ->and($empleado->fresh()->es_activo)->toBeTrue();
+        ->and($empleado->fresh()->es_activo)->toBeTrue()
+        ->and($contrato->periodicidad_pago)->toBe(PeriodicidadPago::Mensual)
+        ->and($contrato->valor_salario_base)->toBe('1750905.00');
+});
+
+// Issue #20, criterio 2
+test('no se registra un empleado sin los datos de su contrato', function () {
+    $this->actingAs($this->auxiliar)
+        ->post(route('nomina.empleados.store'), datosEmpleado(['area_id' => Area::factory()->create()->id, 'contrato' => []]))
+        ->assertSessionHasErrors([
+            'contrato.tipo_contrato', 'contrato.periodicidad_pago', 'contrato.fecha_inicio', 'contrato.valor_salario_base',
+        ]);
+
+    expect(Empleado::count())->toBe(0);
+});
+
+// Issue #20, criterio 3
+test('si el contrato es inválido no se registra ni el empleado ni el contrato', function () {
+    $this->actingAs($this->auxiliar)
+        ->post(route('nomina.empleados.store'), datosEmpleado([
+            'area_id' => Area::factory()->create()->id,
+            'contrato' => ['tipo_contrato' => 'termino_fijo', 'periodicidad_pago' => 'mensual', 'fecha_inicio' => '2026-01-01', 'valor_salario_base' => '1750905'],
+        ]))
+        ->assertSessionHasErrors(['contrato.fecha_fin' => 'Un contrato a término fijo necesita fecha de fin.']);
+
+    expect(Empleado::count())->toBe(0)
+        ->and(Contrato::count())->toBe(0);
 });
 
 // Issue #6, criterio 1

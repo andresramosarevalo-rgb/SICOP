@@ -10,7 +10,7 @@ use Illuminate\Validation\Rule;
 class UpdateEmpleadoRequest extends StoreEmpleadoRequest
 {
     /**
-     * Igual que el registro, pero el documento puede ser el del mismo empleado y el área su área actual aunque esté inactiva.
+     * Solo los datos del empleado (sin contrato); el documento puede ser el del mismo empleado y el área su área actual aunque esté inactiva.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
@@ -20,7 +20,7 @@ class UpdateEmpleadoRequest extends StoreEmpleadoRequest
         $empleado = $this->route('empleado');
 
         return [
-            ...parent::rules(),
+            ...$this->reglasEmpleado(),
             'numero_documento' => ['required', 'alpha_num', 'max:20', Rule::unique('empleados', 'numero_documento')->ignore($empleado)],
             'area_id' => ['required', Rule::exists('areas', 'id')->where(fn (Builder $query) => $query
                 ->where('es_activa', true)

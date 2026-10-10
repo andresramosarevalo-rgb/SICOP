@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Nomina;
 
+use App\Actions\Nomina\RegistrarContrato;
+use App\Enums\PeriodicidadPago;
+use App\Enums\TipoContrato;
 use App\Enums\TipoDocumento;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Nomina\StoreEmpleadoRequest;
@@ -14,7 +17,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -47,23 +52,37 @@ class EmpleadoController extends Controller
     }
 
     /**
-     * Muestra el formulario de registro. Solo se ofrecen las áreas activas.
+     * Muestra el formulario de registro del empleado y su contrato. Solo se ofrecen las áreas activas.
      */
     public function create(): Response
     {
-        return Inertia::render('Nomina/Empleados/Create', $this->opcionesFormulario());
+        return Inertia::render('Nomina/Empleados/Create', [
+            ...$this->opcionesFormulario(),
+            'tiposContrato' => collect(TipoContrato::cases())
+                ->map(fn (TipoContrato $tipo) => ['valor' => $tipo->value, 'etiqueta' => $tipo->etiqueta()]),
+            'periodicidades' => collect(PeriodicidadPago::cases())
+                ->map(fn (PeriodicidadPago $periodicidad) => ['valor' => $periodicidad->value, 'etiqueta' => $periodicidad->etiqueta()]),
+        ]);
     }
 
     /**
-     * Registra un empleado nuevo, activo por defecto.
+     * Registra un empleado nuevo, activo por defecto, junto con su contrato vigente.
+     * Si el contrato no se puede registrar, tampoco queda el empleado.
      */
-    public function store(StoreEmpleadoRequest $request): RedirectResponse
+    public function store(StoreEmpleadoRequest $request, RegistrarContrato $registrarContrato): RedirectResponse
     {
-        Empleado::create($request->validated());
+        $datos = $request->validated();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Empleado registrado.']);
+        $empleado = DB::transaction(function () use ($datos, $registrarContrato): Empleado {
+            $empleado = Empleado::create(Arr::except($datos, 'contrato'));
+            $registrarContrato->ejecutar($empleado, $datos['contrato']);
 
-        return to_route('nomina.empleados.index');
+            return $empleado;
+        });
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Empleado y contrato registrados.']);
+
+        return to_route('nomina.empleados.show', $empleado);
     }
 
     /**
