@@ -46,23 +46,18 @@ defineProps<{
                         <th class="px-4 py-2 font-medium">Periodicidad</th>
                         <th class="px-4 py-2 font-medium">Estado</th>
                         <th class="px-4 py-2 text-right font-medium">
-                            Recibos
+                            Comprobantes
                         </th>
                         <th class="px-4 py-2 text-right font-medium">
                             Total neto
                         </th>
+                        <th class="px-4 py-2 font-medium">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y">
                     <tr v-for="periodo in periodos" :key="periodo.id">
-                        <td class="px-4 py-2">
-                            <Link
-                                :href="nomina.periodos.show(periodo.id)"
-                                class="font-medium underline-offset-4 hover:underline"
-                            >
-                                {{ periodo.fecha_inicio }} —
-                                {{ periodo.fecha_fin }}
-                            </Link>
+                        <td class="px-4 py-2 font-medium">
+                            {{ periodo.fecha_inicio }} — {{ periodo.fecha_fin }}
                         </td>
                         <td class="px-4 py-2 capitalize">
                             {{ periodo.periodicidad_pago }}
@@ -79,6 +74,13 @@ defineProps<{
                                     periodo.recibos_sum_valor_neto ?? 0,
                                 )
                             }}
+                        </td>
+                        <td class="px-4 py-2">
+                            <Button variant="outline" size="sm" as-child>
+                                <Link :href="nomina.periodos.show(periodo.id)"
+                                    >Abrir</Link
+                                >
+                            </Button>
                         </td>
                     </tr>
                 </tbody>

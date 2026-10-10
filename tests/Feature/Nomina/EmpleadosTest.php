@@ -131,6 +131,19 @@ test('al registrar un empleado solo se ofrecen y aceptan áreas activas', functi
         ->assertSessionHasErrors(['area_id' => 'Seleccione un área activa.']);
 });
 
+// Issue #22, criterio 1
+test('el listado indica qué empleados no tienen contrato vigente', function () {
+    $conContrato = Contrato::factory()->create()->empleado;
+    $sinContrato = Empleado::factory()->create();
+
+    $this->actingAs($this->auxiliar)
+        ->get(route('nomina.empleados.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('empleados', 2)
+            ->where('empleados', fn ($empleados) => collect($empleados)->firstWhere('id', $sinContrato->id)['contrato_vigente'] === null
+                && collect($empleados)->firstWhere('id', $conContrato->id)['contrato_vigente']['periodicidad_pago'] === 'mensual'));
+});
+
 test('un cajero no puede ver los empleados', function () {
     $cajero = User::factory()->conRol(Rol::Cajero)->create();
 

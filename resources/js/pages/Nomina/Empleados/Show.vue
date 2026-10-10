@@ -20,6 +20,7 @@ const props = defineProps<{
     empleado: Empleado;
     tipoDocumento: string;
     contratos: Contrato[];
+    contratoVigente: Contrato | null;
     asignaciones: AsignacionConcepto[];
     conceptosDisponibles: ConceptoNomina[];
 }>();
@@ -62,6 +63,21 @@ const datos = computed(() => [
             <Badge :variant="empleado.es_activo ? 'secondary' : 'outline'">
                 {{ empleado.es_activo ? 'Activo' : 'Inactivo' }}
             </Badge>
+        </div>
+
+        <div
+            v-if="!contratoVigente"
+            class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/50 bg-destructive/5 p-4 text-sm"
+        >
+            <p>
+                <strong>Este empleado no tiene contrato vigente</strong> y no se
+                incluirá en la liquidación de la nómina.
+            </p>
+            <Button as-child>
+                <Link :href="nomina.empleados.contratos.create(empleado.id)"
+                    >Registrar contrato</Link
+                >
+            </Button>
         </div>
 
         <dl class="grid gap-4 rounded-xl border p-4 sm:grid-cols-2">

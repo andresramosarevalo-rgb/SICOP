@@ -17,7 +17,7 @@ defineOptions({
         breadcrumbs: [
             { title: 'Nómina', href: nomina.inicio.index() },
             { title: 'Periodos', href: nomina.periodos.index() },
-            { title: 'Recibo de pago', href: '' },
+            { title: 'Comprobante de pago', href: '' },
         ],
     },
 });
@@ -50,7 +50,7 @@ function imprimir(): void {
 
 <template>
     <Head
-        :title="`Recibo de pago - ${empleado.nombres} ${empleado.apellidos}`"
+        :title="`Comprobante de pago - ${empleado.nombres} ${empleado.apellidos}`"
     />
 
     <div class="flex h-full max-w-4xl flex-1 flex-col gap-6 p-4">
@@ -69,7 +69,7 @@ function imprimir(): void {
                 <div>
                     <p class="text-lg font-semibold">COVIACOL</p>
                     <p class="text-sm text-muted-foreground">
-                        Recibo de pago de nómina
+                        Comprobante de pago de nómina
                     </p>
                 </div>
                 <div class="text-right text-sm">
