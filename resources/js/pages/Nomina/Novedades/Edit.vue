@@ -2,6 +2,7 @@
 import { Form, Head } from '@inertiajs/vue3';
 import NovedadController from '@/actions/App/Http/Controllers/Nomina/NovedadController';
 import Heading from '@/components/Heading.vue';
+import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import CamposNovedad from '@/components/Nomina/CamposNovedad.vue';
 import { Button } from '@/components/ui/button';
 import nomina from '@/routes/nomina';
@@ -34,6 +35,8 @@ defineProps<{
     <Head title="Editar novedad" />
 
     <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
+        <BotonAtras :respaldo="nomina.novedades.index()" />
+
         <Heading
             title="Editar novedad"
             description="Faltas, retardos, horas extra, recargos, incapacidades, vacaciones o conceptos eventuales."

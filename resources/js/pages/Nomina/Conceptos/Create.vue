@@ -2,6 +2,7 @@
 import { Form, Head } from '@inertiajs/vue3';
 import ConceptoNominaController from '@/actions/App/Http/Controllers/Nomina/ConceptoNominaController';
 import Heading from '@/components/Heading.vue';
+import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import CamposConcepto from '@/components/Nomina/CamposConcepto.vue';
 import { Button } from '@/components/ui/button';
 import nomina from '@/routes/nomina';
@@ -21,6 +22,8 @@ defineOptions({
     <Head title="Nuevo concepto" />
 
     <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
+        <BotonAtras :respaldo="nomina.conceptos.index()" />
+
         <Heading
             title="Nuevo concepto"
             description="Devengo o deducción de valor fijo o porcentaje del salario."

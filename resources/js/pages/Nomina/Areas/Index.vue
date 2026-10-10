@@ -3,6 +3,7 @@ import { Form, Head } from '@inertiajs/vue3';
 import AreaController from '@/actions/App/Http/Controllers/Nomina/AreaController';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
+import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import FilaArea from '@/components/Nomina/FilaArea.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +29,8 @@ defineProps<{
     <Head title="Áreas" />
 
     <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
+        <BotonAtras :respaldo="nomina.inicio.index()" />
+
         <Heading
             title="Áreas"
             description="Departamentos a los que pertenecen los empleados. Un área inactiva no se ofrece al registrar empleados."

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
+import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Button } from '@/components/ui/button';
 import { formatearPesos } from '@/lib/formato';
 import nomina from '@/routes/nomina';
@@ -24,6 +25,8 @@ defineProps<{
     <Head title="Parámetros legales" />
 
     <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
+        <BotonAtras :respaldo="nomina.inicio.index()" />
+
         <div class="flex flex-wrap items-start justify-between gap-4">
             <Heading
                 title="Parámetros legales"

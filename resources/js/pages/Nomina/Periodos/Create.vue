@@ -2,6 +2,7 @@
 import { Form, Head } from '@inertiajs/vue3';
 import PeriodoNominaController from '@/actions/App/Http/Controllers/Nomina/PeriodoNominaController';
 import Heading from '@/components/Heading.vue';
+import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +29,8 @@ defineProps<{
     <Head title="Nuevo periodo" />
 
     <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
+        <BotonAtras :respaldo="nomina.periodos.index()" />
+
         <Heading
             title="Nuevo periodo"
             description="Se liquidarán los empleados con contrato vigente de esta periodicidad."
