@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import TablaDetallesRecibo from '@/components/Nomina/TablaDetallesRecibo.vue';
 import { Button } from '@/components/ui/button';
 import { formatearPesos } from '@/lib/formato';
@@ -53,6 +54,8 @@ function imprimir(): void {
     />
 
     <div class="flex h-full max-w-4xl flex-1 flex-col gap-6 p-4">
+        <BotonAtras :respaldo="nomina.periodos.show(periodo.id)" />
+
         <div class="flex justify-end print:hidden">
             <Button variant="outline" @click="imprimir">Imprimir</Button>
         </div>

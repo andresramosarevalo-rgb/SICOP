@@ -2,6 +2,7 @@
 import { Form, Head } from '@inertiajs/vue3';
 import ParametroNominaController from '@/actions/App/Http/Controllers/Nomina/ParametroNominaController';
 import Heading from '@/components/Heading.vue';
+import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import CamposParametros from '@/components/Nomina/CamposParametros.vue';
 import { Button } from '@/components/ui/button';
 import nomina from '@/routes/nomina';
@@ -26,6 +27,8 @@ defineProps<{
     <Head title="Editar parámetros" />
 
     <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
+        <BotonAtras :respaldo="nomina.parametros.index()" />
+
         <Heading
             title="Editar parámetros"
             description="Valores de ley usados por el cálculo de la nómina."
