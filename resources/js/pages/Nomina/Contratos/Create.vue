@@ -2,6 +2,7 @@
 import { Form, Head } from '@inertiajs/vue3';
 import ContratoController from '@/actions/App/Http/Controllers/Nomina/ContratoController';
 import Heading from '@/components/Heading.vue';
+import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,6 +36,8 @@ const claseSelect =
     <Head title="Nuevo contrato" />
 
     <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
+        <BotonAtras :respaldo="nomina.empleados.show(empleado.id)" />
+
         <Heading
             title="Nuevo contrato"
             :description="`${empleado.nombres} ${empleado.apellidos}`"
