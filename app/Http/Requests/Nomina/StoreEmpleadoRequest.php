@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Nomina;
 
+use App\Concerns\ReglasContrato;
 use App\Enums\TipoDocumento;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -9,6 +10,8 @@ use Illuminate\Validation\Rule;
 
 class StoreEmpleadoRequest extends FormRequest
 {
+    use ReglasContrato;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -20,9 +23,21 @@ class StoreEmpleadoRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
+     * El empleado se registra junto con su contrato, que llega anidado en `contrato`.
+     *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
+    {
+        return [...$this->reglasEmpleado(), ...$this->reglasContrato(prefijo: 'contrato.')];
+    }
+
+    /**
+     * Reglas de los datos personales del empleado.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    protected function reglasEmpleado(): array
     {
         return [
             'tipo_documento' => ['required', Rule::enum(TipoDocumento::class)],
@@ -49,6 +64,7 @@ class StoreEmpleadoRequest extends FormRequest
             'required' => 'Este campo es obligatorio.',
             'numero_documento.unique' => 'Ya existe un empleado con ese número de documento.',
             'area_id.exists' => 'Seleccione un área activa.',
+            ...$this->mensajesContrato('contrato.'),
         ];
     }
 }

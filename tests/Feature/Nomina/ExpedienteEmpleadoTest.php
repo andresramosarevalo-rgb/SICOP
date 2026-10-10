@@ -96,3 +96,15 @@ test('el expediente muestra el historial de contratos del más reciente al más 
             ->where('contratos.0.tipo_contrato', 'Término indefinido')
             ->where('contratos.1.es_vigente', false));
 });
+
+// Issue #20, criterio 4
+test('al editar un empleado no se exige el contrato', function () {
+    $datos = datosEmpleado(['area_id' => $this->empleado->area_id, 'cargo' => 'Supervisora']);
+    unset($datos['contrato']);
+
+    $this->actingAs($this->auxiliar)
+        ->put(route('nomina.empleados.update', $this->empleado), $datos)
+        ->assertSessionHasNoErrors();
+
+    expect($this->empleado->fresh()->cargo)->toBe('Supervisora');
+});
