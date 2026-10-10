@@ -34,7 +34,7 @@ class EmpleadoController extends Controller
         $estado = in_array($request->query('estado'), ['activos', 'inactivos'], true) ? $request->query('estado') : '';
 
         $empleados = Empleado::query()
-            ->with('area:id,nombre')
+            ->with(['area:id,nombre', 'contratoVigente:id,empleado_id,periodicidad_pago'])
             ->when($busqueda !== '', fn (Builder $query) => $query->where(fn (Builder $query) => $query
                 ->whereLike('numero_documento', "%{$busqueda}%")
                 ->orWhereLike('nombres', "%{$busqueda}%")
@@ -93,6 +93,7 @@ class EmpleadoController extends Controller
         return Inertia::render('Nomina/Empleados/Show', [
             'empleado' => $empleado->load('area:id,nombre'),
             'tipoDocumento' => $empleado->tipo_documento->etiqueta(),
+            'contratoVigente' => $empleado->contratoVigente,
             'contratos' => $empleado->contratos->map(fn (Contrato $contrato) => [
                 ...$contrato->toArray(),
                 'tipo_contrato' => $contrato->tipo_contrato->etiqueta(),
