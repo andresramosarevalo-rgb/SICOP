@@ -52,6 +52,25 @@ const totalNeto = computed(() =>
             <EstadoPeriodo :estado="periodo.estado" />
         </div>
 
+        <p class="rounded-xl border bg-muted/50 p-4 text-sm">
+            <template v-if="periodo.estado === 'borrador'">
+                <strong>Paso siguiente:</strong> presione
+                <strong>Liquidar periodo</strong> para calcular la nómina de los
+                empleados con contrato {{ periodo.periodicidad_pago }} vigente.
+            </template>
+            <template v-else-if="periodo.estado === 'liquidado'">
+                <strong>Paso siguiente:</strong> revise cada comprobante con el
+                botón <strong>Abrir</strong>. Si algo no cuadra, corrija el
+                contrato o las novedades y vuelva a liquidar. Cuando esté
+                conforme, presione <strong>Cerrar periodo</strong>; después ya
+                no se podrá reliquidar.
+            </template>
+            <template v-else>
+                <strong>Periodo cerrado.</strong> Envíe los comprobantes a cada
+                empleado con <strong>Enviar comprobantes por correo</strong>.
+            </template>
+        </p>
+
         <div class="flex flex-col gap-2">
             <div class="flex flex-wrap gap-2">
                 <Form
@@ -62,7 +81,7 @@ const totalNeto = computed(() =>
                     v-slot="{ processing }"
                 >
                     <Button :disabled="processing"
-                        >Enviar recibos por correo</Button
+                        >Enviar comprobantes por correo</Button
                     >
                 </Form>
                 <Form
@@ -186,7 +205,7 @@ const totalNeto = computed(() =>
             </table>
         </div>
         <p v-else class="text-sm text-muted-foreground">
-            El periodo aún no tiene recibos. Liquídelo para generarlos.
+            El periodo aún no tiene comprobantes. Liquídelo para generarlos.
         </p>
     </div>
 </template>
