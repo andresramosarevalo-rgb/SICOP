@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
+import { FileText } from '@lucide/vue';
 import { computed } from 'vue';
 import PeriodoNominaController from '@/actions/App/Http/Controllers/Nomina/PeriodoNominaController';
 import ReciboNominaController from '@/actions/App/Http/Controllers/Nomina/ReciboNominaController';
@@ -105,6 +106,7 @@ const totalNeto = computed(() =>
                         <th class="px-4 py-2 text-right font-medium">
                             Neto a pagar
                         </th>
+                        <th class="px-4 py-2 font-medium">Comprobante</th>
                         <th
                             v-if="periodo.estado === 'cerrado'"
                             class="px-4 py-2 font-medium"
@@ -115,14 +117,9 @@ const totalNeto = computed(() =>
                 </thead>
                 <tbody class="divide-y">
                     <tr v-for="recibo in recibos" :key="recibo.id">
-                        <td class="px-4 py-2">
-                            <Link
-                                :href="nomina.recibos.show(recibo.id)"
-                                class="font-medium underline-offset-4 hover:underline"
-                            >
-                                {{ recibo.empleado?.apellidos }},
-                                {{ recibo.empleado?.nombres }}
-                            </Link>
+                        <td class="px-4 py-2 font-medium">
+                            {{ recibo.empleado?.apellidos }},
+                            {{ recibo.empleado?.nombres }}
                         </td>
                         <td class="px-4 py-2 text-right">
                             {{ recibo.dias_liquidados }}
@@ -135,6 +132,14 @@ const totalNeto = computed(() =>
                         </td>
                         <td class="px-4 py-2 text-right font-medium">
                             {{ formatearPesos(recibo.valor_neto) }}
+                        </td>
+                        <td class="px-4 py-2">
+                            <Button variant="outline" size="sm" as-child>
+                                <Link :href="nomina.recibos.show(recibo.id)">
+                                    <FileText />
+                                    Abrir
+                                </Link>
+                            </Button>
                         </td>
                         <td
                             v-if="periodo.estado === 'cerrado'"
@@ -174,6 +179,7 @@ const totalNeto = computed(() =>
                         <td class="px-4 py-2 text-right">
                             {{ formatearPesos(totalNeto) }}
                         </td>
+                        <td></td>
                         <td v-if="periodo.estado === 'cerrado'"></td>
                     </tr>
                 </tfoot>
