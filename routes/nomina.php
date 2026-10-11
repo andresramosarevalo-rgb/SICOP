@@ -29,5 +29,7 @@ Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
         Route::resource('periodos', PeriodoNominaController::class)->only(['index', 'create', 'store', 'show']);
         Route::post('periodos/{periodo}/liquidar', [PeriodoNominaController::class, 'liquidar'])->name('periodos.liquidar');
         Route::post('periodos/{periodo}/cerrar', [PeriodoNominaController::class, 'cerrar'])->name('periodos.cerrar');
+        Route::post('periodos/{periodo}/enviar-recibos', [PeriodoNominaController::class, 'enviarRecibos'])->name('periodos.enviar');
         Route::resource('recibos', ReciboNominaController::class)->only(['show']);
+        Route::post('recibos/{recibo}/reenviar', [ReciboNominaController::class, 'reenviar'])->name('recibos.reenviar');
     });
