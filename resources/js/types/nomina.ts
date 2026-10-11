@@ -16,6 +16,7 @@ export type Empleado = {
     fecha_nacimiento: string | null;
     area_id: number;
     area?: Pick<Area, 'id' | 'nombre'>;
+    contrato_vigente?: { id: number; periodicidad_pago: string } | null;
     cargo: string;
     es_activo: boolean;
 };

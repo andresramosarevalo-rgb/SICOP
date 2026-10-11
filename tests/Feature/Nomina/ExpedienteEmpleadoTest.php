@@ -108,3 +108,16 @@ test('al editar un empleado no se exige el contrato', function () {
 
     expect($this->empleado->fresh()->cargo)->toBe('Supervisora');
 });
+
+// Issue #22, criterio 2
+test('el expediente informa si el empleado no tiene contrato vigente', function () {
+    $this->actingAs($this->auxiliar)
+        ->get(route('nomina.empleados.show', $this->empleado))
+        ->assertInertia(fn (Assert $page) => $page->where('contratoVigente', null));
+
+    Contrato::factory()->for($this->empleado)->create();
+
+    $this->actingAs($this->auxiliar)
+        ->get(route('nomina.empleados.show', $this->empleado))
+        ->assertInertia(fn (Assert $page) => $page->where('contratoVigente.empleado_id', $this->empleado->id));
+});
