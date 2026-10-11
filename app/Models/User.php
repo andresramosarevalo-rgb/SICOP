@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Rol;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -15,6 +16,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string $name
  * @property string $email
+ * @property Rol|null $rol
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
@@ -32,6 +34,13 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasFactory, Notifiable;
 
     /**
+     * La tabla asociada al modelo.
+     *
+     * @var string
+     */
+    protected $table = 'users';
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -41,6 +50,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'rol' => Rol::class,
         ];
     }
 }
