@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * Novedad de asistencia o de pago de un empleado: falta, retardo, horas extra, recargo,
+ * Novedad de asistencia o de pago de un empleado: ausencia, retardo, horas extra, recargo,
  * incapacidad, vacaciones o un concepto eventual. Queda bloqueada cuando entra en una liquidación.
  *
  * @property int $id

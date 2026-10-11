@@ -30,10 +30,10 @@ function valoresDelRecibo(): array
         ->mapWithKeys(fn ($detalle) => [$detalle->concepto->codigo => $detalle->valor_concepto])->all();
 }
 
-// Issue #14, criterios 1 y 2
-test('la liquidación aplica las horas extra y las faltas registradas del empleado', function () {
+// Issue #14, criterios 1 y 2 · Issue #23, criterio 2
+test('la liquidación aplica las horas extra y las ausencias registradas del empleado', function () {
     Novedad::factory()->for($this->contrato->empleado)->create(['tipo' => TipoNovedad::HoraExtraDiurna, 'cantidad' => 2]);
-    Novedad::factory()->for($this->contrato->empleado)->create(['tipo' => TipoNovedad::Falta, 'cantidad' => null, 'fecha_inicio' => '2026-02-16']);
+    Novedad::factory()->for($this->contrato->empleado)->create(['tipo' => TipoNovedad::Ausencia, 'cantidad' => null, 'fecha_inicio' => '2026-02-16']);
 
     ($this->liquidar)();
 
