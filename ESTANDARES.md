@@ -10,12 +10,13 @@
 
 ### 1.1 Guías oficiales adoptadas
 
-| Capa                                   | Guía oficial                                             | Herramienta que la aplica                                                          | Archivo de configuración |
-| -------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------ |
-| PHP (Laravel)                          | PSR-12 + convenciones de Laravel                         | Laravel Pint, preset `laravel`                                                     | `pint.json`              |
-| Vue 3                                  | Guía de estilo oficial de Vue, reglas de prioridad A y B | ESLint + `eslint-plugin-vue` (`flat/recommended`)                                  | `eslint.config.js`       |
-| JavaScript / formato de `.vue` y `.js` | —                                                        | Prettier (ESLint no formatea; se usa `eslint-config-prettier` para que no choquen) | `.prettierrc`            |
-| Base de datos (PostgreSQL)             | Convenciones de nombres de Eloquent                      | Migraciones de Laravel                                                             | `database/migrations/`   |
+| Capa                             | Guía oficial                                                      | Herramienta que la aplica                                                                       | Archivo de configuración         |
+| -------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------- |
+| PHP (Laravel)                    | PSR-12 + convenciones de Laravel                                  | Laravel Pint, preset `laravel`                                                                  | `pint.json`                      |
+| Vue 3 / TypeScript               | Guía de estilo oficial de Vue (Composition API, `<script setup>`) | Oxlint vía Vite+ (`vp lint`), con reglas sensibles a tipos y advertencias tratadas como errores | `vite.config.ts` (bloque `lint`) |
+| Formato de `.vue`, `.ts` y `.js` | —                                                                 | Oxfmt vía Vite+ (`vp fmt`), compatible con Prettier; ordena las clases de Tailwind              | `vite.config.ts` (bloque `fmt`)  |
+| Mensajes de commit               | Conventional Commits (sección 2)                                  | commitlint                                                                                      | `commitlint.config.js`           |
+| Base de datos (PostgreSQL)       | Convenciones de nombres de Eloquent                               | Migraciones de Laravel                                                                          | `database/migrations/`           |
 
 Los componentes Vue se escriben con Composition API y `<script setup>`.
 
@@ -35,14 +36,14 @@ Los componentes Vue se escriben con Composition API y `<script setup>`.
 }
 ```
 
-`.prettierrc`
+Bloque `fmt` de `vite.config.ts` (lo trae el starter kit de Laravel; no se usan ESLint ni Prettier para que no choquen con Vite+):
 
-```json
-{
-    "singleQuote": true,
-    "semi": true,
-    "tabWidth": 4,
-    "printWidth": 100
+```ts
+fmt: {
+    printWidth: 80,
+    tabWidth: 4,
+    singleQuote: true,
+    semi: true,
 }
 ```
 
@@ -50,9 +51,9 @@ Scripts en `package.json`:
 
 ```json
 "scripts": {
-    "lint": "eslint resources/js",
-    "format": "prettier --write resources/js",
-    "format:check": "prettier --check resources/js"
+    "lint": "vp lint resources/js",
+    "format": "vp fmt resources/js",
+    "format:check": "vp fmt --check resources/js"
 }
 ```
 
