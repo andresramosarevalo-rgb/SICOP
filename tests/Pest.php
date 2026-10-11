@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\PeriodicidadPago;
+use App\Enums\TipoContrato;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -50,7 +52,7 @@ function something()
 }
 
 /**
- * Datos válidos para registrar un empleado.
+ * Datos válidos para registrar un empleado junto con su contrato.
  *
  * @param  array<string, mixed>  $cambios
  * @return array<string, mixed>
@@ -67,6 +69,29 @@ function datosEmpleado(array $cambios = []): array
         'direccion' => 'Calle 1 # 2-3',
         'fecha_nacimiento' => '1995-04-10',
         'cargo' => 'Asesora',
+        'contrato' => [
+            'tipo_contrato' => 'termino_indefinido',
+            'periodicidad_pago' => 'mensual',
+            'fecha_inicio' => '2026-01-01',
+            'valor_salario_base' => '1750905',
+        ],
+        ...$cambios,
+    ];
+}
+
+/**
+ * Datos válidos para registrar un contrato.
+ *
+ * @param  array<string, mixed>  $cambios
+ * @return array<string, mixed>
+ */
+function datosContrato(array $cambios = []): array
+{
+    return [
+        'tipo_contrato' => TipoContrato::TerminoIndefinido->value,
+        'periodicidad_pago' => PeriodicidadPago::Quincenal->value,
+        'fecha_inicio' => '2026-02-01',
+        'valor_salario_base' => '2000000',
         ...$cambios,
     ];
 }

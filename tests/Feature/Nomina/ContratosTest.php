@@ -12,23 +12,6 @@ beforeEach(function () {
     $this->empleado = Empleado::factory()->create();
 });
 
-/**
- * Datos válidos para registrar un contrato.
- *
- * @param  array<string, mixed>  $cambios
- * @return array<string, mixed>
- */
-function datosContrato(array $cambios = []): array
-{
-    return [
-        'tipo_contrato' => TipoContrato::TerminoIndefinido->value,
-        'periodicidad_pago' => PeriodicidadPago::Quincenal->value,
-        'fecha_inicio' => '2026-02-01',
-        'valor_salario_base' => '2000000',
-        ...$cambios,
-    ];
-}
-
 // Issue #8, criterio 1
 test('un empleado sin contrato vigente queda con el contrato registrado como vigente', function () {
     $this->actingAs($this->auxiliar)
