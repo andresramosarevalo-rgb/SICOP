@@ -4,7 +4,7 @@ namespace App\Enums;
 
 enum TipoNovedad: string
 {
-    case Falta = 'falta';
+    case Ausencia = 'ausencia';
     case Retardo = 'retardo';
     case HoraExtraDiurna = 'hora_extra_diurna';
     case HoraExtraNocturna = 'hora_extra_nocturna';
@@ -20,7 +20,7 @@ enum TipoNovedad: string
     public function etiqueta(): string
     {
         return match ($this) {
-            self::Falta => 'Falta',
+            self::Ausencia => 'Ausencia',
             self::Retardo => 'Retardo',
             self::HoraExtraDiurna => 'Horas extra diurnas',
             self::HoraExtraNocturna => 'Horas extra nocturnas',
@@ -50,6 +50,6 @@ enum TipoNovedad: string
      */
     public function esPorDias(): bool
     {
-        return in_array($this, [self::Falta, self::Incapacidad, self::Vacaciones], true);
+        return in_array($this, [self::Ausencia, self::Incapacidad, self::Vacaciones], true);
     }
 }

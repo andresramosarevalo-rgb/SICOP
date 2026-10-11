@@ -22,7 +22,7 @@ const pasos = [
     },
     {
         titulo: 'Registrar novedades',
-        detalle: 'Horas extra, faltas, incapacidades o vacaciones.',
+        detalle: 'Horas extra, ausencias, incapacidades o vacaciones.',
         href: nomina.novedades.index(),
     },
     {
@@ -45,7 +45,7 @@ const secciones = [
     },
     {
         titulo: 'Novedades',
-        detalle: 'Faltas, horas extra, incapacidades y vacaciones.',
+        detalle: 'Ausencias, horas extra, incapacidades y vacaciones.',
         href: nomina.novedades.index(),
     },
     {

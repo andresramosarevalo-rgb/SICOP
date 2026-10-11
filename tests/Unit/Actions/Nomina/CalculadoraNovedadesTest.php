@@ -56,9 +56,9 @@ test('las horas extra hacen parte de la base de salud y pensión', function () {
     expect((string) $resultado->valorDe(ConceptoSistema::Salud->value))->toBe('85000');
 });
 
-// Issue #14, criterio 2
-test('una falta descuenta un día de salario y de auxilio de transporte', function () {
-    $resultado = liquidarFebrero('1500000', [novedad(TipoNovedad::Falta)]);
+// Issue #14, criterio 2 · Issue #23, criterio 2
+test('una ausencia descuenta un día de salario y de auxilio de transporte', function () {
+    $resultado = liquidarFebrero('1500000', [novedad(TipoNovedad::Ausencia)]);
 
     expect((string) $resultado->valorDe(ConceptoSistema::Salario->value))->toBe('1450000')
         ->and((string) $resultado->valorDe(ConceptoSistema::AuxilioTransporte->value))->toBe('240792')

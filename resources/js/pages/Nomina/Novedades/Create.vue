@@ -33,7 +33,7 @@ defineProps<{
 
         <Heading
             title="Registrar novedad"
-            description="Faltas, retardos, horas extra, recargos, incapacidades, vacaciones o conceptos eventuales."
+            description="Ausencias, retardos, horas extra, recargos, incapacidades, vacaciones o conceptos eventuales."
         />
 
         <Form

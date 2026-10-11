@@ -20,7 +20,7 @@ use RoundingMode;
  *
  * No consulta la base de datos: recibe el contrato, los parámetros, el periodo, las novedades y
  * los conceptos asignados ya cargados. Cada valor se redondea al peso y la proporción se calcula
- * sobre el mes comercial de 30 días. Las faltas, incapacidades y vacaciones se restan de los días
+ * sobre el mes comercial de 30 días. Las ausencias, incapacidades y vacaciones se restan de los días
  * de salario; las novedades por días solo cuentan los días que caen dentro del periodo. El Fondo de
  * Solidaridad Pensional y la retención en la fuente (procedimiento 1) se calculan sobre el equivalente
  * mensual y se proporcionan al periodo; la retención se redondea al múltiplo de mil más cercano.
@@ -61,10 +61,10 @@ final class CalculadoraNomina
         $salarioDiario = $salarioMensual / self::DIAS_MES;
         $valorHora = $salarioMensual / $parametros->horas_mensuales;
 
-        $diasFalta = $this->diasDe($novedades, TipoNovedad::Falta, $periodo);
+        $diasAusencia = $this->diasDe($novedades, TipoNovedad::Ausencia, $periodo);
         $diasIncapacidad = $this->diasDe($novedades, TipoNovedad::Incapacidad, $periodo);
         $diasVacaciones = $this->diasDe($novedades, TipoNovedad::Vacaciones, $periodo);
-        $diasTrabajados = max(0, $dias - $diasFalta - $diasIncapacidad - $diasVacaciones);
+        $diasTrabajados = max(0, $dias - $diasAusencia - $diasIncapacidad - $diasVacaciones);
 
         $salario = $this->redondear($salarioDiario * $diasTrabajados);
         $lineas = [$this->linea(ConceptoSistema::Salario, $salario, $diasTrabajados)];
