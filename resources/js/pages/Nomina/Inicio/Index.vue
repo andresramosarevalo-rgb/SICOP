@@ -26,6 +26,15 @@ defineOptions({
 
         <nav class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <Link
+                :href="nomina.periodos.index()"
+                class="rounded-xl border p-4 transition-colors hover:bg-accent"
+            >
+                <p class="font-medium">Periodos y liquidación</p>
+                <p class="text-sm text-muted-foreground">
+                    Liquidar la nómina y ver los recibos.
+                </p>
+            </Link>
+            <Link
                 :href="nomina.empleados.index()"
                 class="rounded-xl border p-4 transition-colors hover:bg-accent"
             >
