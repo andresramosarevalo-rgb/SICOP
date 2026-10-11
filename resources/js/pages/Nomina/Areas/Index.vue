@@ -3,7 +3,7 @@ import { Form, Head } from '@inertiajs/vue3';
 import AreaController from '@/actions/App/Http/Controllers/Nomina/AreaController';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
-import { Badge } from '@/components/ui/badge';
+import FilaArea from '@/components/Nomina/FilaArea.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -53,16 +53,7 @@ defineProps<{
         </Form>
 
         <ul v-if="areas.length" class="divide-y rounded-xl border px-4">
-            <li
-                v-for="area in areas"
-                :key="area.id"
-                class="flex items-center justify-between gap-3 py-3"
-            >
-                <span class="font-medium">{{ area.nombre }}</span>
-                <Badge :variant="area.es_activa ? 'secondary' : 'outline'">
-                    {{ area.es_activa ? 'Activa' : 'Inactiva' }}
-                </Badge>
-            </li>
+            <FilaArea v-for="area in areas" :key="area.id" :area="area" />
         </ul>
         <p v-else class="text-sm text-muted-foreground">
             Todavía no hay áreas registradas.

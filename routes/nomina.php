@@ -9,5 +9,5 @@ Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
     ->group(function () {
         Route::inertia('/', 'Nomina/Inicio/Index')->name('inicio.index');
 
-        Route::resource('areas', AreaController::class)->only(['index', 'store']);
+        Route::resource('areas', AreaController::class)->only(['index', 'store', 'update']);
     });
