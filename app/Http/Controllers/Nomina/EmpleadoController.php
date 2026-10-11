@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Nomina\StoreEmpleadoRequest;
 use App\Http\Requests\Nomina\UpdateEmpleadoRequest;
 use App\Models\Area;
+use App\Models\Contrato;
 use App\Models\Empleado;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -65,13 +66,18 @@ class EmpleadoController extends Controller
     }
 
     /**
-     * Muestra el expediente del empleado.
+     * Muestra el expediente del empleado con su historial de contratos.
      */
     public function show(Empleado $empleado): Response
     {
         return Inertia::render('Nomina/Empleados/Show', [
             'empleado' => $empleado->load('area:id,nombre'),
             'tipoDocumento' => $empleado->tipo_documento->etiqueta(),
+            'contratos' => $empleado->contratos->map(fn (Contrato $contrato) => [
+                ...$contrato->toArray(),
+                'tipo_contrato' => $contrato->tipo_contrato->etiqueta(),
+                'periodicidad_pago' => $contrato->periodicidad_pago->etiqueta(),
+            ]),
         ]);
     }
 
