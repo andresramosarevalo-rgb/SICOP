@@ -2,6 +2,7 @@
 import { Form, Head, Link } from '@inertiajs/vue3';
 import EmpleadoController from '@/actions/App/Http/Controllers/Nomina/EmpleadoController';
 import Heading from '@/components/Heading.vue';
+import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import TablaEmpleados from '@/components/Nomina/TablaEmpleados.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +29,8 @@ defineProps<{
     <Head title="Empleados" />
 
     <div class="flex h-full flex-1 flex-col gap-6 p-4">
+        <BotonAtras :respaldo="nomina.inicio.index()" />
+
         <div class="flex flex-wrap items-start justify-between gap-4">
             <Heading
                 title="Empleados"

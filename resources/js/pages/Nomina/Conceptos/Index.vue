@@ -2,6 +2,7 @@
 import { Form, Head, Link } from '@inertiajs/vue3';
 import ConceptoNominaController from '@/actions/App/Http/Controllers/Nomina/ConceptoNominaController';
 import Heading from '@/components/Heading.vue';
+import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatearPesos } from '@/lib/formato';
@@ -38,6 +39,8 @@ function describirValor(concepto: ConceptoNomina): string {
     <Head title="Conceptos de nómina" />
 
     <div class="flex h-full flex-1 flex-col gap-6 p-4">
+        <BotonAtras :respaldo="nomina.inicio.index()" />
+
         <div class="flex flex-wrap items-start justify-between gap-4">
             <Heading
                 title="Conceptos de nómina"
