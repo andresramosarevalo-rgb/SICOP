@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pos;
 
+use App\Enums\Referido;
 use App\Enums\TipoDocumento;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Pos\StoreCursoRequest;
@@ -85,12 +86,13 @@ class CursoController extends Controller
     /**
      * Opciones de los selectores del formulario de curso.
      *
-     * @return array{tiposDocumento: list<array{valor: string, etiqueta: string}>, porcentajesDescuento: list<int>}
+     * @return array{tiposDocumento: list<array{valor: string, etiqueta: string}>, referidos: list<array{valor: string, etiqueta: string}>, porcentajesDescuento: list<int>}
      */
     private function opcionesFormulario(): array
     {
         return [
             'tiposDocumento' => TipoDocumento::opciones(),
+            'referidos' => Referido::opciones(),
             'porcentajesDescuento' => Curso::PORCENTAJES_DESCUENTO,
         ];
     }
