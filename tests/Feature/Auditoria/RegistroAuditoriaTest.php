@@ -203,3 +203,22 @@ test('el registro de auditoría no se puede modificar', function () {
     expect(Auditoria::UPDATED_AT)->toBeNull()
         ->and($auditoria->created_at)->not->toBeNull();
 });
+
+// Issue #81, criterio 6
+test('al eliminar una sede se audita el borrado y las auditorías anteriores se conservan sin sede', function () {
+    $sede = Sede::factory()->create(['nombre' => 'Sede Zulia']);
+    $sede->update(['ciudad' => 'Zulia']);
+
+    $this->actingAs($this->gerente);
+    $sede->delete();
+
+    $borrado = Auditoria::where('evento', 'eliminado')->firstOrFail();
+
+    expect($borrado)
+        ->etiqueta->toBe('Sede')
+        ->descripcion->toBe('Sede Zulia')
+        ->sede_id->toBeNull()
+        ->user_id->toBe($this->gerente->id)
+        ->and(Auditoria::where('auditable_type', Sede::class)->where('auditable_id', $sede->id)->count())->toBe(3)
+        ->and(Auditoria::where('auditable_type', Sede::class)->whereNotNull('sede_id')->count())->toBe(0);
+});
