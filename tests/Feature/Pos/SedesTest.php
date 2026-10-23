@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Rol;
+use App\Models\Curso;
 use App\Models\Sede;
 use App\Models\User;
 use Illuminate\Routing\Route;
@@ -107,7 +108,10 @@ test('el administrador ve el módulo y el menú de punto de venta', function () 
 
 // Issue #67, criterios 2 y 3
 test('todas las rutas de POS responden 403 al cajero y redirigen al visitante al login', function () {
-    $sede = Sede::factory()->create();
+    $modelos = [
+        'sede' => Sede::factory()->create(),
+        'curso' => Curso::factory()->create(),
+    ];
     $cajero = User::factory()->conRol(Rol::Cajero)->create();
 
     $rutas = collect(Rutas::getRoutes()->getRoutes())
@@ -115,7 +119,7 @@ test('todas las rutas de POS responden 403 al cajero y redirigen al visitante al
         ->map(fn (Route $ruta) => [
             $ruta->getName(),
             collect($ruta->methods())->reject(fn (string $metodo) => $metodo === 'HEAD')->first(),
-            route($ruta->getName(), collect($ruta->parameterNames())->mapWithKeys(fn (string $parametro) => [$parametro => $sede])->all()),
+            route($ruta->getName(), collect($ruta->parameterNames())->mapWithKeys(fn (string $parametro) => [$parametro => $modelos[$parametro]])->all()),
         ]);
     $expuestas = [];
 
@@ -129,7 +133,7 @@ test('todas las rutas de POS responden 403 al cajero y redirigen al visitante al
         }
     }
 
-    expect($rutas)->toHaveCount(6)
+    expect($rutas)->toHaveCount(7)
         ->and($expuestas)->toBe([]);
 });
 

@@ -66,7 +66,13 @@ defineProps<{
                             >
                         </td>
                         <td class="px-4 py-2">
-                            <div class="flex justify-end">
+                            <div class="flex justify-end gap-2">
+                                <Button variant="outline" size="sm" as-child>
+                                    <Link
+                                        :href="pos.sedes.cursos.index(sede.id)"
+                                        >Cursos</Link
+                                    >
+                                </Button>
                                 <Button variant="outline" size="sm" as-child>
                                     <Link :href="pos.sedes.edit(sede.id)"
                                         >Editar</Link
