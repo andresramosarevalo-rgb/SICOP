@@ -140,7 +140,7 @@ test('todas las rutas de POS responden 403 al cajero y redirigen al visitante al
         }
     }
 
-    expect($rutas)->toHaveCount(26)
+    expect($rutas)->toHaveCount(27)
         ->and($expuestas)->toBe([]);
 });
 
