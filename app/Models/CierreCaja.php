@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -100,6 +101,16 @@ class CierreCaja extends Model
     public function cerradoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cerrado_por');
+    }
+
+    /**
+     * Consignación al banco del efectivo de este día, si ya se hizo.
+     *
+     * @return HasOne<Consignacion, $this>
+     */
+    public function consignacion(): HasOne
+    {
+        return $this->hasOne(Consignacion::class);
     }
 
     /**
