@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Auditable;
 use App\Enums\PeriodicidadPago;
 use App\Enums\TipoContrato;
 use Database\Factories\ContratoFactory;
@@ -29,7 +30,7 @@ use Illuminate\Support\Carbon;
 class Contrato extends Model
 {
     /** @use HasFactory<ContratoFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -46,6 +47,20 @@ class Contrato extends Model
     public function empleado(): BelongsTo
     {
         return $this->belongsTo(Empleado::class);
+    }
+
+    /**
+     * Cómo se presenta el registro en el historial de auditoría.
+     *
+     * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
+     */
+    public function configuracionAuditoria(): array
+    {
+        return [
+            'modulo' => 'nomina',
+            'etiqueta' => 'Contrato',
+            'descripcion' => 'Contrato de '.$this->empleado?->nombres.' '.$this->empleado?->apellidos,
+        ];
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Auditable;
 use Database\Factories\AsignacionConceptoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,7 +27,7 @@ use Illuminate\Support\Carbon;
 class AsignacionConcepto extends Model
 {
     /** @use HasFactory<AsignacionConceptoFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     /**
      * La tabla asociada al modelo (pivote entre conceptos de nómina y empleados).
@@ -53,6 +54,20 @@ class AsignacionConcepto extends Model
     public function concepto(): BelongsTo
     {
         return $this->belongsTo(ConceptoNomina::class, 'concepto_nomina_id');
+    }
+
+    /**
+     * Cómo se presenta el registro en el historial de auditoría.
+     *
+     * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
+     */
+    public function configuracionAuditoria(): array
+    {
+        return [
+            'modulo' => 'nomina',
+            'etiqueta' => 'Asignación de concepto',
+            'descripcion' => "{$this->concepto?->nombre} a {$this->empleado?->nombres} {$this->empleado?->apellidos}",
+        ];
     }
 
     /**
