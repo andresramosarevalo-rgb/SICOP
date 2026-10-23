@@ -44,6 +44,7 @@ class HandleInertiaRequests extends Middleware
                 'permisos' => [
                     'gestionarNomina' => $request->user()?->can('gestionar-nomina') ?? false,
                     'gestionarPos' => $request->user()?->can('gestionar-pos') ?? false,
+                    'verAuditoria' => $request->user()?->can('ver-auditoria') ?? false,
                     'usarPos' => $request->user()?->can('usar-pos') ?? false,
                 ],
             ],

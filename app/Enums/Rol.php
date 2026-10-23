@@ -24,4 +24,12 @@ enum Rol: string
     {
         return $this === self::Administrador;
     }
+
+    /**
+     * Indica si el rol puede consultar el historial de auditoría.
+     */
+    public function puedeVerAuditoria(): bool
+    {
+        return $this === self::Administrador;
+    }
 }
