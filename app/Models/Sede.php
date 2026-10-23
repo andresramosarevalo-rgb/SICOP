@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Auditable;
 use Database\Factories\SedeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -28,7 +29,7 @@ use Illuminate\Support\Carbon;
 class Sede extends Model
 {
     /** @use HasFactory<SedeFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -86,6 +87,21 @@ class Sede extends Model
     public function soats(): HasMany
     {
         return $this->hasMany(Soat::class);
+    }
+
+    /**
+     * Cómo se presenta el registro en el historial de auditoría.
+     *
+     * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
+     */
+    public function configuracionAuditoria(): array
+    {
+        return [
+            'modulo' => 'pos',
+            'etiqueta' => 'Sede',
+            'descripcion' => $this->nombre,
+            'sede_id' => $this->id,
+        ];
     }
 
     /**
