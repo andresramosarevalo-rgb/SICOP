@@ -1,8 +1,11 @@
 <?php
 
 use App\Enums\Rol;
+use App\Models\Sede;
 use App\Models\User;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route as Rutas;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
@@ -40,4 +43,50 @@ test('el administrador ve el módulo y el menú de punto de venta', function () 
         ->assertInertia(fn (Assert $page) => $page
             ->component('Pos/Inicio/Index')
             ->where('auth.permisos.gestionarPos', true));
+});
+
+// Issue #67, criterios 2 y 3
+test('todas las rutas de POS responden 403 al cajero y redirigen al visitante al login', function () {
+    $sede = Sede::factory()->create();
+    $cajero = User::factory()->conRol(Rol::Cajero)->create();
+
+    $rutas = collect(Rutas::getRoutes()->getRoutes())
+        ->filter(fn (Route $ruta) => str_starts_with((string) $ruta->getName(), 'pos.'))
+        ->map(fn (Route $ruta) => [
+            $ruta->getName(),
+            collect($ruta->methods())->reject(fn (string $metodo) => $metodo === 'HEAD')->first(),
+            route($ruta->getName(), collect($ruta->parameterNames())->mapWithKeys(fn (string $parametro) => [$parametro => $sede])->all()),
+        ]);
+    $expuestas = [];
+
+    foreach ($rutas as [$nombre, $metodo, $url]) {
+        $this->app['auth']->forgetGuards();
+        $comoVisitante = $this->call($metodo, $url);
+        $comoCajero = $this->actingAs($cajero)->call($metodo, $url);
+
+        if (! $comoVisitante->isRedirect(route('login')) || $comoCajero->getStatusCode() !== 403) {
+            $expuestas[] = "{$metodo} {$nombre}";
+        }
+    }
+
+    expect($rutas)->toHaveCount(2)
+        ->and($expuestas)->toBe([]);
+});
+
+// Issue #68, criterio 4
+test('el listado muestra las sedes ordenadas por nombre con su estado', function () {
+    Sede::factory()->create(['nombre' => 'Sede Zulia', 'es_activa' => false]);
+    Sede::factory()->create(['nombre' => 'Sede Bogotá', 'ciudad' => 'Bogotá', 'direccion' => 'Carrera 10 # 20-30']);
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Pos/Sedes/Index')
+            ->has('sedes', 2)
+            ->where('sedes.0.nombre', 'Sede Bogotá')
+            ->where('sedes.0.ciudad', 'Bogotá')
+            ->where('sedes.0.direccion', 'Carrera 10 # 20-30')
+            ->where('sedes.0.es_activa', true)
+            ->where('sedes.1.nombre', 'Sede Zulia')
+            ->where('sedes.1.es_activa', false));
 });

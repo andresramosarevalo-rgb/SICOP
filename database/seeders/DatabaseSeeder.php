@@ -25,5 +25,6 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(NominaSeeder::class);
+        $this->call(PosSeeder::class);
     }
 }
