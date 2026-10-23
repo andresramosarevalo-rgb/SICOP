@@ -52,4 +52,18 @@ class TarifaGestorController extends Controller
 
         return to_route('pos.tarifas.index', ['sede_id' => $datos['sede_id'] ?? null]);
     }
+
+    /**
+     * Quita el ajuste de una sede para que vuelva a aplicarse la tarifa base. La base no se elimina.
+     */
+    public function destroy(TarifaGestor $tarifa): RedirectResponse
+    {
+        abort_if($tarifa->sede_id === null, 403, 'La tarifa base no se puede eliminar.');
+
+        $tarifa->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Ajuste eliminado.']);
+
+        return to_route('pos.tarifas.index', ['sede_id' => $tarifa->sede_id]);
+    }
 }

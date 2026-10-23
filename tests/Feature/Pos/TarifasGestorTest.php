@@ -76,6 +76,22 @@ test('el gerente fija un ajuste para una sede sin cambiar la base', function () 
 });
 
 // Issue #75, criterio 5
+test('el gerente quita el ajuste de una sede pero no puede eliminar la tarifa base', function () {
+    $base = TarifaGestor::factory()->create();
+    $ajuste = TarifaGestor::factory()->paraSede($this->sede)->create();
+
+    $this->actingAs($this->gerente)
+        ->delete(route('pos.tarifas.destroy', $ajuste))
+        ->assertRedirect(route('pos.tarifas.index', ['sede_id' => $this->sede->id]));
+
+    $this->actingAs($this->gerente)
+        ->delete(route('pos.tarifas.destroy', $base))
+        ->assertForbidden();
+
+    expect(TarifaGestor::pluck('id')->all())->toBe([$base->id]);
+});
+
+// Issue #75, criterio 5
 test('la tarifa necesita un tipo válido, una sede registrada y un valor no negativo', function () {
     $this->actingAs($this->gerente)
         ->post(route('pos.tarifas.store'), ['codigo_infraccion' => 'K', 'sede_id' => 999, 'valor_pago_gestor' => '-5'])
