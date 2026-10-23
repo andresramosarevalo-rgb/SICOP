@@ -1,10 +1,13 @@
 <?php
 
 use App\Enums\Rol;
+use App\Models\CierreCaja;
 use App\Models\Curso;
+use App\Models\GastoCaja;
 use App\Models\Sede;
 use App\Models\Soat;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -13,6 +16,17 @@ beforeEach(function () {
     $this->gerente = User::factory()->conRol(Rol::Administrador)->create();
     $this->sede = Sede::factory()->create(['valor_base_caja' => 200000]);
 });
+
+function datosGasto(array $sobrescribir = []): array
+{
+    return [
+        'fecha' => today()->toDateString(),
+        'concepto' => 'Papelería',
+        'valor_gasto' => '15000',
+        'soporte' => UploadedFile::fake()->create('factura.pdf', 100, 'application/pdf'),
+        ...$sobrescribir,
+    ];
+}
 
 // Issue #76, criterio 1
 test('el resumen suma las ventas del día por medio de pago y el pago a gestores', function () {
@@ -61,7 +75,6 @@ test('la fecha de la consulta no puede ser futura ni inválida', function () {
         ->assertSessionHasErrors(['fecha' => 'Escriba una fecha válida.']);
 });
 
-// Issue #76, criterio 5
 // Issue #76, criterio 2
 test('el gerente fija la base de caja de la sede', function () {
     $this->actingAs($this->gerente)
@@ -73,4 +86,80 @@ test('el gerente fija la base de caja de la sede', function () {
     $this->actingAs($this->gerente)
         ->put(route('pos.sedes.update', $this->sede), ['nombre' => $this->sede->nombre, 'ciudad' => 'Villavicencio', 'direccion' => 'Calle 1', 'valor_base_caja' => '-1'])
         ->assertSessionHasErrors('valor_base_caja');
+});
+// Issue #76, criterio 3
+test('los gastos restan del efectivo que debe haber en caja', function () {
+    Curso::factory()->for($this->sede)->create(['fecha' => today(), 'valor_efectivo' => 100000, 'valor_pago_gestor' => 0]);
+
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cierre.gastos.store', $this->sede), datosGasto(['valor_gasto' => '15000']))
+        ->assertRedirect(route('pos.sedes.cierre.show', ['sede' => $this->sede, 'fecha' => today()->toDateString()]));
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.cierre.show', $this->sede))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('gastos', 1)
+            ->where('gastos.0.concepto', 'Papelería')
+            ->where('valorGastos', 15000)
+            ->where('valorEfectivoEsperado', 285000));
+});
+
+// Issue #76, criterio 3
+test('el gasto guarda su soporte en el disco privado', function () {
+    $this->actingAs($this->gerente)->post(route('pos.sedes.cierre.gastos.store', $this->sede), datosGasto());
+
+    $gasto = GastoCaja::firstOrFail();
+
+    Storage::disk('local')->assertExists($gasto->ruta_soporte);
+    expect($gasto->nombre_soporte)->toBe('factura.pdf')
+        ->and(CierreCaja::count())->toBe(1);
+});
+
+// Issue #76, criterio 3
+test('el gasto exige el soporte, un formato permitido y un tamaño máximo', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cierre.gastos.store', $this->sede), datosGasto(['soporte' => null]))
+        ->assertSessionHasErrors(['soporte' => 'Adjunte el soporte del gasto.']);
+
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cierre.gastos.store', $this->sede), datosGasto(['soporte' => UploadedFile::fake()->create('virus.exe', 10)]))
+        ->assertSessionHasErrors(['soporte' => 'El soporte debe ser una imagen JPG o PNG, o un PDF.']);
+
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cierre.gastos.store', $this->sede), datosGasto(['soporte' => UploadedFile::fake()->create('grande.pdf', 6000, 'application/pdf')]))
+        ->assertSessionHasErrors(['soporte' => 'El soporte no puede pesar más de 5 MB.']);
+
+    expect(GastoCaja::count())->toBe(0);
+});
+
+// Issue #76, criterio 3
+test('el gasto exige concepto, valor mayor que cero y fecha no futura', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cierre.gastos.store', $this->sede), datosGasto(['concepto' => '', 'valor_gasto' => 0, 'fecha' => today()->addDay()->toDateString()]))
+        ->assertSessionHasErrors(['concepto', 'valor_gasto', 'fecha']);
+});
+
+// Issue #76, criterio 3
+test('una sede inactiva no registra gastos', function () {
+    $sede = Sede::factory()->create(['es_activa' => false]);
+
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cierre.gastos.store', $sede), datosGasto())
+        ->assertForbidden();
+});
+
+// Issue #76, criterio 5
+test('el usuario de la sede ve y gestiona solo la caja de su sede', function () {
+    $usuarioSede = User::factory()->paraSede($this->sede)->create();
+    $otraSede = Sede::factory()->create();
+
+    $this->actingAs($usuarioSede)->get(route('pos.sedes.cierre.show', $this->sede))->assertOk();
+    $this->actingAs($usuarioSede)
+        ->post(route('pos.sedes.cierre.gastos.store', $this->sede), datosGasto())
+        ->assertRedirect();
+
+    $this->actingAs($usuarioSede)->get(route('pos.sedes.cierre.show', $otraSede))->assertForbidden();
+    $this->actingAs($usuarioSede)
+        ->post(route('pos.sedes.cierre.gastos.store', $otraSede), datosGasto())
+        ->assertForbidden();
 });

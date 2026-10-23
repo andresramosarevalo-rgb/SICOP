@@ -3,6 +3,7 @@
 use App\Http\Controllers\Pos\CierreCajaController;
 use App\Http\Controllers\Pos\CursoConsolidadoController;
 use App\Http\Controllers\Pos\CursoController;
+use App\Http\Controllers\Pos\GastoCajaController;
 use App\Http\Controllers\Pos\InicioController;
 use App\Http\Controllers\Pos\SedeAccesoController;
 use App\Http\Controllers\Pos\SedeController;
@@ -22,6 +23,7 @@ Route::middleware(['auth', 'verified'])
             Route::resource('sedes.soats', SoatController::class)->except(['show', 'destroy'])->shallow();
 
             Route::get('sedes/{sede}/cierre', [CierreCajaController::class, 'show'])->name('sedes.cierre.show');
+            Route::post('sedes/{sede}/cierre/gastos', [GastoCajaController::class, 'store'])->name('sedes.cierre.gastos.store');
         });
 
         Route::middleware('can:gestionar-pos')->group(function () {
