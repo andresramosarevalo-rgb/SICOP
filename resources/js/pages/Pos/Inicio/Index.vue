@@ -35,6 +35,11 @@ const secciones = [
         detalle: 'Pago al gestor por tipo de comparendo, base y por sede.',
         href: pos.tarifas.index(),
     },
+    {
+        titulo: 'Cierres de caja',
+        detalle: 'Estado del cierre y arqueo de todas las sedes en un día.',
+        href: pos.cierres.index(),
+    },
 ];
 </script>
 

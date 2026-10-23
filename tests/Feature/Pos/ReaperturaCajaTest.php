@@ -123,3 +123,45 @@ test('la pantalla de cierre ofrece reabrir solo al gerente', function () {
         ->get(route('pos.sedes.cierre.show', $this->sede))
         ->assertInertia(fn (Assert $page) => $page->where('auth.permisos.gestionarPos', false)->where('estaCerrado', true));
 });
+
+// Issue #78, criterio 3
+test('el gerente ve el estado del cierre de todas las sedes en un día', function () {
+    $bogota = Sede::factory()->create(['nombre' => 'Aaa Bogotá']);
+    $sinCerrar = Sede::factory()->create(['nombre' => 'Zzz Sin cerrar']);
+    cerrarDiaDeEjemplo($this->sede, today()->toDateString(), ['valor_a_consignar' => 300000]);
+    cerrarDiaDeEjemplo($bogota, today()->toDateString(), ['valor_a_consignar' => 450000, 'valor_diferencia_efectivo' => -5000, 'justificacion' => 'Faltante']);
+    CierreCaja::factory()->for($sinCerrar)->create();
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.cierres.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Pos/Cierre/Index')
+            ->where('fecha', today()->toDateString())
+            ->has('filas', 3)
+            ->where('filas.0.sede.nombre', 'Aaa Bogotá')
+            ->where('filas.0.cierre.valor_a_consignar', '450000.00')
+            ->where('filas.0.cierre.valor_diferencia_efectivo', '-5000.00')
+            ->where('filas.2.sede.nombre', 'Zzz Sin cerrar')
+            ->where('filas.2.cierre', null)
+            ->where('valorTotalAConsignar', 750000));
+});
+
+// Issue #78, criterio 3
+test('la lista de cierres filtra por día y valida la fecha', function () {
+    cerrarDiaDeEjemplo($this->sede, today()->subDay()->toDateString(), ['valor_a_consignar' => 123000]);
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.cierres.index', ['fecha' => today()->subDay()->toDateString()]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('filas.0.cierre.valor_a_consignar', '123000.00')
+            ->where('valorTotalAConsignar', 123000));
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.cierres.index', ['fecha' => 'ayer']))
+        ->assertSessionHasErrors('fecha');
+});
+
+// Issue #78, criterio 2
+test('el usuario de una sede no ve el consolidado de cierres', function () {
+    $this->actingAs($this->usuarioSede)->get(route('pos.cierres.index'))->assertForbidden();
+});
