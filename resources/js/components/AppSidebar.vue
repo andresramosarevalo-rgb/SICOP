@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid, Wallet } from '@lucide/vue';
+import { BookOpen, FolderGit2, LayoutGrid, Store, Wallet } from '@lucide/vue';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import nomina from '@/routes/nomina';
+import pos from '@/routes/pos';
 import type { NavItem } from '@/types';
 
 const page = usePage();
@@ -33,6 +34,15 @@ const mainNavItems = computed<NavItem[]>(() => [
                   title: 'Nómina',
                   href: nomina.inicio.index(),
                   icon: Wallet,
+              },
+          ]
+        : []),
+    ...(page.props.auth.permisos.gestionarPos
+        ? [
+              {
+                  title: 'Punto de venta',
+                  href: pos.inicio.index(),
+                  icon: Store,
               },
           ]
         : []),
