@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Pos\CursoConsolidadoController;
 use App\Http\Controllers\Pos\CursoController;
 use App\Http\Controllers\Pos\InicioController;
 use App\Http\Controllers\Pos\SedeAccesoController;
@@ -19,6 +20,7 @@ Route::middleware(['auth', 'verified'])
         });
 
         Route::middleware('can:gestionar-pos')->group(function () {
+            Route::get('cursos', CursoConsolidadoController::class)->name('cursos.index');
             Route::resource('sedes', SedeController::class)->except(['show', 'destroy']);
             Route::put('sedes/{sede}/acceso', SedeAccesoController::class)->name('sedes.acceso.update');
         });

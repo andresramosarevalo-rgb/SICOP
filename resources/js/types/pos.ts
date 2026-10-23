@@ -17,6 +17,7 @@ export type Curso = {
     tipo_comparendo: string;
     valor_curso: string;
     porcentaje_descuento: string;
+    sede?: Pick<Sede, 'id' | 'nombre' | 'ciudad'>;
 };
 
 export type Soat = {

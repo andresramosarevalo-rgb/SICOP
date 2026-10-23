@@ -20,6 +20,11 @@ const secciones = [
         detalle: 'Sedes de COVIACOL con su ciudad y dirección.',
         href: pos.sedes.index(),
     },
+    {
+        titulo: 'Cursos de todas las sedes',
+        detalle: 'Cursos registrados por todas las sedes en un día.',
+        href: pos.cursos.index(),
+    },
 ];
 </script>
 
