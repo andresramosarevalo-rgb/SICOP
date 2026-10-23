@@ -7,6 +7,7 @@ use App\Http\Controllers\Pos\SedeAccesoController;
 use App\Http\Controllers\Pos\SedeController;
 use App\Http\Controllers\Pos\SoatConsolidadoController;
 use App\Http\Controllers\Pos\SoatController;
+use App\Http\Controllers\Pos\TarifaGestorController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])
@@ -22,6 +23,7 @@ Route::middleware(['auth', 'verified'])
 
         Route::middleware('can:gestionar-pos')->group(function () {
             Route::resource('sedes', SedeController::class)->except(['show', 'destroy']);
+            Route::resource('tarifas', TarifaGestorController::class)->only(['index', 'store']);
             Route::get('cursos', CursoConsolidadoController::class)->name('cursos.index');
             Route::get('soats', SoatConsolidadoController::class)->name('soats.index');
             Route::put('sedes/{sede}/acceso', SedeAccesoController::class)->name('sedes.acceso.update');
