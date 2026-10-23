@@ -40,9 +40,11 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user(),
+                'sedeId' => $request->user()?->sede_id,
                 'permisos' => [
                     'gestionarNomina' => $request->user()?->can('gestionar-nomina') ?? false,
                     'gestionarPos' => $request->user()?->can('gestionar-pos') ?? false,
+                    'usarPos' => $request->user()?->can('usar-pos') ?? false,
                 ],
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
