@@ -18,7 +18,6 @@ defineOptions({
     layout: {
         breadcrumbs: [
             { title: 'Punto de venta', href: pos.inicio.index() },
-            { title: 'Sedes', href: pos.sedes.index() },
             { title: 'SOAT', href: '' },
             { title: 'Editar SOAT', href: '' },
         ],

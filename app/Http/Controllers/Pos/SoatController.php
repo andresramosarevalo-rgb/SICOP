@@ -9,6 +9,7 @@ use App\Http\Requests\Pos\UpdateSoatRequest;
 use App\Models\Sede;
 use App\Models\Soat;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,6 +20,8 @@ class SoatController extends Controller
      */
     public function index(Sede $sede): Response
     {
+        Gate::authorize('operar-sede', $sede);
+
         return Inertia::render('Pos/Soats/Index', [
             'sede' => $sede,
             'soats' => $sede->soats()->orderByDesc('fecha')->orderByDesc('id')->get(),
@@ -30,6 +33,7 @@ class SoatController extends Controller
      */
     public function create(Sede $sede): Response
     {
+        Gate::authorize('operar-sede', $sede);
         abort_unless($sede->es_activa, 403, 'La sede está inactiva.');
 
         return Inertia::render('Pos/Soats/Create', [
@@ -57,6 +61,8 @@ class SoatController extends Controller
      */
     public function edit(Soat $soat): Response
     {
+        Gate::authorize('operar-sede', $soat->sede);
+
         return Inertia::render('Pos/Soats/Edit', [
             'soat' => $soat,
             'sede' => $soat->sede,

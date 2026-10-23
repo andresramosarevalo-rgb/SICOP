@@ -15,7 +15,7 @@ class StoreCursoRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('gestionar-pos');
+        return $this->user()->can('operar-sede', $this->route('sede'));
     }
 
     /**

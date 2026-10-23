@@ -23,11 +23,15 @@ import type { NavItem } from '@/types';
 const page = usePage();
 
 const mainNavItems = computed<NavItem[]>(() => [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
+    ...(page.props.auth.sedeId === null
+        ? [
+              {
+                  title: 'Dashboard',
+                  href: dashboard(),
+                  icon: LayoutGrid,
+              },
+          ]
+        : []),
     ...(page.props.auth.permisos.gestionarNomina
         ? [
               {
@@ -37,7 +41,7 @@ const mainNavItems = computed<NavItem[]>(() => [
               },
           ]
         : []),
-    ...(page.props.auth.permisos.gestionarPos
+    ...(page.props.auth.permisos.usarPos
         ? [
               {
                   title: 'Punto de venta',

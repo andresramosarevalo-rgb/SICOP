@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import Heading from '@/components/Heading.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Button } from '@/components/ui/button';
@@ -12,11 +13,13 @@ const props = defineProps<{
     soats: Soat[];
 }>();
 
+const page = usePage();
+const esDeSede = computed(() => page.props.auth.sedeId !== null);
+
 defineOptions({
     layout: {
         breadcrumbs: [
             { title: 'Punto de venta', href: pos.inicio.index() },
-            { title: 'Sedes', href: pos.sedes.index() },
             { title: 'SOAT', href: '' },
         ],
     },
@@ -27,18 +30,25 @@ defineOptions({
     <Head :title="`SOAT · ${props.sede.nombre}`" />
 
     <div class="flex h-full flex-1 flex-col gap-6 p-4">
-        <BotonAtras :respaldo="pos.sedes.index()" />
+        <BotonAtras v-if="!esDeSede" :respaldo="pos.sedes.index()" />
 
         <div class="flex flex-wrap items-start justify-between gap-4">
             <Heading
                 title="SOAT"
                 :description="`${props.sede.nombre} · ${props.sede.ciudad}`"
             />
-            <Button v-if="props.sede.es_activa" as-child>
-                <Link :href="pos.sedes.soats.create(props.sede.id)"
-                    >Registrar SOAT</Link
-                >
-            </Button>
+            <div class="flex flex-wrap gap-2">
+                <Button variant="outline" as-child>
+                    <Link :href="pos.sedes.cursos.index(props.sede.id)"
+                        >Cursos</Link
+                    >
+                </Button>
+                <Button v-if="props.sede.es_activa" as-child>
+                    <Link :href="pos.sedes.soats.create(props.sede.id)"
+                        >Registrar SOAT</Link
+                    >
+                </Button>
+            </div>
         </div>
 
         <div class="overflow-x-auto rounded-xl border">
