@@ -159,7 +159,7 @@ docs(estandaresEquipo): agregar documento de estándares del equipo
 
 ### 2.3 Alcances permitidos (camelCase)
 
-`pos`, `cierreCaja`, `facturacion`, `contabilidad`, `planCuentas`, `comprobantes`, `nomina`, `liquidacionNomina`, `empleados`, `auth`, `usuarios`, `baseDatos`, `docker`, `dependencias`, `ci`, `estandaresEquipo`.
+`pos`, `cierreCaja`, `facturacion`, `contabilidad`, `planCuentas`, `comprobantes`, `nomina`, `liquidacionNomina`, `empleados`, `auth`, `usuarios`, `auditoria`, `baseDatos`, `docker`, `dependencias`, `ci`, `estandaresEquipo`.
 
 Agregar un alcance nuevo requiere un commit `docs(estandaresEquipo)` que modifique esta lista y la de `commitlint.config.js`.
 
