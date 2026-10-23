@@ -25,6 +25,10 @@ export type Curso = {
     tipo_comparendo: string;
     valor_curso: string;
     porcentaje_descuento: string;
+    forma_pago: string;
+    valor_efectivo: string;
+    valor_datafono: string;
+    valor_qr: string;
     sede?: Pick<Sede, 'id' | 'nombre' | 'ciudad'>;
 };
 

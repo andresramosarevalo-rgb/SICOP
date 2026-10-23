@@ -2,11 +2,13 @@
 import InputError from '@/components/InputError.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import CamposPago from '@/components/Pos/CamposPago.vue';
 import type { Curso, Opcion, OpcionTipoDocumento } from '@/types';
 
 defineProps<{
     errors: Record<string, string | undefined>;
     tiposDocumento: OpcionTipoDocumento[];
+    formasPago: Opcion[];
     referidos: Opcion[];
     porcentajesDescuento: number[];
     curso?: Curso;
@@ -210,5 +212,13 @@ const claseSelect =
             </select>
             <InputError :message="errors.referido" />
         </div>
+        <CamposPago
+            :errors="errors"
+            :formas-pago="formasPago"
+            :forma-pago="curso?.forma_pago"
+            :valor-efectivo="curso?.valor_efectivo"
+            :valor-datafono="curso?.valor_datafono"
+            :valor-qr="curso?.valor_qr"
+        />
     </div>
 </template>

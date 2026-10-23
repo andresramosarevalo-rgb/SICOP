@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\FormaPago;
 use App\Enums\TipoDocumento;
 use App\Models\Curso;
 use App\Models\Sede;
@@ -19,6 +20,8 @@ class CursoFactory extends Factory
      */
     public function definition(): array
     {
+        $valorCurso = fake()->numberBetween(200, 700) * 1000;
+
         return [
             'sede_id' => Sede::factory(),
             'fecha' => fake()->dateTimeBetween('-30 days', 'today'),
@@ -34,8 +37,12 @@ class CursoFactory extends Factory
             'hora_fin' => '10:00',
             'referido' => null,
             'tipo_comparendo' => fake()->randomElement(['Tipo A', 'Tipo B', 'Tipo C']),
-            'valor_curso' => fake()->numberBetween(200, 700) * 1000,
+            'valor_curso' => $valorCurso,
             'porcentaje_descuento' => fake()->randomElement(Curso::PORCENTAJES_DESCUENTO),
+            'forma_pago' => FormaPago::Efectivo,
+            'valor_efectivo' => $valorCurso,
+            'valor_datafono' => 0,
+            'valor_qr' => 0,
         ];
     }
 }

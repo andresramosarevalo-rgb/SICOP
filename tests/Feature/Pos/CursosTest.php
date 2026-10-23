@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\FormaPago;
 use App\Enums\Referido;
 use App\Enums\Rol;
 use App\Enums\TipoDocumento;
@@ -31,6 +32,7 @@ function datosCurso(array $sobrescribir = []): array
         'tipo_comparendo' => 'Tipo C',
         'valor_curso' => '350000',
         'porcentaje_descuento' => 50,
+        'forma_pago' => 'efectivo',
         ...$sobrescribir,
     ];
 }
@@ -80,7 +82,7 @@ test('el formulario ofrece los tipos de documento y los descuentos de 25 % y 50 
 test('los datos del curso son obligatorios', function () {
     $this->actingAs($this->gerente)
         ->post(route('pos.sedes.cursos.store', $this->sede), [])
-        ->assertSessionHasErrors(['fecha', 'tipo_documento', 'numero_documento', 'nombre_cliente', 'celular', 'correo', 'numero_certificado', 'numero_comparendo', 'secretaria_transito', 'hora_inicio', 'hora_fin', 'tipo_comparendo', 'valor_curso', 'porcentaje_descuento']);
+        ->assertSessionHasErrors(['fecha', 'tipo_documento', 'numero_documento', 'nombre_cliente', 'celular', 'correo', 'numero_certificado', 'numero_comparendo', 'secretaria_transito', 'hora_inicio', 'hora_fin', 'tipo_comparendo', 'valor_curso', 'porcentaje_descuento', 'forma_pago']);
 
     expect(Curso::count())->toBe(0);
 });
@@ -177,4 +179,70 @@ test('la hora de fin debe ser posterior a la de inicio y el correo válido', fun
     $this->actingAs($this->gerente)
         ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['hora_inicio' => '10:00', 'hora_fin' => '08:00', 'correo' => 'no-es-correo']))
         ->assertSessionHasErrors(['hora_fin' => 'La hora de fin debe ser posterior a la de inicio.', 'correo']);
+});
+
+// Issue #74, criterio 1
+test('con una forma de pago simple todo el valor va al medio elegido', function (string $forma, array $esperado) {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['forma_pago' => $forma]))
+        ->assertSessionHasNoErrors();
+
+    expect(Curso::first())
+        ->forma_pago->toBe(FormaPago::from($forma))
+        ->valor_efectivo->toBe($esperado[0])
+        ->valor_datafono->toBe($esperado[1])
+        ->valor_qr->toBe($esperado[2]);
+})->with([
+    'efectivo' => ['efectivo', ['350000.00', '0.00', '0.00']],
+    'datáfono' => ['datafono', ['0.00', '350000.00', '0.00']],
+    'QR' => ['qr', ['0.00', '0.00', '350000.00']],
+]);
+
+// Issue #74, criterio 2
+test('el pago mixto guarda el valor por medio y debe sumar el valor del curso', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso([
+            'forma_pago' => 'mixto', 'valor_efectivo' => 100000, 'valor_datafono' => 150000, 'valor_qr' => 100000,
+        ]))
+        ->assertSessionHasNoErrors();
+
+    expect(Curso::first())
+        ->valor_efectivo->toBe('100000.00')
+        ->valor_datafono->toBe('150000.00')
+        ->valor_qr->toBe('100000.00');
+});
+
+// Issue #74, criterio 2
+test('el pago mixto con una suma distinta al valor del curso se rechaza', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso([
+            'forma_pago' => 'mixto', 'valor_efectivo' => 100000, 'valor_datafono' => 100000, 'valor_qr' => 100000,
+        ]))
+        ->assertSessionHasErrors(['forma_pago' => 'Los valores por medio deben sumar el valor total.']);
+
+    expect(Curso::count())->toBe(0);
+});
+
+// Issue #74, criterio 2
+test('el pago mixto exige los valores por medio y la forma de pago debe ser válida', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['forma_pago' => 'mixto']))
+        ->assertSessionHasErrors(['valor_efectivo', 'valor_datafono', 'valor_qr']);
+
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['forma_pago' => 'cheque']))
+        ->assertSessionHasErrors('forma_pago');
+});
+
+// Issue #74, criterio 1
+test('al editar el curso cambiando a una forma simple se reasignan los valores por medio', function () {
+    $curso = Curso::factory()->for($this->sede)->create();
+
+    $this->actingAs($this->gerente)
+        ->put(route('pos.cursos.update', $curso), datosCurso(['forma_pago' => 'qr', 'valor_curso' => '420000']))
+        ->assertSessionHasNoErrors();
+
+    expect($curso->fresh())
+        ->valor_efectivo->toBe('0.00')
+        ->valor_qr->toBe('420000.00');
 });
