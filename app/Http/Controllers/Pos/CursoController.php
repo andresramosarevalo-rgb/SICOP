@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pos;
 use App\Enums\TipoDocumento;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Pos\StoreCursoRequest;
+use App\Http\Requests\Pos\UpdateCursoRequest;
 use App\Models\Curso;
 use App\Models\Sede;
 use Illuminate\Http\RedirectResponse;
@@ -49,6 +50,30 @@ class CursoController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Curso registrado.']);
 
         return to_route('pos.sedes.cursos.index', $sede);
+    }
+
+    /**
+     * Muestra el formulario de edición del curso.
+     */
+    public function edit(Curso $curso): Response
+    {
+        return Inertia::render('Pos/Cursos/Edit', [
+            'curso' => $curso,
+            'sede' => $curso->sede,
+            ...$this->opcionesFormulario(),
+        ]);
+    }
+
+    /**
+     * Actualiza los datos del curso.
+     */
+    public function update(UpdateCursoRequest $request, Curso $curso): RedirectResponse
+    {
+        $curso->update($request->validated());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Curso actualizado.']);
+
+        return to_route('pos.sedes.cursos.index', $curso->sede_id);
     }
 
     /**

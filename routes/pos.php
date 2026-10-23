@@ -11,5 +11,5 @@ Route::middleware(['auth', 'verified', 'can:gestionar-pos'])
         Route::inertia('/', 'Pos/Inicio/Index')->name('inicio.index');
 
         Route::resource('sedes', SedeController::class)->except(['show', 'destroy']);
-        Route::resource('sedes.cursos', CursoController::class)->only(['index', 'create', 'store']);
+        Route::resource('sedes.cursos', CursoController::class)->except(['show', 'destroy'])->shallow();
     });
