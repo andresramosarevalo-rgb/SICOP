@@ -103,14 +103,39 @@ test('el día cerrado muestra su consignación y lo pendiente', function () {
         ->assertInertia(fn (Assert $page) => $page->where('consignacion.referencia', 'REF-ABC'));
 });
 
+// Issue #79, criterio 5
+test('el gerente elimina una consignación y se borra su comprobante', function () {
+    $this->actingAs($this->gerente)->post(route('pos.cierre.consignacion.store', $this->cierre), datosConsignacion());
+    $consignacion = Consignacion::firstOrFail();
+
+    $this->actingAs($this->gerente)
+        ->delete(route('pos.consignaciones.destroy', $consignacion))
+        ->assertRedirect();
+
+    expect(Consignacion::count())->toBe(0);
+    Storage::disk('local')->assertMissing($consignacion->ruta_soporte);
+});
+
+// Issue #79, criterio 5
+test('un día con consignación no se puede reabrir hasta eliminarla', function () {
+    Consignacion::factory()->create(['cierre_caja_id' => $this->cierre->id]);
+
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cierre.reabrir', $this->sede), ['fecha' => today()->subDay()->toDateString()])
+        ->assertForbidden();
+
+    expect($this->cierre->fresh()->estaCerrado())->toBeTrue();
+});
+
 // Issue #79, criterio 4
-test('el usuario de la sede no registra consignaciones pero sí ve su comprobante', function () {
+test('el usuario de la sede no registra ni elimina consignaciones pero sí ve su comprobante', function () {
     $consignacion = Consignacion::factory()->create(['cierre_caja_id' => $this->cierre->id]);
     Storage::disk('local')->put($consignacion->ruta_soporte, 'contenido');
 
     $this->actingAs($this->usuarioSede)
         ->post(route('pos.cierre.consignacion.store', $this->cierre), datosConsignacion())
         ->assertForbidden();
+    $this->actingAs($this->usuarioSede)->delete(route('pos.consignaciones.destroy', $consignacion))->assertForbidden();
 
     $this->actingAs($this->usuarioSede)->get(route('pos.consignaciones.soporte', $consignacion))->assertOk();
     $this->actingAs(User::factory()->paraSede(Sede::factory()->create())->create())

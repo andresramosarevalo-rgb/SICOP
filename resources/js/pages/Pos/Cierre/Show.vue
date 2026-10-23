@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Form, Head, router, usePage } from '@inertiajs/vue3';
 import CierreCajaController from '@/actions/App/Http/Controllers/Pos/CierreCajaController';
+import ConsignacionController from '@/actions/App/Http/Controllers/Pos/ConsignacionController';
 import GastoCajaController from '@/actions/App/Http/Controllers/Pos/GastoCajaController';
 import Heading from '@/components/Heading.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
+import FormularioConsignacion from '@/components/Pos/FormularioConsignacion.vue';
 import FormularioArqueo from '@/components/Pos/FormularioArqueo.vue';
 import FormularioGasto from '@/components/Pos/FormularioGasto.vue';
 import ResultadoArqueo from '@/components/Pos/ResultadoArqueo.vue';
@@ -16,6 +18,7 @@ import { formatearPesos } from '@/lib/formato';
 import pos from '@/routes/pos';
 import type {
     CierreCaja,
+    Consignacion,
     GastoCaja,
     ResumenCaja as ResumenCajaDelDia,
     Sede,
@@ -32,6 +35,8 @@ const props = defineProps<{
     valorEfectivoEsperado: number;
     estaCerrado: boolean;
     cierre: CierreCaja | null;
+    consignacion: Consignacion | null;
+    cierreId: number | null;
 }>();
 
 defineOptions({
@@ -157,8 +162,80 @@ function cambiarDia(fecha: string | number): void {
 
         <ResultadoArqueo v-if="cierre" :cierre="cierre" />
 
+        <section
+            v-if="cierre"
+            class="flex flex-col gap-4 rounded-xl border p-4"
+        >
+            <h2 class="font-medium">Consignación</h2>
+
+            <div v-if="consignacion" class="flex flex-col gap-2 text-sm">
+                <p>
+                    {{ formatearPesos(consignacion.valor_consignado) }}
+                    consignados el {{ consignacion.fecha_consignacion }} ·
+                    referencia {{ consignacion.referencia }}
+                </p>
+                <p>
+                    <a
+                        :href="pos.consignaciones.soporte.url(consignacion.id)"
+                        class="underline-offset-4 hover:underline"
+                        >{{ consignacion.nombre_soporte }}</a
+                    >
+                </p>
+                <p
+                    v-if="
+                        Number(cierre.valor_a_consignar) >
+                        Number(consignacion.valor_consignado)
+                    "
+                    class="text-muted-foreground"
+                >
+                    Quedan por consignar
+                    {{
+                        formatearPesos(
+                            Number(cierre.valor_a_consignar) -
+                                Number(consignacion.valor_consignado),
+                        )
+                    }}.
+                </p>
+                <Form
+                    v-if="page.props.auth.permisos.gestionarPos"
+                    v-bind="
+                        ConsignacionController.destroy.form(consignacion.id)
+                    "
+                    v-slot="{ processing }"
+                >
+                    <Button variant="ghost" size="sm" :disabled="processing"
+                        >Eliminar consignación</Button
+                    >
+                </Form>
+            </div>
+
+            <template v-else>
+                <p
+                    v-if="Number(cierre.valor_a_consignar) <= 0"
+                    class="text-sm text-muted-foreground"
+                >
+                    Este día no hay efectivo por consignar.
+                </p>
+                <template v-else>
+                    <p class="text-sm text-muted-foreground">
+                        Pendiente de consignar:
+                        <span class="font-semibold text-foreground">{{
+                            formatearPesos(cierre.valor_a_consignar)
+                        }}</span>
+                    </p>
+                    <FormularioConsignacion
+                        v-if="page.props.auth.permisos.gestionarPos && cierreId"
+                        :cierre-id="cierreId"
+                        :valor-a-consignar="cierre.valor_a_consignar"
+                    />
+                </template>
+            </template>
+        </section>
+
         <Form
-            v-if="cierre && page.props.auth.permisos.gestionarPos"
+            v-if="
+                cierre && !consignacion && page.props.auth.permisos.gestionarPos
+            "
             v-bind="CierreCajaController.reabrir.form(sede.id)"
             class="flex items-center gap-3"
             v-slot="{ processing }"

@@ -37,6 +37,23 @@ class ConsignacionController extends Controller
     }
 
     /**
+     * Elimina una consignación registrada por error, junto con su comprobante.
+     */
+    public function destroy(Consignacion $consignacion): RedirectResponse
+    {
+        Gate::authorize('gestionar-pos');
+
+        $cierre = $consignacion->cierreCaja;
+
+        Storage::delete($consignacion->ruta_soporte);
+        $consignacion->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Consignación eliminada.']);
+
+        return to_route('pos.sedes.cierre.show', ['sede' => $cierre->sede_id, 'fecha' => $cierre->fecha->toDateString()]);
+    }
+
+    /**
      * Entrega el comprobante de la consignación a quien opera la sede.
      */
     public function soporte(Consignacion $consignacion): StreamedResponse

@@ -39,6 +39,7 @@ Route::middleware(['auth', 'verified'])
             Route::get('soats', SoatConsolidadoController::class)->name('soats.index');
             Route::get('cierres', CierreCajaGeneralController::class)->name('cierres.index');
             Route::post('cierre/{cierre}/consignacion', [ConsignacionController::class, 'store'])->name('cierre.consignacion.store');
+            Route::delete('consignaciones/{consignacion}', [ConsignacionController::class, 'destroy'])->name('consignaciones.destroy');
             Route::post('sedes/{sede}/cierre/reabrir', [CierreCajaController::class, 'reabrir'])->name('sedes.cierre.reabrir');
             Route::put('sedes/{sede}/acceso', SedeAccesoController::class)->name('sedes.acceso.update');
         });
