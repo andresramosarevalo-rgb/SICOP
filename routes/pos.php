@@ -5,6 +5,8 @@ use App\Http\Controllers\Pos\CierreCajaGeneralController;
 use App\Http\Controllers\Pos\ConsignacionController;
 use App\Http\Controllers\Pos\CursoConsolidadoController;
 use App\Http\Controllers\Pos\CursoController;
+use App\Http\Controllers\Pos\ExportarCursosController;
+use App\Http\Controllers\Pos\ExportarSoatsController;
 use App\Http\Controllers\Pos\GastoCajaController;
 use App\Http\Controllers\Pos\InicioController;
 use App\Http\Controllers\Pos\SaldoConsignacionController;
@@ -37,6 +39,8 @@ Route::middleware(['auth', 'verified'])
             Route::resource('sedes', SedeController::class)->except(['show', 'destroy']);
             Route::resource('tarifas', TarifaGestorController::class)->only(['index', 'store', 'destroy']);
             Route::get('cursos', CursoConsolidadoController::class)->name('cursos.index');
+            Route::get('cursos/exportar', ExportarCursosController::class)->name('cursos.exportar');
+            Route::get('soats/exportar', ExportarSoatsController::class)->name('soats.exportar');
             Route::get('soats', SoatConsolidadoController::class)->name('soats.index');
             Route::get('cierres', CierreCajaGeneralController::class)->name('cierres.index');
             Route::get('consignaciones', SaldoConsignacionController::class)->name('consignaciones.index');
