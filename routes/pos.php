@@ -5,6 +5,7 @@ use App\Http\Controllers\Pos\CierreCajaGeneralController;
 use App\Http\Controllers\Pos\ConsignacionController;
 use App\Http\Controllers\Pos\CursoConsolidadoController;
 use App\Http\Controllers\Pos\CursoController;
+use App\Http\Controllers\Pos\ExportarCierresController;
 use App\Http\Controllers\Pos\ExportarCursosController;
 use App\Http\Controllers\Pos\ExportarSoatsController;
 use App\Http\Controllers\Pos\GastoCajaController;
@@ -43,6 +44,7 @@ Route::middleware(['auth', 'verified'])
             Route::get('soats/exportar', ExportarSoatsController::class)->name('soats.exportar');
             Route::get('soats', SoatConsolidadoController::class)->name('soats.index');
             Route::get('cierres', CierreCajaGeneralController::class)->name('cierres.index');
+            Route::get('cierres/exportar', ExportarCierresController::class)->name('cierres.exportar');
             Route::get('consignaciones', SaldoConsignacionController::class)->name('consignaciones.index');
             Route::post('cierre/{cierre}/consignacion', [ConsignacionController::class, 'store'])->name('cierre.consignacion.store');
             Route::delete('consignaciones/{consignacion}', [ConsignacionController::class, 'destroy'])->name('consignaciones.destroy');
