@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3';
+import { Form, Head, router } from '@inertiajs/vue3';
+import GastoCajaController from '@/actions/App/Http/Controllers/Pos/GastoCajaController';
 import Heading from '@/components/Heading.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import FormularioGasto from '@/components/Pos/FormularioGasto.vue';
 import ResumenCaja from '@/components/Pos/ResumenCaja.vue';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatearPesos } from '@/lib/formato';
@@ -87,6 +89,9 @@ function cambiarDia(fecha: string | number): void {
                             <th class="px-4 py-2 font-medium">Concepto</th>
                             <th class="px-4 py-2 font-medium">Valor</th>
                             <th class="px-4 py-2 font-medium">Soporte</th>
+                            <th class="px-4 py-2">
+                                <span class="sr-only">Acciones</span>
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y">
@@ -96,12 +101,37 @@ function cambiarDia(fecha: string | number): void {
                                 {{ formatearPesos(gasto.valor_gasto) }}
                             </td>
                             <td class="px-4 py-2">
-                                {{ gasto.nombre_soporte }}
+                                <a
+                                    :href="
+                                        pos.cierre.gastos.soporte.url(gasto.id)
+                                    "
+                                    class="underline-offset-4 hover:underline"
+                                    >{{ gasto.nombre_soporte }}</a
+                                >
+                            </td>
+                            <td class="px-4 py-2">
+                                <Form
+                                    v-if="!estaCerrado"
+                                    v-bind="
+                                        GastoCajaController.destroy.form(
+                                            gasto.id,
+                                        )
+                                    "
+                                    class="flex justify-end"
+                                    v-slot="{ processing }"
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        :disabled="processing"
+                                        >Eliminar</Button
+                                    >
+                                </Form>
                             </td>
                         </tr>
                         <tr v-if="gastos.length === 0">
                             <td
-                                colspan="3"
+                                colspan="4"
                                 class="px-4 py-6 text-center text-muted-foreground"
                             >
                                 No hay gastos registrados este día.
