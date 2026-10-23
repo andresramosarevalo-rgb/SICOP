@@ -4,6 +4,7 @@ namespace App\Concerns;
 
 use App\Models\Auditoria;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
@@ -37,6 +38,25 @@ trait Auditable
         static::created(fn (Model $modelo) => $modelo->registrarAuditoria('creado', $modelo->cambiosAlCrearOEliminar(true)));
         static::updated(fn (Model $modelo) => $modelo->registrarAuditoria('modificado', $modelo->cambiosAlModificar()));
         static::deleted(fn (Model $modelo) => $modelo->registrarAuditoria('eliminado', $modelo->cambiosAlCrearOEliminar(false)));
+    }
+
+    /**
+     * Guarda el modelo y su entrada de auditoría en una sola transacción: si la auditoría falla,
+     * el cambio tampoco queda guardado.
+     *
+     * @param  array<string, mixed>  $options
+     */
+    public function save(array $options = []): bool
+    {
+        return DB::transaction(fn (): bool => parent::save($options));
+    }
+
+    /**
+     * Elimina el modelo y registra su auditoría en una sola transacción.
+     */
+    public function delete(): ?bool
+    {
+        return DB::transaction(fn (): ?bool => parent::delete());
     }
 
     /**
