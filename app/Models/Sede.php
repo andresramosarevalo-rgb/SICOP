@@ -57,6 +57,16 @@ class Sede extends Model
     }
 
     /**
+     * SOAT vendidos en la sede.
+     *
+     * @return HasMany<Soat, $this>
+     */
+    public function soats(): HasMany
+    {
+        return $this->hasMany(Soat::class);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

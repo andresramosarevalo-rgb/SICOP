@@ -74,6 +74,11 @@ defineProps<{
                                     >
                                 </Button>
                                 <Button variant="outline" size="sm" as-child>
+                                    <Link :href="pos.sedes.soats.index(sede.id)"
+                                        >SOAT</Link
+                                    >
+                                </Button>
+                                <Button variant="outline" size="sm" as-child>
                                     <Link :href="pos.sedes.edit(sede.id)"
                                         >Editar</Link
                                     >

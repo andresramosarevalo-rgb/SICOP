@@ -17,3 +17,13 @@ export type Curso = {
     valor_curso: string;
     porcentaje_descuento: string;
 };
+
+export type Soat = {
+    id: number;
+    sede_id: number;
+    fecha: string;
+    tipo_documento: string;
+    numero_documento: string;
+    nombre_cliente: string;
+    valor_soat: string;
+};
