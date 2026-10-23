@@ -66,7 +66,7 @@ function filtrarPorDia(fecha: string | number): void {
                         <th class="px-4 py-2 font-medium">Sede</th>
                         <th class="px-4 py-2 font-medium">Documento</th>
                         <th class="px-4 py-2 font-medium">Cliente</th>
-                        <th class="px-4 py-2 font-medium">Comparendo</th>
+                        <th class="px-4 py-2 font-medium">Tipo</th>
                         <th class="px-4 py-2 font-medium">N.º comparendo</th>
                         <th class="px-4 py-2 font-medium">Pago</th>
                         <th class="px-4 py-2 font-medium">Valor</th>
@@ -86,7 +86,7 @@ function filtrarPorDia(fecha: string | number): void {
                             {{ curso.numero_documento }}
                         </td>
                         <td class="px-4 py-2">{{ curso.nombre_cliente }}</td>
-                        <td class="px-4 py-2">{{ curso.tipo_comparendo }}</td>
+                        <td class="px-4 py-2">{{ curso.codigo_infraccion }}</td>
                         <td class="px-4 py-2">{{ curso.numero_comparendo }}</td>
                         <td class="px-4 py-2">
                             {{ etiquetaFormaPago(curso.forma_pago) }}

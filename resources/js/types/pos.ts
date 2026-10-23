@@ -22,7 +22,7 @@ export type Curso = {
     hora_inicio: string;
     hora_fin: string;
     referido: string | null;
-    tipo_comparendo: string;
+    codigo_infraccion: string;
     valor_curso: string;
     porcentaje_descuento: string;
     forma_pago: string;

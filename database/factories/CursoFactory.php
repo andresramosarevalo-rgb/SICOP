@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\CodigoInfraccion;
 use App\Enums\FormaPago;
 use App\Enums\TipoDocumento;
 use App\Models\Curso;
@@ -36,7 +37,7 @@ class CursoFactory extends Factory
             'hora_inicio' => '08:00',
             'hora_fin' => '10:00',
             'referido' => null,
-            'tipo_comparendo' => fake()->randomElement(['Tipo A', 'Tipo B', 'Tipo C']),
+            'codigo_infraccion' => fake()->randomElement(CodigoInfraccion::cases()),
             'valor_curso' => $valorCurso,
             'porcentaje_descuento' => fake()->randomElement(Curso::PORCENTAJES_DESCUENTO),
             'forma_pago' => FormaPago::Efectivo,

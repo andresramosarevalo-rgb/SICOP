@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Pos;
 
 use App\Concerns\ReglasPago;
+use App\Enums\CodigoInfraccion;
 use App\Enums\FormaPago;
 use App\Enums\Referido;
 use App\Enums\TipoDocumento;
@@ -44,7 +45,7 @@ class StoreCursoRequest extends FormRequest
             'hora_inicio' => ['required', 'date_format:H:i'],
             'hora_fin' => ['required', 'date_format:H:i', 'after:hora_inicio'],
             'referido' => ['nullable', Rule::enum(Referido::class)],
-            'tipo_comparendo' => ['required', 'string', 'max:100'],
+            'codigo_infraccion' => ['required', Rule::enum(CodigoInfraccion::class)],
             'valor_curso' => ['required', 'numeric', 'gt:0', 'decimal:0,2', 'max:9999999999999'],
             'porcentaje_descuento' => ['required', Rule::in(Curso::PORCENTAJES_DESCUENTO)],
             ...$this->reglasPago(FormaPago::cases()),

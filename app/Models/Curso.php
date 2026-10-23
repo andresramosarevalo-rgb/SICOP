@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CodigoInfraccion;
 use App\Enums\FormaPago;
 use App\Enums\Referido;
 use App\Enums\TipoDocumento;
@@ -29,7 +30,7 @@ use Illuminate\Support\Carbon;
  * @property string $hora_fin
  * @property Referido|null $referido
  * @property Carbon $fecha
- * @property string $tipo_comparendo
+ * @property CodigoInfraccion $codigo_infraccion
  * @property string $valor_curso
  * @property string $porcentaje_descuento
  * @property FormaPago $forma_pago
@@ -42,7 +43,7 @@ use Illuminate\Support\Carbon;
 #[Fillable([
     'sede_id', 'fecha', 'tipo_documento', 'numero_documento', 'nombre_cliente', 'celular', 'correo',
     'numero_certificado', 'numero_comparendo', 'secretaria_transito', 'hora_inicio', 'hora_fin',
-    'referido', 'tipo_comparendo', 'valor_curso', 'porcentaje_descuento', 'forma_pago',
+    'referido', 'codigo_infraccion', 'valor_curso', 'porcentaje_descuento', 'forma_pago',
     'valor_efectivo', 'valor_datafono', 'valor_qr',
 ])]
 class Curso extends Model
@@ -87,7 +88,7 @@ class Curso extends Model
             'valor_curso' => 'decimal:2',
             'porcentaje_descuento' => 'decimal:2',
             'referido' => Referido::class,
-            'forma_pago' => FormaPago::class,
+            'codigo_infraccion' => CodigoInfraccion::class,            'forma_pago' => FormaPago::class,
             'valor_efectivo' => 'decimal:2',
             'valor_datafono' => 'decimal:2',
             'valor_qr' => 'decimal:2',

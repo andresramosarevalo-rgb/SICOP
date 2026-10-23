@@ -11,6 +11,7 @@ import type { Opcion, OpcionTipoDocumento, Curso, Sede } from '@/types';
 const props = defineProps<{
     sede: Sede;
     tiposDocumento: OpcionTipoDocumento[];
+    codigosInfraccion: Opcion[];
     formasPago: Opcion[];
     referidos: Opcion[];
     curso: Curso;
@@ -44,6 +45,7 @@ defineOptions({
             <CamposCurso
                 :errors="errors"
                 :tipos-documento="props.tiposDocumento"
+                :codigos-infraccion="props.codigosInfraccion"
                 :formas-pago="props.formasPago"
                 :referidos="props.referidos"
                 :porcentajes-descuento="props.porcentajesDescuento"

@@ -29,7 +29,7 @@ function datosCurso(array $sobrescribir = []): array
         'hora_inicio' => '08:00',
         'hora_fin' => '10:00',
         'referido' => 'gestor',
-        'tipo_comparendo' => 'Tipo C',
+        'codigo_infraccion' => 'C',
         'valor_curso' => '350000',
         'porcentaje_descuento' => 50,
         'forma_pago' => 'efectivo',
@@ -50,7 +50,7 @@ test('la sede registra un curso y este aparece en su listado', function () {
             ->where('sede.id', $this->sede->id)
             ->has('cursos', 1)
             ->where('cursos.0.fecha', today()->toDateString())
-            ->where('cursos.0.tipo_comparendo', 'Tipo C')
+            ->where('cursos.0.codigo_infraccion', 'C')
             ->where('cursos.0.valor_curso', '350000.00')
             ->where('cursos.0.porcentaje_descuento', '50.00')
             ->where('cursos.0.tipo_documento', 'CC')
@@ -82,7 +82,7 @@ test('el formulario ofrece los tipos de documento y los descuentos de 25 % y 50 
 test('los datos del curso son obligatorios', function () {
     $this->actingAs($this->gerente)
         ->post(route('pos.sedes.cursos.store', $this->sede), [])
-        ->assertSessionHasErrors(['fecha', 'tipo_documento', 'numero_documento', 'nombre_cliente', 'celular', 'correo', 'numero_certificado', 'numero_comparendo', 'secretaria_transito', 'hora_inicio', 'hora_fin', 'tipo_comparendo', 'valor_curso', 'porcentaje_descuento', 'forma_pago']);
+        ->assertSessionHasErrors(['fecha', 'tipo_documento', 'numero_documento', 'nombre_cliente', 'celular', 'correo', 'numero_certificado', 'numero_comparendo', 'secretaria_transito', 'hora_inicio', 'hora_fin', 'codigo_infraccion', 'valor_curso', 'porcentaje_descuento', 'forma_pago']);
 
     expect(Curso::count())->toBe(0);
 });
@@ -245,6 +245,17 @@ test('al editar el curso cambiando a una forma simple se reasignan los valores p
     expect($curso->fresh())
         ->valor_efectivo->toBe('0.00')
         ->valor_qr->toBe('420000.00');
+});
+
+// Issue #75, criterio 1
+test('el tipo de comparendo debe ser una letra de la A a la J', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['codigo_infraccion' => 'K']))
+        ->assertSessionHasErrors('codigo_infraccion');
+
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['codigo_infraccion' => 'J']))
+        ->assertSessionHasNoErrors();
 });
 
 // Issue #74, criterio 5
