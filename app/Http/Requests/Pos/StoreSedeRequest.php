@@ -27,6 +27,7 @@ class StoreSedeRequest extends FormRequest
             'nombre' => ['required', 'string', 'max:100', Rule::unique('sedes', 'nombre')->ignore($this->route('sede'))],
             'ciudad' => ['required', 'string', 'max:100'],
             'direccion' => ['required', 'string', 'max:200'],
+            'valor_base_caja' => ['required', 'numeric', 'min:0', 'decimal:0,2', 'max:9999999999999'],
             'es_activa' => ['sometimes', 'boolean'],
         ];
     }
@@ -40,6 +41,7 @@ class StoreSedeRequest extends FormRequest
     {
         return [
             'required' => 'Este campo es obligatorio.',
+            'valor_base_caja.min' => 'El valor no puede ser negativo.',
             'nombre.unique' => 'Ya existe una sede con ese nombre.',
         ];
     }

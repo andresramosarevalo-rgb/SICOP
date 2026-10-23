@@ -43,6 +43,19 @@ defineProps<{
             />
             <InputError :message="errors.direccion" />
         </div>
+        <div class="grid gap-2">
+            <Label for="valor_base_caja">Base de caja</Label>
+            <Input
+                id="valor_base_caja"
+                name="valor_base_caja"
+                type="number"
+                min="0"
+                step="0.01"
+                :default-value="sede?.valor_base_caja ?? 0"
+                required
+            />
+            <InputError :message="errors.valor_base_caja" />
+        </div>
         <label v-if="sede" class="flex items-center gap-2 text-sm">
             <input type="hidden" name="es_activa" value="0" />
             <input

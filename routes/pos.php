@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Pos\CierreCajaController;
 use App\Http\Controllers\Pos\CursoConsolidadoController;
 use App\Http\Controllers\Pos\CursoController;
 use App\Http\Controllers\Pos\InicioController;
@@ -19,6 +20,8 @@ Route::middleware(['auth', 'verified'])
 
             Route::resource('sedes.cursos', CursoController::class)->except(['show', 'destroy'])->shallow();
             Route::resource('sedes.soats', SoatController::class)->except(['show', 'destroy'])->shallow();
+
+            Route::get('sedes/{sede}/cierre', [CierreCajaController::class, 'show'])->name('sedes.cierre.show');
         });
 
         Route::middleware('can:gestionar-pos')->group(function () {

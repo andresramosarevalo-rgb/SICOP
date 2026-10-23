@@ -21,6 +21,7 @@ class SedeFactory extends Factory
             'nombre' => 'Sede '.fake()->unique()->city(),
             'ciudad' => fake()->city(),
             'direccion' => fake()->streetAddress(),
+            'valor_base_caja' => 0,
             'es_activa' => true,
         ];
     }

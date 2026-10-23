@@ -19,11 +19,12 @@ use Illuminate\Support\Carbon;
  * @property string $nombre
  * @property string $ciudad
  * @property string $direccion
+ * @property string $valor_base_caja
  * @property bool $es_activa
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['nombre', 'ciudad', 'direccion', 'es_activa'])]
+#[Fillable(['nombre', 'ciudad', 'direccion', 'valor_base_caja', 'es_activa'])]
 class Sede extends Model
 {
     /** @use HasFactory<SedeFactory> */
@@ -85,6 +86,7 @@ class Sede extends Model
     protected function casts(): array
     {
         return [
+            'valor_base_caja' => 'decimal:2',
             'es_activa' => 'boolean',
         ];
     }
