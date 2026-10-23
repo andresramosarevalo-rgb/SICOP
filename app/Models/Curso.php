@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Auditable;
 use App\Enums\CodigoInfraccion;
 use App\Enums\FormaPago;
 use App\Enums\Referido;
@@ -50,7 +51,7 @@ use Illuminate\Support\Carbon;
 class Curso extends Model
 {
     /** @use HasFactory<CursoFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     /**
      * Porcentajes de descuento que la ley permite sobre el comparendo.
@@ -74,6 +75,21 @@ class Curso extends Model
     public function sede(): BelongsTo
     {
         return $this->belongsTo(Sede::class);
+    }
+
+    /**
+     * Cómo se presenta el registro en el historial de auditoría.
+     *
+     * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
+     */
+    public function configuracionAuditoria(): array
+    {
+        return [
+            'modulo' => 'pos',
+            'etiqueta' => 'Curso',
+            'descripcion' => "{$this->nombre_cliente} · {$this->fecha?->toDateString()}",
+            'sede_id' => $this->sede_id,
+        ];
     }
 
     /**

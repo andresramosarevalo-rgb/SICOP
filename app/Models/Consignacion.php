@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Auditable;
 use Database\Factories\ConsignacionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,7 +28,7 @@ use Illuminate\Support\Carbon;
 class Consignacion extends Model
 {
     /** @use HasFactory<ConsignacionFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -44,6 +45,21 @@ class Consignacion extends Model
     public function cierreCaja(): BelongsTo
     {
         return $this->belongsTo(CierreCaja::class);
+    }
+
+    /**
+     * Cómo se presenta el registro en el historial de auditoría.
+     *
+     * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
+     */
+    public function configuracionAuditoria(): array
+    {
+        return [
+            'modulo' => 'pos',
+            'etiqueta' => 'Consignación',
+            'descripcion' => "Referencia {$this->referencia}",
+            'sede_id' => $this->cierreCaja?->sede_id,
+        ];
     }
 
     /**

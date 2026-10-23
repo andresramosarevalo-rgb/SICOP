@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Auditable;
 use Database\Factories\GastoCajaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,7 +26,7 @@ use Illuminate\Support\Carbon;
 class GastoCaja extends Model
 {
     /** @use HasFactory<GastoCajaFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -42,6 +43,21 @@ class GastoCaja extends Model
     public function cierreCaja(): BelongsTo
     {
         return $this->belongsTo(CierreCaja::class);
+    }
+
+    /**
+     * Cómo se presenta el registro en el historial de auditoría.
+     *
+     * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
+     */
+    public function configuracionAuditoria(): array
+    {
+        return [
+            'modulo' => 'pos',
+            'etiqueta' => 'Gasto de caja',
+            'descripcion' => $this->concepto,
+            'sede_id' => $this->cierreCaja?->sede_id,
+        ];
     }
 
     /**
