@@ -6,6 +6,7 @@ use App\Enums\Rol;
 use App\Enums\TipoDocumento;
 use App\Models\Curso;
 use App\Models\Sede;
+use App\Models\TarifaGestor;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -256,6 +257,110 @@ test('el tipo de comparendo debe ser una letra de la A a la J', function () {
     $this->actingAs($this->gerente)
         ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['codigo_infraccion' => 'J']))
         ->assertSessionHasNoErrors();
+});
+
+// Issue #75, criterio 2
+test('un curso con referido Gestor guarda el pago de la tarifa base del tipo de comparendo', function () {
+    TarifaGestor::factory()->create(['codigo_infraccion' => 'C', 'valor_pago_gestor' => 20000]);
+
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['codigo_infraccion' => 'C', 'referido' => 'gestor']))
+        ->assertSessionHasNoErrors();
+
+    expect(Curso::first()->valor_pago_gestor)->toBe('20000.00');
+});
+
+// Issue #75, criterio 2
+test('el ajuste de la sede tiene prioridad sobre la tarifa base', function () {
+    TarifaGestor::factory()->create(['codigo_infraccion' => 'C', 'valor_pago_gestor' => 20000]);
+    TarifaGestor::factory()->paraSede($this->sede)->create(['codigo_infraccion' => 'C', 'valor_pago_gestor' => 25000]);
+
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['codigo_infraccion' => 'C', 'referido' => 'gestor']))
+        ->assertSessionHasNoErrors();
+
+    expect(Curso::first()->valor_pago_gestor)->toBe('25000.00');
+});
+
+// Issue #75, criterio 2
+test('el ajuste de otra sede no afecta a esta sede', function () {
+    TarifaGestor::factory()->create(['codigo_infraccion' => 'C', 'valor_pago_gestor' => 20000]);
+    TarifaGestor::factory()->paraSede(Sede::factory()->create())->create(['codigo_infraccion' => 'C', 'valor_pago_gestor' => 99000]);
+
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['referido' => 'gestor']))
+        ->assertSessionHasNoErrors();
+
+    expect(Curso::first()->valor_pago_gestor)->toBe('20000.00');
+});
+
+// Issue #75, criterio 3
+test('sin referido Gestor o sin tarifa el pago al gestor es cero', function (?string $referido) {
+    TarifaGestor::factory()->create(['codigo_infraccion' => 'C', 'valor_pago_gestor' => 20000]);
+
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['referido' => $referido]))
+        ->assertSessionHasNoErrors();
+
+    expect(Curso::first()->valor_pago_gestor)->toBe('0.00');
+})->with(['sin referido' => [null], 'R5' => ['r5']]);
+
+// Issue #75, criterio 3
+test('un tipo de comparendo sin tarifa deja el pago al gestor en cero', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['codigo_infraccion' => 'E', 'referido' => 'gestor']))
+        ->assertSessionHasNoErrors();
+
+    expect(Curso::first()->valor_pago_gestor)->toBe('0.00');
+});
+
+// Issue #75, criterio 4
+test('al editar el curso el pago al gestor se recalcula si cambia el tipo o el referido', function () {
+    TarifaGestor::factory()->create(['codigo_infraccion' => 'C', 'valor_pago_gestor' => 20000]);
+    TarifaGestor::factory()->create(['codigo_infraccion' => 'D', 'valor_pago_gestor' => 30000]);
+    $curso = Curso::factory()->for($this->sede)->create(['codigo_infraccion' => 'C', 'referido' => 'gestor', 'valor_pago_gestor' => 20000]);
+
+    $this->actingAs($this->gerente)
+        ->put(route('pos.cursos.update', $curso), datosCurso(['codigo_infraccion' => 'D', 'referido' => 'gestor']));
+
+    expect($curso->fresh()->valor_pago_gestor)->toBe('30000.00');
+
+    $this->actingAs($this->gerente)
+        ->put(route('pos.cursos.update', $curso), datosCurso(['codigo_infraccion' => 'D', 'referido' => 'r5']));
+
+    expect($curso->fresh()->valor_pago_gestor)->toBe('0.00');
+});
+
+// Issue #75, criterio 4
+test('al editar otros datos el pago al gestor ya calculado no cambia aunque la tarifa haya cambiado', function () {
+    $tarifa = TarifaGestor::factory()->create(['codigo_infraccion' => 'C', 'valor_pago_gestor' => 20000]);
+    $curso = Curso::factory()->for($this->sede)->create(['codigo_infraccion' => 'C', 'referido' => 'gestor', 'valor_pago_gestor' => 20000]);
+    $tarifa->update(['valor_pago_gestor' => 50000]);
+
+    $this->actingAs($this->gerente)
+        ->put(route('pos.cursos.update', $curso), datosCurso(['codigo_infraccion' => 'C', 'referido' => 'gestor', 'celular' => '3200000000']));
+
+    expect($curso->fresh())
+        ->celular->toBe('3200000000')
+        ->valor_pago_gestor->toBe('20000.00');
+});
+
+// Issue #75, criterio 6
+test('el usuario de la sede no recibe el pago al gestor y el gerente sí', function () {
+    $curso = Curso::factory()->for($this->sede)->create(['referido' => 'gestor', 'valor_pago_gestor' => 20000]);
+    $usuarioSede = User::factory()->paraSede($this->sede)->create();
+
+    $this->actingAs($usuarioSede)
+        ->get(route('pos.sedes.cursos.index', $this->sede))
+        ->assertInertia(fn (Assert $page) => $page->missing('cursos.0.valor_pago_gestor'));
+
+    $this->actingAs($usuarioSede)
+        ->get(route('pos.cursos.edit', $curso))
+        ->assertInertia(fn (Assert $page) => $page->missing('curso.valor_pago_gestor'));
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.cursos.index', $this->sede))
+        ->assertInertia(fn (Assert $page) => $page->where('cursos.0.valor_pago_gestor', '20000.00'));
 });
 
 // Issue #74, criterio 5

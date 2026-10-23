@@ -41,6 +41,7 @@ class CursoFactory extends Factory
             'valor_curso' => $valorCurso,
             'porcentaje_descuento' => fake()->randomElement(Curso::PORCENTAJES_DESCUENTO),
             'forma_pago' => FormaPago::Efectivo,
+            'valor_pago_gestor' => 0,
             'valor_efectivo' => $valorCurso,
             'valor_datafono' => 0,
             'valor_qr' => 0,
