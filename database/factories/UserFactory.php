@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\Rol;
+use App\Models\Sede;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -51,6 +52,17 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'rol' => $rol,
+        ]);
+    }
+
+    /**
+     * Crea el usuario con el que una sede inicia sesión.
+     */
+    public function paraSede(Sede $sede): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'rol' => Rol::Cajero,
+            'sede_id' => $sede->id,
         ]);
     }
 

@@ -4,6 +4,7 @@ export type Sede = {
     ciudad: string;
     direccion: string;
     es_activa: boolean;
+    usuario?: { id: number; email: string } | null;
 };
 
 export type Curso = {

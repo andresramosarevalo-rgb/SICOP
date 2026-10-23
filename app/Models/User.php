@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -17,6 +18,7 @@ use Illuminate\Support\Carbon;
  * @property string $name
  * @property string $email
  * @property Rol|null $rol
+ * @property int|null $sede_id
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
@@ -39,6 +41,16 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var string
      */
     protected $table = 'users';
+
+    /**
+     * Sede a la que pertenece el usuario, si es el usuario de una sede.
+     *
+     * @return BelongsTo<Sede, $this>
+     */
+    public function sede(): BelongsTo
+    {
+        return $this->belongsTo(Sede::class);
+    }
 
     /**
      * Get the attributes that should be cast.
