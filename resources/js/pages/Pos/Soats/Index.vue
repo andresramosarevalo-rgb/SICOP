@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import Heading from '@/components/Heading.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Button } from '@/components/ui/button';
-import { formatearPesos } from '@/lib/formato';
+import { etiquetaFormaPago, formatearPesos } from '@/lib/formato';
 import pos from '@/routes/pos';
 import type { Soat, Sede } from '@/types';
 
@@ -58,6 +58,8 @@ defineOptions({
                         <th class="px-4 py-2 font-medium">Fecha</th>
                         <th class="px-4 py-2 font-medium">Documento</th>
                         <th class="px-4 py-2 font-medium">Cliente</th>
+                        <th class="px-4 py-2 font-medium">Placa</th>
+                        <th class="px-4 py-2 font-medium">Pago</th>
                         <th class="px-4 py-2 font-medium">Valor</th>
                         <th class="px-4 py-2">
                             <span class="sr-only">Acciones</span>
@@ -76,6 +78,10 @@ defineOptions({
                         <td class="px-4 py-2">
                             {{ registro.nombre_cliente }}
                         </td>
+                        <td class="px-4 py-2">{{ registro.placa }}</td>
+                        <td class="px-4 py-2">
+                            {{ etiquetaFormaPago(registro.forma_pago) }}
+                        </td>
                         <td class="px-4 py-2">
                             {{ formatearPesos(registro.valor_soat) }}
                         </td>
@@ -91,7 +97,7 @@ defineOptions({
                     </tr>
                     <tr v-if="soats.length === 0">
                         <td
-                            colspan="5"
+                            colspan="7"
                             class="px-4 py-6 text-center text-muted-foreground"
                         >
                             Esta sede aún no ha registrado SOAT.

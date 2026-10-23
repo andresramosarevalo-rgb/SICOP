@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\FormaPago;
 use App\Enums\TipoDocumento;
 use Database\Factories\SoatFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -18,12 +19,21 @@ use Illuminate\Support\Carbon;
  * @property TipoDocumento $tipo_documento
  * @property string $numero_documento
  * @property string $nombre_cliente
+ * @property string $celular
+ * @property string $correo
+ * @property string $placa
  * @property Carbon $fecha
  * @property string $valor_soat
+ * @property FormaPago $forma_pago
+ * @property string $valor_efectivo
+ * @property string $valor_qr
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['sede_id', 'fecha', 'tipo_documento', 'numero_documento', 'nombre_cliente', 'valor_soat'])]
+#[Fillable([
+    'sede_id', 'fecha', 'tipo_documento', 'numero_documento', 'nombre_cliente', 'celular', 'correo',
+    'placa', 'valor_soat', 'forma_pago', 'valor_efectivo', 'valor_qr',
+])]
 class Soat extends Model
 {
     /** @use HasFactory<SoatFactory> */
@@ -57,6 +67,9 @@ class Soat extends Model
             'fecha' => 'date:Y-m-d',
             'tipo_documento' => TipoDocumento::class,
             'valor_soat' => 'decimal:2',
+            'forma_pago' => FormaPago::class,
+            'valor_efectivo' => 'decimal:2',
+            'valor_qr' => 'decimal:2',
         ];
     }
 }

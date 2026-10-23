@@ -5,7 +5,7 @@ import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { formatearPesos } from '@/lib/formato';
+import { etiquetaFormaPago, formatearPesos } from '@/lib/formato';
 import pos from '@/routes/pos';
 import type { Soat } from '@/types';
 
@@ -65,6 +65,8 @@ function filtrarPorDia(fecha: string | number): void {
                         <th class="px-4 py-2 font-medium">Sede</th>
                         <th class="px-4 py-2 font-medium">Documento</th>
                         <th class="px-4 py-2 font-medium">Cliente</th>
+                        <th class="px-4 py-2 font-medium">Placa</th>
+                        <th class="px-4 py-2 font-medium">Pago</th>
                         <th class="px-4 py-2 font-medium">Valor</th>
                         <th class="px-4 py-2">
                             <span class="sr-only">Acciones</span>
@@ -81,6 +83,10 @@ function filtrarPorDia(fecha: string | number): void {
                             {{ soat.numero_documento }}
                         </td>
                         <td class="px-4 py-2">{{ soat.nombre_cliente }}</td>
+                        <td class="px-4 py-2">{{ soat.placa }}</td>
+                        <td class="px-4 py-2">
+                            {{ etiquetaFormaPago(soat.forma_pago) }}
+                        </td>
                         <td class="px-4 py-2">
                             {{ formatearPesos(soat.valor_soat) }}
                         </td>
@@ -96,7 +102,7 @@ function filtrarPorDia(fecha: string | number): void {
                     </tr>
                     <tr v-if="soats.length === 0">
                         <td
-                            colspan="5"
+                            colspan="7"
                             class="px-4 py-6 text-center text-muted-foreground"
                         >
                             Ninguna sede registró SOAT este día.

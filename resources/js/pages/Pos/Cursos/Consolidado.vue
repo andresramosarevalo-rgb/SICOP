@@ -5,7 +5,7 @@ import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { formatearPesos } from '@/lib/formato';
+import { etiquetaFormaPago, formatearPesos } from '@/lib/formato';
 import pos from '@/routes/pos';
 import type { Curso } from '@/types';
 
@@ -68,6 +68,7 @@ function filtrarPorDia(fecha: string | number): void {
                         <th class="px-4 py-2 font-medium">Cliente</th>
                         <th class="px-4 py-2 font-medium">Comparendo</th>
                         <th class="px-4 py-2 font-medium">N.º comparendo</th>
+                        <th class="px-4 py-2 font-medium">Pago</th>
                         <th class="px-4 py-2 font-medium">Valor</th>
                         <th class="px-4 py-2 font-medium">Descuento</th>
                         <th class="px-4 py-2">
@@ -88,6 +89,9 @@ function filtrarPorDia(fecha: string | number): void {
                         <td class="px-4 py-2">{{ curso.tipo_comparendo }}</td>
                         <td class="px-4 py-2">{{ curso.numero_comparendo }}</td>
                         <td class="px-4 py-2">
+                            {{ etiquetaFormaPago(curso.forma_pago) }}
+                        </td>
+                        <td class="px-4 py-2">
                             {{ formatearPesos(curso.valor_curso) }}
                         </td>
                         <td class="px-4 py-2">
@@ -105,7 +109,7 @@ function filtrarPorDia(fecha: string | number): void {
                     </tr>
                     <tr v-if="cursos.length === 0">
                         <td
-                            colspan="8"
+                            colspan="9"
                             class="px-4 py-6 text-center text-muted-foreground"
                         >
                             Ninguna sede registró cursos este día.

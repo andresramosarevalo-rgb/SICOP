@@ -2,11 +2,13 @@
 import InputError from '@/components/InputError.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { OpcionTipoDocumento, Soat } from '@/types';
+import CamposPago from '@/components/Pos/CamposPago.vue';
+import type { Opcion, OpcionTipoDocumento, Soat } from '@/types';
 
 defineProps<{
     errors: Record<string, string | undefined>;
     tiposDocumento: OpcionTipoDocumento[];
+    formasPago: Opcion[];
     soat?: Soat;
 }>();
 
@@ -82,5 +84,46 @@ const claseSelect =
             />
             <InputError :message="errors.valor_soat" />
         </div>
+        <div class="grid gap-2">
+            <Label for="celular">Celular</Label>
+            <Input
+                id="celular"
+                name="celular"
+                type="tel"
+                :default-value="soat?.celular"
+                required
+            />
+            <InputError :message="errors.celular" />
+        </div>
+        <div class="grid gap-2">
+            <Label for="correo">Correo electrónico</Label>
+            <Input
+                id="correo"
+                name="correo"
+                type="email"
+                :default-value="soat?.correo"
+                required
+            />
+            <InputError :message="errors.correo" />
+        </div>
+        <div class="grid gap-2">
+            <Label for="placa">Placa del vehículo</Label>
+            <Input
+                id="placa"
+                name="placa"
+                class="uppercase"
+                maxlength="10"
+                :default-value="soat?.placa"
+                required
+            />
+            <InputError :message="errors.placa" />
+        </div>
+        <CamposPago
+            :errors="errors"
+            :formas-pago="formasPago"
+            :forma-pago="soat?.forma_pago"
+            :valor-efectivo="soat?.valor_efectivo"
+            :valor-qr="soat?.valor_qr"
+        />
     </div>
 </template>

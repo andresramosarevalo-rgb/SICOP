@@ -10,3 +10,17 @@ const formatoPesos = new Intl.NumberFormat('es-CO', {
 export function formatearPesos(valor: string | number): string {
     return formatoPesos.format(Number(valor));
 }
+
+const etiquetasFormaPago: Record<string, string> = {
+    efectivo: 'Efectivo',
+    datafono: 'Datáfono',
+    qr: 'QR',
+    mixto: 'Mixto',
+};
+
+/**
+ * Nombre de una forma de pago para mostrar en pantalla, por ejemplo `Datáfono`.
+ */
+export function etiquetaFormaPago(forma: string): string {
+    return etiquetasFormaPago[forma] ?? forma;
+}

@@ -6,11 +6,12 @@ import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import CamposSoat from '@/components/Pos/CamposSoat.vue';
 import { Button } from '@/components/ui/button';
 import pos from '@/routes/pos';
-import type { OpcionTipoDocumento, Soat, Sede } from '@/types';
+import type { Opcion, OpcionTipoDocumento, Soat, Sede } from '@/types';
 
 const props = defineProps<{
     sede: Sede;
     tiposDocumento: OpcionTipoDocumento[];
+    formasPago: Opcion[];
     soat: Soat;
 }>();
 
@@ -41,6 +42,7 @@ defineOptions({
             <CamposSoat
                 :errors="errors"
                 :tipos-documento="props.tiposDocumento"
+                :formas-pago="props.formasPago"
                 :soat="props.soat"
             />
             <div>

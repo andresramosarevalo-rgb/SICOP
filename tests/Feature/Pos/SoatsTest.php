@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\FormaPago;
 use App\Enums\Rol;
 use App\Models\Sede;
 use App\Models\Soat;
@@ -18,7 +19,11 @@ function datosSoat(array $sobrescribir = []): array
         'tipo_documento' => 'CC',
         'numero_documento' => '1006123456',
         'nombre_cliente' => 'Carlos Pérez',
+        'celular' => '3101234567',
+        'correo' => 'carlos@example.com',
+        'placa' => 'ABC123',
         'valor_soat' => '580000',
+        'forma_pago' => 'efectivo',
         ...$sobrescribir,
     ];
 }
@@ -56,7 +61,7 @@ test('el listado de una sede no muestra los SOAT de otra', function () {
 test('los datos del SOAT son obligatorios', function () {
     $this->actingAs($this->gerente)
         ->post(route('pos.sedes.soats.store', $this->sede), [])
-        ->assertSessionHasErrors(['fecha', 'tipo_documento', 'numero_documento', 'nombre_cliente', 'valor_soat']);
+        ->assertSessionHasErrors(['fecha', 'tipo_documento', 'numero_documento', 'nombre_cliente', 'celular', 'correo', 'placa', 'valor_soat', 'forma_pago']);
 
     expect(Soat::count())->toBe(0);
 });
@@ -108,4 +113,82 @@ test('el tipo de documento debe ser válido y el número solo lleva letras y nú
     $this->actingAs($this->gerente)
         ->post(route('pos.sedes.soats.store', $this->sede), datosSoat(['tipo_documento' => 'XX', 'numero_documento' => '1.006 123']))
         ->assertSessionHasErrors(['tipo_documento', 'numero_documento']);
+});
+
+// Issue #74, criterio 4
+test('el SOAT guarda el correo, el celular y la placa en mayúsculas', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.soats.store', $this->sede), datosSoat(['placa' => 'abc-123']))
+        ->assertSessionHasNoErrors();
+
+    expect(Soat::first())
+        ->celular->toBe('3101234567')
+        ->correo->toBe('carlos@example.com')
+        ->placa->toBe('ABC123');
+});
+
+// Issue #74, criterio 4
+test('la placa solo admite letras y números y el correo debe ser válido', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.soats.store', $this->sede), datosSoat(['placa' => 'AB*12', 'correo' => 'no-es-correo']))
+        ->assertSessionHasErrors(['placa', 'correo']);
+});
+
+// Issue #74, criterio 1
+test('con una forma de pago simple todo el valor va al medio elegido', function (string $forma, array $esperado) {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.soats.store', $this->sede), datosSoat(['forma_pago' => $forma]))
+        ->assertSessionHasNoErrors();
+
+    expect(Soat::first())
+        ->forma_pago->toBe(FormaPago::from($forma))
+        ->valor_efectivo->toBe($esperado[0])
+        ->valor_qr->toBe($esperado[1]);
+})->with([
+    'efectivo' => ['efectivo', ['580000.00', '0.00']],
+    'QR' => ['qr', ['0.00', '580000.00']],
+]);
+
+// Issue #74, criterio 3
+test('el SOAT no acepta pago por datáfono', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.soats.store', $this->sede), datosSoat(['forma_pago' => 'datafono']))
+        ->assertSessionHasErrors('forma_pago');
+
+    expect(Soat::count())->toBe(0);
+});
+
+// Issue #74, criterio 2
+test('el pago mixto del SOAT debe sumar su valor', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.soats.store', $this->sede), datosSoat(['forma_pago' => 'mixto', 'valor_efectivo' => 280000, 'valor_qr' => 300000]))
+        ->assertSessionHasNoErrors();
+
+    expect(Soat::first())->valor_efectivo->toBe('280000.00')->valor_qr->toBe('300000.00');
+
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.soats.store', $this->sede), datosSoat(['forma_pago' => 'mixto', 'valor_efectivo' => 100000, 'valor_qr' => 100000]))
+        ->assertSessionHasErrors(['forma_pago' => 'Los valores por medio deben sumar el valor total.']);
+});
+
+// Issue #74, criterio 3
+test('el formulario del SOAT ofrece efectivo, QR y mixto', function () {
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.soats.create', $this->sede))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('formasPago.0.valor', 'efectivo')
+            ->where('formasPago.1.valor', 'qr')
+            ->where('formasPago.2.valor', 'mixto')
+            ->has('formasPago', 3));
+});
+
+// Issue #74, criterio 5
+test('el listado de SOAT muestra la forma de pago de cada registro', function () {
+    Soat::factory()->for($this->sede)->create(['forma_pago' => 'qr', 'valor_efectivo' => 0, 'valor_qr' => 580000]);
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.soats.index', $this->sede))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('soats.0.forma_pago', 'qr')
+            ->where('soats.0.valor_qr', '580000.00'));
 });
