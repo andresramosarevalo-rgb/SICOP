@@ -49,6 +49,9 @@ defineOptions({
                         <th class="px-4 py-2 font-medium">Documento</th>
                         <th class="px-4 py-2 font-medium">Cliente</th>
                         <th class="px-4 py-2 font-medium">Valor</th>
+                        <th class="px-4 py-2">
+                            <span class="sr-only">Acciones</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="divide-y">
@@ -66,10 +69,19 @@ defineOptions({
                         <td class="px-4 py-2">
                             {{ formatearPesos(registro.valor_soat) }}
                         </td>
+                        <td class="px-4 py-2">
+                            <div class="flex justify-end">
+                                <Button variant="outline" size="sm" as-child>
+                                    <Link :href="pos.soats.edit(registro.id)"
+                                        >Editar</Link
+                                    >
+                                </Button>
+                            </div>
+                        </td>
                     </tr>
                     <tr v-if="soats.length === 0">
                         <td
-                            colspan="4"
+                            colspan="5"
                             class="px-4 py-6 text-center text-muted-foreground"
                         >
                             Esta sede aún no ha registrado SOAT.

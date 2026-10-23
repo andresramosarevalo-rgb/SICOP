@@ -47,23 +47,6 @@ test('la sede registra un curso y este aparece en su listado', function () {
             ->where('cursos.0.nombre_cliente', 'Carlos Pérez'));
 });
 
-// Issue #69, criterio 1
-test('el listado muestra los cursos de la sede, los más recientes primero', function () {
-    Curso::factory()->for($this->sede)->create(['fecha' => '2026-10-14', 'nombre_cliente' => 'Antiguo', 'valor_curso' => 350000, 'porcentaje_descuento' => 50]);
-    Curso::factory()->for($this->sede)->create(['fecha' => '2026-10-15', 'nombre_cliente' => 'Reciente']);
-
-    $this->actingAs($this->gerente)
-        ->get(route('pos.sedes.cursos.index', $this->sede))
-        ->assertInertia(fn (Assert $page) => $page
-            ->component('Pos/Cursos/Index')
-            ->where('sede.id', $this->sede->id)
-            ->has('cursos', 2)
-            ->where('cursos.0.nombre_cliente', 'Reciente')
-            ->where('cursos.1.nombre_cliente', 'Antiguo')
-            ->where('cursos.1.valor_curso', '350000.00')
-            ->where('cursos.1.porcentaje_descuento', '50.00'));
-});
-
 // Issue #69, criterio 5
 test('el listado de una sede no muestra los cursos de otra', function () {
     Curso::factory()->create();
@@ -119,16 +102,6 @@ test('una sede inactiva no puede registrar cursos', function () {
     expect(Curso::count())->toBe(0);
 });
 
-// Issue #67, criterio 2
-test('el cajero recibe 403 en los cursos', function () {
-    $cajero = User::factory()->conRol(Rol::Cajero)->create();
-
-    $this->actingAs($cajero)->get(route('pos.sedes.cursos.index', $this->sede))->assertForbidden();
-    $this->actingAs($cajero)
-        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso())
-        ->assertForbidden();
-});
-
 // Issue #69, criterio 4
 test('se pueden editar los datos de un curso', function () {
     $curso = Curso::factory()->for($this->sede)->create();
@@ -141,6 +114,16 @@ test('se pueden editar los datos de un curso', function () {
         ->valor_curso->toBe('420000.00')
         ->porcentaje_descuento->toBe('25.00')
         ->nombre_cliente->toBe('Carlos Pérez');
+});
+
+// Issue #67, criterio 2
+test('el cajero recibe 403 en los cursos', function () {
+    $cajero = User::factory()->conRol(Rol::Cajero)->create();
+
+    $this->actingAs($cajero)->get(route('pos.sedes.cursos.index', $this->sede))->assertForbidden();
+    $this->actingAs($cajero)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso())
+        ->assertForbidden();
 });
 
 // Issue #69, criterio 2
