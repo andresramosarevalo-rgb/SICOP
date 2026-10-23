@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Rol;
+use App\Enums\TipoDocumento;
 use App\Models\Curso;
 use App\Models\Sede;
 use App\Models\User;
@@ -24,6 +25,27 @@ function datosCurso(array $sobrescribir = []): array
         ...$sobrescribir,
     ];
 }
+
+// Issue #69, criterio 1
+test('la sede registra un curso y este aparece en su listado', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso())
+        ->assertRedirect(route('pos.sedes.cursos.index', $this->sede));
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.cursos.index', $this->sede))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Pos/Cursos/Index')
+            ->where('sede.id', $this->sede->id)
+            ->has('cursos', 1)
+            ->where('cursos.0.fecha', today()->toDateString())
+            ->where('cursos.0.tipo_comparendo', 'Tipo C')
+            ->where('cursos.0.valor_curso', '350000.00')
+            ->where('cursos.0.porcentaje_descuento', '50.00')
+            ->where('cursos.0.tipo_documento', 'CC')
+            ->where('cursos.0.numero_documento', '1006123456')
+            ->where('cursos.0.nombre_cliente', 'Carlos Pérez'));
+});
 
 // Issue #69, criterio 1
 test('el listado muestra los cursos de la sede, los más recientes primero', function () {
@@ -52,9 +74,57 @@ test('el listado de una sede no muestra los cursos de otra', function () {
         ->assertInertia(fn (Assert $page) => $page->has('cursos', 1));
 });
 
+// Issue #69, criterio 2
+test('el formulario ofrece los tipos de documento y los descuentos de 25 % y 50 %', function () {
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.cursos.create', $this->sede))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Pos/Cursos/Create')
+            ->has('tiposDocumento', count(TipoDocumento::cases()))
+            ->where('porcentajesDescuento', [25, 50]));
+});
+
+// Issue #69, criterio 2
+test('los datos del curso son obligatorios', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), [])
+        ->assertSessionHasErrors(['fecha', 'tipo_documento', 'numero_documento', 'nombre_cliente', 'tipo_comparendo', 'valor_curso', 'porcentaje_descuento']);
+
+    expect(Curso::count())->toBe(0);
+});
+
+// Issue #69, criterio 2
+test('el descuento solo puede ser 25 % o 50 %', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['porcentaje_descuento' => 30]))
+        ->assertSessionHasErrors(['porcentaje_descuento' => 'El descuento debe ser 25 % o 50 %.']);
+});
+
+// Issue #69, criterio 2
+test('el valor debe ser mayor que cero y la fecha no puede ser futura', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['valor_curso' => 0, 'fecha' => today()->addDay()->toDateString()]))
+        ->assertSessionHasErrors(['valor_curso', 'fecha']);
+});
+
+// Issue #69, criterio 3
+test('una sede inactiva no puede registrar cursos', function () {
+    $sede = Sede::factory()->create(['es_activa' => false]);
+
+    $this->actingAs($this->gerente)->get(route('pos.sedes.cursos.create', $sede))->assertForbidden();
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $sede), datosCurso())
+        ->assertForbidden();
+
+    expect(Curso::count())->toBe(0);
+});
+
 // Issue #67, criterio 2
 test('el cajero recibe 403 en los cursos', function () {
     $cajero = User::factory()->conRol(Rol::Cajero)->create();
 
     $this->actingAs($cajero)->get(route('pos.sedes.cursos.index', $this->sede))->assertForbidden();
+    $this->actingAs($cajero)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso())
+        ->assertForbidden();
 });

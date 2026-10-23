@@ -21,4 +21,17 @@ enum TipoDocumento: string
             self::PermisoProteccionTemporal => 'Permiso por protección temporal',
         };
     }
+
+    /**
+     * Tipos de documento como opciones de un selector: valor y etiqueta.
+     *
+     * @return list<array{valor: string, etiqueta: string}>
+     */
+    public static function opciones(): array
+    {
+        return array_map(
+            fn (self $tipo) => ['valor' => $tipo->value, 'etiqueta' => $tipo->etiqueta()],
+            self::cases(),
+        );
+    }
 }
