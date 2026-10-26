@@ -42,14 +42,21 @@ function filtrarPorDia(fecha: string | number): void {
                 title="Cursos de todas las sedes"
                 description="Cursos registrados por las sedes en el día seleccionado."
             />
-            <div class="grid gap-2">
-                <Label for="fecha">Día</Label>
-                <Input
-                    id="fecha"
-                    type="date"
-                    :model-value="fecha"
-                    @update:model-value="filtrarPorDia"
-                />
+            <div class="flex flex-wrap items-end gap-3">
+                <Button variant="outline" as-child>
+                    <a :href="pos.cursos.exportar.url({ query: { fecha } })"
+                        >Descargar CSV</a
+                    >
+                </Button>
+                <div class="grid gap-2">
+                    <Label for="fecha">Día</Label>
+                    <Input
+                        id="fecha"
+                        type="date"
+                        :model-value="fecha"
+                        @update:model-value="filtrarPorDia"
+                    />
+                </div>
             </div>
         </div>
 
