@@ -102,3 +102,17 @@ export type Consignacion = {
     referencia: string;
     nombre_soporte: string;
 };
+
+export type FilaSaldoConsignacion = {
+    sede: Pick<Sede, 'id' | 'nombre' | 'ciudad'>;
+    valor_a_consignar: string;
+    valor_consignado: string;
+    dias_sin_consignar: number;
+};
+
+export type DiaPorConsignar = {
+    id: number;
+    fecha: string;
+    valor_a_consignar: string;
+    consignacion: Consignacion | null;
+};

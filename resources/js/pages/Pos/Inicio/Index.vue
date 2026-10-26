@@ -40,6 +40,11 @@ const secciones = [
         detalle: 'Estado del cierre y arqueo de todas las sedes en un día.',
         href: pos.cierres.index(),
     },
+    {
+        titulo: 'Consignaciones',
+        detalle: 'Lo que cada sede debe consignar y lo que ya consignó.',
+        href: pos.consignaciones.index(),
+    },
 ];
 </script>
 
