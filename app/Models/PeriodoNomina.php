@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Auditable;
 use App\Enums\EstadoPeriodo;
 use App\Enums\PeriodicidadPago;
 use Database\Factories\PeriodoNominaFactory;
@@ -30,7 +31,7 @@ use Illuminate\Support\Carbon;
 class PeriodoNomina extends Model
 {
     /** @use HasFactory<PeriodoNominaFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -84,6 +85,20 @@ class PeriodoNomina extends Model
     public function estaCerrado(): bool
     {
         return $this->estado === EstadoPeriodo::Cerrado;
+    }
+
+    /**
+     * Cómo se presenta el registro en el historial de auditoría.
+     *
+     * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
+     */
+    public function configuracionAuditoria(): array
+    {
+        return [
+            'modulo' => 'nomina',
+            'etiqueta' => 'Periodo de nómina',
+            'descripcion' => "{$this->fecha_inicio->toDateString()} a {$this->fecha_fin->toDateString()}",
+        ];
     }
 
     /**

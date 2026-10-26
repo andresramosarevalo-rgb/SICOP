@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid, Wallet } from '@lucide/vue';
+import {
+    BookOpen,
+    FolderGit2,
+    LayoutGrid,
+    ShieldCheck,
+    Store,
+    Wallet,
+} from '@lucide/vue';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
@@ -16,23 +23,47 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import admin from '@/routes/admin';
 import nomina from '@/routes/nomina';
+import pos from '@/routes/pos';
 import type { NavItem } from '@/types';
 
 const page = usePage();
 
 const mainNavItems = computed<NavItem[]>(() => [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
+    ...(page.props.auth.sedeId === null
+        ? [
+              {
+                  title: 'Dashboard',
+                  href: dashboard(),
+                  icon: LayoutGrid,
+              },
+          ]
+        : []),
     ...(page.props.auth.permisos.gestionarNomina
         ? [
               {
                   title: 'Nómina',
                   href: nomina.inicio.index(),
                   icon: Wallet,
+              },
+          ]
+        : []),
+    ...(page.props.auth.permisos.usarPos
+        ? [
+              {
+                  title: 'Punto de venta',
+                  href: pos.inicio.index(),
+                  icon: Store,
+              },
+          ]
+        : []),
+    ...(page.props.auth.permisos.verAuditoria
+        ? [
+              {
+                  title: 'Auditoría',
+                  href: admin.auditoria.index(),
+                  icon: ShieldCheck,
               },
           ]
         : []),

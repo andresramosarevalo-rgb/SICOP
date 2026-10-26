@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Auditable;
 use App\Enums\TipoNovedad;
 use Database\Factories\NovedadFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -31,7 +32,7 @@ use Illuminate\Support\Carbon;
 class Novedad extends Model
 {
     /** @use HasFactory<NovedadFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -74,6 +75,20 @@ class Novedad extends Model
     public function dias(): int
     {
         return (int) $this->fecha_inicio->diffInDays($this->fecha_fin ?? $this->fecha_inicio) + 1;
+    }
+
+    /**
+     * Cómo se presenta el registro en el historial de auditoría.
+     *
+     * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
+     */
+    public function configuracionAuditoria(): array
+    {
+        return [
+            'modulo' => 'nomina',
+            'etiqueta' => 'Novedad',
+            'descripcion' => "{$this->tipo->value} de {$this->empleado?->nombres} {$this->empleado?->apellidos}",
+        ];
     }
 
     /**

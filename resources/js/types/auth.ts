@@ -11,9 +11,13 @@ export type User = {
 
 export type Permisos = {
     gestionarNomina: boolean;
+    gestionarPos: boolean;
+    usarPos: boolean;
+    verAuditoria: boolean;
 };
 
 export type Auth = {
     user: User;
+    sedeId: number | null;
     permisos: Permisos;
 };

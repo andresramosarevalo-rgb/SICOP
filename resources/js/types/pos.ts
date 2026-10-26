@@ -1,0 +1,118 @@
+export type Sede = {
+    id: number;
+    nombre: string;
+    ciudad: string;
+    direccion: string;
+    valor_base_caja: string;
+    es_activa: boolean;
+    usuario?: { id: number; email: string } | null;
+};
+
+export type Curso = {
+    id: number;
+    sede_id: number;
+    fecha: string;
+    tipo_documento: string;
+    numero_documento: string;
+    nombre_cliente: string;
+    celular: string;
+    correo: string;
+    numero_certificado: string;
+    numero_comparendo: string;
+    secretaria_transito: string;
+    hora_inicio: string;
+    hora_fin: string;
+    referido: string | null;
+    codigo_infraccion: string;
+    valor_curso: string;
+    porcentaje_descuento: string;
+    valor_pago_gestor?: string;
+    forma_pago: string;
+    valor_efectivo: string;
+    valor_datafono: string;
+    valor_qr: string;
+    sede?: Pick<Sede, 'id' | 'nombre' | 'ciudad'>;
+};
+
+export type Soat = {
+    id: number;
+    sede_id: number;
+    fecha: string;
+    tipo_documento: string;
+    numero_documento: string;
+    nombre_cliente: string;
+    celular: string;
+    correo: string;
+    placa: string;
+    valor_soat: string;
+    forma_pago: string;
+    valor_efectivo: string;
+    valor_qr: string;
+    sede?: Pick<Sede, 'id' | 'nombre' | 'ciudad'>;
+};
+
+export type FilaTarifaGestor = {
+    codigo: string;
+    valor_base: string;
+    ajuste: { id: number; valor_pago_gestor: string } | null;
+};
+
+export type ResumenCaja = {
+    valor_base_caja: string;
+    valor_efectivo_ventas: string;
+    valor_ventas_datafono: string;
+    valor_ventas_qr: string;
+    valor_pago_gestores: string;
+    cantidad_cursos: number;
+    cantidad_soats: number;
+};
+
+export type GastoCaja = {
+    id: number;
+    concepto: string;
+    valor_gasto: string;
+    nombre_soporte: string;
+};
+
+export type CierreCaja = {
+    valor_efectivo_esperado: string;
+    valor_efectivo_contado: string;
+    valor_diferencia_efectivo: string;
+    valor_ventas_datafono: string;
+    valor_reportado_datafono: string;
+    valor_diferencia_datafono: string;
+    valor_ventas_qr: string;
+    valor_reportado_qr: string;
+    valor_diferencia_qr: string;
+    valor_a_consignar: string;
+    justificacion: string | null;
+    cerrado_en: string | null;
+    cerrado_por: { id: number; name: string } | null;
+};
+
+export type FilaCierreCaja = {
+    sede: Pick<Sede, 'id' | 'nombre' | 'ciudad'>;
+    cierre: CierreCaja | null;
+};
+
+export type Consignacion = {
+    id: number;
+    fecha_consignacion: string;
+    valor_consignado: string;
+    referencia: string;
+    nombre_soporte: string;
+};
+
+export type FilaSaldoConsignacion = {
+    sede: Pick<Sede, 'id' | 'nombre' | 'ciudad'>;
+    valor_a_consignar: string;
+    valor_consignado: string;
+    dias_sin_consignar: number;
+};
+
+export type DiaPorConsignar = {
+    id: number;
+    fecha: string;
+    valor_a_consignar: string;
+    consignacion: Consignacion | null;
+};
