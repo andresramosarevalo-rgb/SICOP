@@ -49,3 +49,9 @@ export type Soat = {
     valor_qr: string;
     sede?: Pick<Sede, 'id' | 'nombre' | 'ciudad'>;
 };
+
+export type FilaTarifaGestor = {
+    codigo: string;
+    valor_base: string;
+    ajuste: { id: number; valor_pago_gestor: string } | null;
+};

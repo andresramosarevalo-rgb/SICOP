@@ -30,6 +30,11 @@ const secciones = [
         detalle: 'SOAT registrados por todas las sedes en un día.',
         href: pos.soats.index(),
     },
+    {
+        titulo: 'Tarifas del gestor',
+        detalle: 'Pago al gestor por tipo de comparendo, base y por sede.',
+        href: pos.tarifas.index(),
+    },
 ];
 </script>
 
