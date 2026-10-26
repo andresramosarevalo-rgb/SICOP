@@ -3,3 +3,4 @@ export * from './navigation';
 export * from './ui';
 export * from './nomina';
 export * from './pos';
+export * from './admin';

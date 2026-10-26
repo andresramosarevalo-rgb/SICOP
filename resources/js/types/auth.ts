@@ -13,6 +13,7 @@ export type Permisos = {
     gestionarNomina: boolean;
     gestionarPos: boolean;
     usarPos: boolean;
+    verAuditoria: boolean;
 };
 
 export type Auth = {

@@ -38,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::define('gestionar-nomina', fn (User $user): bool => $user->rol?->puedeGestionarNomina() ?? false);
         Gate::define('gestionar-pos', fn (User $user): bool => $user->rol?->puedeGestionarPos() ?? false);
+        Gate::define('ver-auditoria', fn (User $user): bool => $user->rol?->puedeVerAuditoria() ?? false);
         Gate::define('usar-pos', fn (User $user): bool => $user->rol?->puedeGestionarPos() || ($user->rol === Rol::Cajero && $user->sede?->es_activa === true));
         Gate::define('operar-sede', fn (User $user, Sede $sede): bool => $user->rol?->puedeGestionarPos() || ($user->rol === Rol::Cajero && $user->sede_id === $sede->id && $sede->es_activa));
     }
