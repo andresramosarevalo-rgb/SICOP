@@ -153,3 +153,18 @@ test('consultar la auditoría no genera nuevos registros de auditoría', functio
 
     expect(Auditoria::count())->toBe(0);
 });
+
+test('el historial se pagina de 50 en 50', function () {
+    Auditoria::factory()->count(55)->create(['modulo' => 'pos']);
+
+    $this->actingAs($this->gerente)
+        ->get(route('admin.auditoria.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('auditorias.data', 50)
+            ->where('auditorias.prev_page_url', null)
+            ->where('auditorias.next_page_url', fn (string $url) => str_contains($url, 'page=2')));
+
+    $this->actingAs($this->gerente)
+        ->get(route('admin.auditoria.index', ['page' => 2]))
+        ->assertInertia(fn (Assert $page) => $page->has('auditorias.data', 5)->where('auditorias.next_page_url', null));
+});
