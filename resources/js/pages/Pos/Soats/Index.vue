@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
+import { Button } from '@/components/ui/button';
 import { formatearPesos } from '@/lib/formato';
 import pos from '@/routes/pos';
 import type { Soat, Sede } from '@/types';
@@ -33,6 +34,11 @@ defineOptions({
                 title="SOAT"
                 :description="`${props.sede.nombre} · ${props.sede.ciudad}`"
             />
+            <Button v-if="props.sede.es_activa" as-child>
+                <Link :href="pos.sedes.soats.create(props.sede.id)"
+                    >Registrar SOAT</Link
+                >
+            </Button>
         </div>
 
         <div class="overflow-x-auto rounded-xl border">

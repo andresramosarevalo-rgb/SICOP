@@ -13,5 +13,5 @@ Route::middleware(['auth', 'verified', 'can:gestionar-pos'])
 
         Route::resource('sedes', SedeController::class)->except(['show', 'destroy']);
         Route::resource('sedes.cursos', CursoController::class)->except(['show', 'destroy'])->shallow();
-        Route::resource('sedes.soats', SoatController::class)->only(['index']);
+        Route::resource('sedes.soats', SoatController::class)->only(['index', 'create', 'store']);
     });
