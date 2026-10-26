@@ -30,7 +30,7 @@ class TarifaGestorController extends Controller
             'sedeId' => $sede?->id,
             'filas' => collect(CodigoInfraccion::cases())->map(fn (CodigoInfraccion $codigo) => [
                 'codigo' => $codigo->value,
-                'valor_base' => $tarifas->first(fn (TarifaGestor $tarifa) => $tarifa->sede_id === null && $tarifa->codigo_infraccion === $codigo)?->valor_pago_gestor ?? '0.00',
+                'valor_base' => $tarifas->first(fn (TarifaGestor $tarifa) => $tarifa->sede_id === null && $tarifa->codigo_infraccion === $codigo)->valor_pago_gestor ?? '0.00',
                 'ajuste' => $tarifas->first(fn (TarifaGestor $tarifa) => $tarifa->sede_id !== null && $tarifa->codigo_infraccion === $codigo)?->only(['id', 'valor_pago_gestor']),
             ]),
         ]);
