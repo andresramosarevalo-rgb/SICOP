@@ -97,7 +97,7 @@ class PeriodoNomina extends Model
         return [
             'modulo' => 'nomina',
             'etiqueta' => 'Periodo de nómina',
-            'descripcion' => "{$this->fecha_inicio?->toDateString()} a {$this->fecha_fin?->toDateString()}",
+            'descripcion' => "{$this->fecha_inicio->toDateString()} a {$this->fecha_fin->toDateString()}",
         ];
     }
 

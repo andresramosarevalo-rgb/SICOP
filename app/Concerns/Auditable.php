@@ -35,9 +35,9 @@ trait Auditable
      */
     public static function bootAuditable(): void
     {
-        static::created(fn (Model $modelo) => $modelo->registrarAuditoria('creado', $modelo->cambiosAlCrearOEliminar(true)));
-        static::updated(fn (Model $modelo) => $modelo->registrarAuditoria('modificado', $modelo->cambiosAlModificar()));
-        static::deleted(fn (Model $modelo) => $modelo->registrarAuditoria('eliminado', $modelo->cambiosAlCrearOEliminar(false)));
+        static::created(fn (self $modelo) => $modelo->registrarAuditoria('creado', $modelo->cambiosAlCrearOEliminar(true)));
+        static::updated(fn (self $modelo) => $modelo->registrarAuditoria('modificado', $modelo->cambiosAlModificar()));
+        static::deleted(fn (self $modelo) => $modelo->registrarAuditoria('eliminado', $modelo->cambiosAlCrearOEliminar(false)));
     }
 
     /**

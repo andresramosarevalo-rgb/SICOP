@@ -134,7 +134,7 @@ class CierreCaja extends Model
         return [
             'modulo' => 'pos',
             'etiqueta' => 'Cierre de caja',
-            'descripcion' => "Cierre del {$this->fecha?->toDateString()}",
+            'descripcion' => "Cierre del {$this->fecha->toDateString()}",
             'sede_id' => $this->sede_id,
         ];
     }

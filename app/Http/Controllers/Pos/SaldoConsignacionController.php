@@ -27,15 +27,16 @@ class SaldoConsignacionController extends Controller
             ->selectRaw('coalesce(sum(cierres_caja.valor_a_consignar), 0) as valor_a_consignar')
             ->selectRaw('coalesce(sum(consignaciones.valor_consignado), 0) as valor_consignado')
             ->selectRaw('coalesce(sum(case when consignaciones.id is null and cierres_caja.valor_a_consignar > 0 then 1 else 0 end), 0) as dias_sin_consignar')
+            ->toBase()
             ->get()
             ->keyBy('sede_id');
 
         $filas = Sede::query()->orderBy('nombre')->get(['id', 'nombre', 'ciudad', 'es_activa'])
             ->map(fn (Sede $fila) => [
                 'sede' => $fila,
-                'valor_a_consignar' => number_format((float) ($saldos->get($fila->id)?->valor_a_consignar ?? 0), 2, '.', ''),
-                'valor_consignado' => number_format((float) ($saldos->get($fila->id)?->valor_consignado ?? 0), 2, '.', ''),
-                'dias_sin_consignar' => (int) ($saldos->get($fila->id)?->dias_sin_consignar ?? 0),
+                'valor_a_consignar' => number_format((float) ($saldos->get($fila->id)->valor_a_consignar ?? 0), 2, '.', ''),
+                'valor_consignado' => number_format((float) ($saldos->get($fila->id)->valor_consignado ?? 0), 2, '.', ''),
+                'dias_sin_consignar' => (int) ($saldos->get($fila->id)->dias_sin_consignar ?? 0),
             ])
             ->filter(fn (array $fila) => $fila['sede']->es_activa || (float) $fila['valor_a_consignar'] !== 0.0)
             ->values();
