@@ -87,7 +87,7 @@ class Curso extends Model
         return [
             'modulo' => 'pos',
             'etiqueta' => 'Curso',
-            'descripcion' => "{$this->nombre_cliente} · {$this->fecha?->toDateString()}",
+            'descripcion' => "{$this->nombre_cliente} · {$this->fecha->toDateString()}",
             'sede_id' => $this->sede_id,
         ];
     }
