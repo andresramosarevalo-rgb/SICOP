@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Pos;
 
+use App\Models\Curso;
+
 class UpdateCursoRequest extends StoreCursoRequest
 {
     /**
@@ -9,6 +11,8 @@ class UpdateCursoRequest extends StoreCursoRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('operar-sede', $this->route('curso')->sede);
+        $curso = $this->route('curso');
+
+        return $curso instanceof Curso && $this->user()->can('operar-sede', $curso->sede);
     }
 }
