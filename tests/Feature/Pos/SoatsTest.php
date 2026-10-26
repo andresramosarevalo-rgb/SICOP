@@ -192,3 +192,18 @@ test('el listado de SOAT muestra la forma de pago de cada registro', function ()
             ->where('soats.0.forma_pago', 'qr')
             ->where('soats.0.valor_qr', '580000.00'));
 });
+
+test('el listado muestra los SOAT de la sede, los más recientes primero', function () {
+    Soat::factory()->for($this->sede)->create(['fecha' => '2026-10-14', 'nombre_cliente' => 'Antiguo', 'valor_soat' => 580000]);
+    Soat::factory()->for($this->sede)->create(['fecha' => '2026-10-15', 'nombre_cliente' => 'Reciente']);
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.soats.index', $this->sede))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Pos/Soats/Index')
+            ->where('sede.id', $this->sede->id)
+            ->has('soats', 2)
+            ->where('soats.0.nombre_cliente', 'Reciente')
+            ->where('soats.1.nombre_cliente', 'Antiguo')
+            ->where('soats.1.valor_soat', '580000.00'));
+});
