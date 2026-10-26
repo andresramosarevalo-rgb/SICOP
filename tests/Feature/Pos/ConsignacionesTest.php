@@ -142,3 +142,17 @@ test('el usuario de la sede no registra ni elimina consignaciones pero sí ve su
         ->get(route('pos.consignaciones.soporte', $consignacion))
         ->assertForbidden();
 });
+
+test('el usuario de la sede no registra consignaciones pero sí ve su comprobante', function () {
+    $consignacion = Consignacion::factory()->create(['cierre_caja_id' => $this->cierre->id]);
+    Storage::disk('local')->put($consignacion->ruta_soporte, 'contenido');
+
+    $this->actingAs($this->usuarioSede)
+        ->post(route('pos.cierre.consignacion.store', $this->cierre), datosConsignacion())
+        ->assertForbidden();
+
+    $this->actingAs($this->usuarioSede)->get(route('pos.consignaciones.soporte', $consignacion))->assertOk();
+    $this->actingAs(User::factory()->paraSede(Sede::factory()->create())->create())
+        ->get(route('pos.consignaciones.soporte', $consignacion))
+        ->assertForbidden();
+});
