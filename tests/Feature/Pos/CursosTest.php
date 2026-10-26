@@ -128,3 +128,24 @@ test('el cajero recibe 403 en los cursos', function () {
         ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso())
         ->assertForbidden();
 });
+
+// Issue #69, criterio 4
+test('se pueden editar los datos de un curso', function () {
+    $curso = Curso::factory()->for($this->sede)->create();
+
+    $this->actingAs($this->gerente)
+        ->put(route('pos.cursos.update', $curso), datosCurso(['valor_curso' => '420000', 'porcentaje_descuento' => 25]))
+        ->assertRedirect(route('pos.sedes.cursos.index', $this->sede));
+
+    expect($curso->fresh())
+        ->valor_curso->toBe('420000.00')
+        ->porcentaje_descuento->toBe('25.00')
+        ->nombre_cliente->toBe('Carlos Pérez');
+});
+
+// Issue #69, criterio 2
+test('el tipo de documento debe ser válido y el número solo lleva letras y números', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['tipo_documento' => 'XX', 'numero_documento' => '1.006 123']))
+        ->assertSessionHasErrors(['tipo_documento', 'numero_documento']);
+});

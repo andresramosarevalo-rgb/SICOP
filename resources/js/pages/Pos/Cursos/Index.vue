@@ -51,6 +51,9 @@ defineOptions({
                         <th class="px-4 py-2 font-medium">Comparendo</th>
                         <th class="px-4 py-2 font-medium">Valor</th>
                         <th class="px-4 py-2 font-medium">Descuento</th>
+                        <th class="px-4 py-2">
+                            <span class="sr-only">Acciones</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="divide-y">
@@ -74,10 +77,19 @@ defineOptions({
                         <td class="px-4 py-2">
                             {{ Number(registro.porcentaje_descuento) }} %
                         </td>
+                        <td class="px-4 py-2">
+                            <div class="flex justify-end">
+                                <Button variant="outline" size="sm" as-child>
+                                    <Link :href="pos.cursos.edit(registro.id)"
+                                        >Editar</Link
+                                    >
+                                </Button>
+                            </div>
+                        </td>
                     </tr>
                     <tr v-if="cursos.length === 0">
                         <td
-                            colspan="6"
+                            colspan="7"
                             class="px-4 py-6 text-center text-muted-foreground"
                         >
                             Esta sede aún no ha registrado cursos.
