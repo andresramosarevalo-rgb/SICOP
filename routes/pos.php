@@ -23,6 +23,7 @@ Route::middleware(['auth', 'verified'])
             Route::resource('sedes.soats', SoatController::class)->except(['show', 'destroy'])->shallow();
 
             Route::get('sedes/{sede}/cierre', [CierreCajaController::class, 'show'])->name('sedes.cierre.show');
+            Route::post('sedes/{sede}/cierre', [CierreCajaController::class, 'store'])->name('sedes.cierre.store');
             Route::post('sedes/{sede}/cierre/gastos', [GastoCajaController::class, 'store'])->name('sedes.cierre.gastos.store');
             Route::delete('cierre/gastos/{gasto}', [GastoCajaController::class, 'destroy'])->name('cierre.gastos.destroy');
             Route::get('cierre/gastos/{gasto}/soporte', [GastoCajaController::class, 'soporte'])->name('cierre.gastos.soporte');

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EstadoCierre;
+use Carbon\CarbonInterface;
 use Database\Factories\CierreCajaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -67,6 +68,19 @@ class CierreCaja extends Model
     }
 
     /**
+     * Indica si la sede ya cerró la caja de un día: desde entonces no se registran ni modifican
+     * sus cursos, SOAT ni gastos.
+     */
+    public static function diaCerrado(int $sedeId, CarbonInterface|string $fecha): bool
+    {
+        return static::query()
+            ->where('sede_id', $sedeId)
+            ->whereDate('fecha', $fecha instanceof CarbonInterface ? $fecha->toDateString() : $fecha)
+            ->where('estado', EstadoCierre::Cerrado)
+            ->exists();
+    }
+
+    /**
      * Sede a la que pertenece el cierre.
      *
      * @return BelongsTo<Sede, $this>
@@ -74,6 +88,16 @@ class CierreCaja extends Model
     public function sede(): BelongsTo
     {
         return $this->belongsTo(Sede::class);
+    }
+
+    /**
+     * Usuario que cerró el día.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function cerradoPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'cerrado_por');
     }
 
     /**
