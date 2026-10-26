@@ -66,3 +66,10 @@ export type ResumenCaja = {
     cantidad_cursos: number;
     cantidad_soats: number;
 };
+
+export type GastoCaja = {
+    id: number;
+    concepto: string;
+    valor_gasto: string;
+    nombre_soporte: string;
+};

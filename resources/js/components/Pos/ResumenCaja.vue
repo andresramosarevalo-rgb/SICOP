@@ -4,6 +4,7 @@ import type { ResumenCaja } from '@/types';
 
 defineProps<{
     resumen: ResumenCaja;
+    valorGastos: number;
     valorEfectivoEsperado: number;
 }>();
 </script>
@@ -42,6 +43,12 @@ defineProps<{
             <dt class="text-sm text-muted-foreground">Pago a gestores</dt>
             <dd class="text-lg font-semibold">
                 − {{ formatearPesos(resumen.valor_pago_gestores) }}
+            </dd>
+        </div>
+        <div class="rounded-xl border p-4">
+            <dt class="text-sm text-muted-foreground">Gastos</dt>
+            <dd class="text-lg font-semibold">
+                − {{ formatearPesos(valorGastos) }}
             </dd>
         </div>
         <div class="rounded-xl border bg-muted/50 p-4 sm:col-span-2">
