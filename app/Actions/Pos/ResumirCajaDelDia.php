@@ -21,12 +21,14 @@ class ResumirCajaDelDia
             ->where('sede_id', $sede->id)
             ->whereDate('fecha', $fecha)
             ->selectRaw('count(*) as cantidad, coalesce(sum(valor_efectivo), 0) as efectivo, coalesce(sum(valor_datafono), 0) as datafono, coalesce(sum(valor_qr), 0) as qr, coalesce(sum(valor_pago_gestor), 0) as gestores')
+            ->toBase()
             ->first();
 
         $soats = Soat::query()
             ->where('sede_id', $sede->id)
             ->whereDate('fecha', $fecha)
             ->selectRaw('count(*) as cantidad, coalesce(sum(valor_efectivo), 0) as efectivo, coalesce(sum(valor_qr), 0) as qr')
+            ->toBase()
             ->first();
 
         return [
