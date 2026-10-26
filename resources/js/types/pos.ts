@@ -14,6 +14,14 @@ export type Curso = {
     tipo_documento: string;
     numero_documento: string;
     nombre_cliente: string;
+    celular: string;
+    correo: string;
+    numero_certificado: string;
+    numero_comparendo: string;
+    secretaria_transito: string;
+    hora_inicio: string;
+    hora_fin: string;
+    referido: string | null;
     tipo_comparendo: string;
     valor_curso: string;
     porcentaje_descuento: string;

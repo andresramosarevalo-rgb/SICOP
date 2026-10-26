@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Referido;
 use App\Enums\TipoDocumento;
 use Database\Factories\CursoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -18,6 +19,14 @@ use Illuminate\Support\Carbon;
  * @property TipoDocumento $tipo_documento
  * @property string $numero_documento
  * @property string $nombre_cliente
+ * @property string $celular
+ * @property string $correo
+ * @property string $numero_certificado
+ * @property string $numero_comparendo
+ * @property string $secretaria_transito
+ * @property string $hora_inicio
+ * @property string $hora_fin
+ * @property Referido|null $referido
  * @property Carbon $fecha
  * @property string $tipo_comparendo
  * @property string $valor_curso
@@ -25,7 +34,11 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['sede_id', 'fecha', 'tipo_documento', 'numero_documento', 'nombre_cliente', 'tipo_comparendo', 'valor_curso', 'porcentaje_descuento'])]
+#[Fillable([
+    'sede_id', 'fecha', 'tipo_documento', 'numero_documento', 'nombre_cliente', 'celular', 'correo',
+    'numero_certificado', 'numero_comparendo', 'secretaria_transito', 'hora_inicio', 'hora_fin',
+    'referido', 'tipo_comparendo', 'valor_curso', 'porcentaje_descuento',
+])]
 class Curso extends Model
 {
     /** @use HasFactory<CursoFactory> */
@@ -67,6 +80,6 @@ class Curso extends Model
             'tipo_documento' => TipoDocumento::class,
             'valor_curso' => 'decimal:2',
             'porcentaje_descuento' => 'decimal:2',
-        ];
+            'referido' => Referido::class,        ];
     }
 }

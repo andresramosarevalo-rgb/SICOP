@@ -82,27 +82,13 @@ test('el usuario de la sede solo ve los cursos y SOAT de su sede', function () {
 // Issue #71, criterio 4
 test('el usuario de la sede registra y edita cursos y SOAT de su sede', function () {
     $this->actingAs($this->usuarioSede)
-        ->post(route('pos.sedes.cursos.store', $this->sede), [
-            'fecha' => today()->toDateString(),
-            'tipo_documento' => 'CC',
-            'numero_documento' => '1006123456',
-            'nombre_cliente' => 'Carlos Pérez',
-            'tipo_comparendo' => 'Tipo C',
-            'valor_curso' => '350000',
-            'porcentaje_descuento' => 50,
-        ])
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso())
         ->assertRedirect(route('pos.sedes.cursos.index', $this->sede));
 
     $soat = Soat::factory()->for($this->sede)->create();
 
     $this->actingAs($this->usuarioSede)
-        ->put(route('pos.soats.update', $soat), [
-            'fecha' => today()->toDateString(),
-            'tipo_documento' => 'CC',
-            'numero_documento' => '1006123456',
-            'nombre_cliente' => 'Carlos Pérez',
-            'valor_soat' => '600000',
-        ])
+        ->put(route('pos.soats.update', $soat), datosSoat(['valor_soat' => '600000']))
         ->assertRedirect(route('pos.sedes.soats.index', $this->sede));
 
     expect(Curso::where('sede_id', $this->sede->id)->count())->toBe(1)

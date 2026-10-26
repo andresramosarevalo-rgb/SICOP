@@ -6,11 +6,12 @@ import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import CamposCurso from '@/components/Pos/CamposCurso.vue';
 import { Button } from '@/components/ui/button';
 import pos from '@/routes/pos';
-import type { OpcionTipoDocumento, Curso, Sede } from '@/types';
+import type { Opcion, OpcionTipoDocumento, Curso, Sede } from '@/types';
 
 const props = defineProps<{
     sede: Sede;
     tiposDocumento: OpcionTipoDocumento[];
+    referidos: Opcion[];
     curso: Curso;
     porcentajesDescuento: number[];
 }>();
@@ -42,6 +43,7 @@ defineOptions({
             <CamposCurso
                 :errors="errors"
                 :tipos-documento="props.tiposDocumento"
+                :referidos="props.referidos"
                 :porcentajes-descuento="props.porcentajesDescuento"
                 :curso="props.curso"
             />

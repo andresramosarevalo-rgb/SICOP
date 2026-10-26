@@ -2,11 +2,12 @@
 import InputError from '@/components/InputError.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { Curso, OpcionTipoDocumento } from '@/types';
+import type { Curso, Opcion, OpcionTipoDocumento } from '@/types';
 
 defineProps<{
     errors: Record<string, string | undefined>;
     tiposDocumento: OpcionTipoDocumento[];
+    referidos: Opcion[];
     porcentajesDescuento: number[];
     curso?: Curso;
 }>();
@@ -115,6 +116,99 @@ const claseSelect =
                 </option>
             </select>
             <InputError :message="errors.porcentaje_descuento" />
+        </div>
+        <div class="grid gap-2">
+            <Label for="celular">Celular</Label>
+            <Input
+                id="celular"
+                name="celular"
+                type="tel"
+                :default-value="curso?.celular"
+                required
+            />
+            <InputError :message="errors.celular" />
+        </div>
+        <div class="grid gap-2">
+            <Label for="correo">Correo electrónico</Label>
+            <Input
+                id="correo"
+                name="correo"
+                type="email"
+                :default-value="curso?.correo"
+                required
+            />
+            <InputError :message="errors.correo" />
+        </div>
+        <div class="grid gap-2">
+            <Label for="numero_certificado">Número de certificado</Label>
+            <Input
+                id="numero_certificado"
+                name="numero_certificado"
+                :default-value="curso?.numero_certificado"
+                required
+            />
+            <InputError :message="errors.numero_certificado" />
+        </div>
+        <div class="grid gap-2">
+            <Label for="numero_comparendo">Número de comparendo</Label>
+            <Input
+                id="numero_comparendo"
+                name="numero_comparendo"
+                :default-value="curso?.numero_comparendo"
+                required
+            />
+            <InputError :message="errors.numero_comparendo" />
+        </div>
+        <div class="grid gap-2">
+            <Label for="secretaria_transito">Secretaría de tránsito</Label>
+            <Input
+                id="secretaria_transito"
+                name="secretaria_transito"
+                :default-value="curso?.secretaria_transito"
+                required
+            />
+            <InputError :message="errors.secretaria_transito" />
+        </div>
+        <div class="grid gap-2">
+            <Label for="hora_inicio">Hora de inicio</Label>
+            <Input
+                id="hora_inicio"
+                name="hora_inicio"
+                type="time"
+                :default-value="curso?.hora_inicio?.slice(0, 5)"
+                required
+            />
+            <InputError :message="errors.hora_inicio" />
+        </div>
+        <div class="grid gap-2">
+            <Label for="hora_fin">Hora de fin</Label>
+            <Input
+                id="hora_fin"
+                name="hora_fin"
+                type="time"
+                :default-value="curso?.hora_fin?.slice(0, 5)"
+                required
+            />
+            <InputError :message="errors.hora_fin" />
+        </div>
+        <div class="grid gap-2">
+            <Label for="referido">Referido</Label>
+            <select
+                id="referido"
+                name="referido"
+                :class="claseSelect"
+                :value="curso?.referido ?? ''"
+            >
+                <option value="">Sin referido</option>
+                <option
+                    v-for="referido in referidos"
+                    :key="referido.valor"
+                    :value="referido.valor"
+                >
+                    {{ referido.etiqueta }}
+                </option>
+            </select>
+            <InputError :message="errors.referido" />
         </div>
     </div>
 </template>
