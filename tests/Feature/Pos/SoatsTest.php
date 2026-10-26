@@ -109,3 +109,18 @@ test('el tipo de documento debe ser válido y el número solo lleva letras y nú
         ->post(route('pos.sedes.soats.store', $this->sede), datosSoat(['tipo_documento' => 'XX', 'numero_documento' => '1.006 123']))
         ->assertSessionHasErrors(['tipo_documento', 'numero_documento']);
 });
+
+test('el listado muestra los SOAT de la sede, los más recientes primero', function () {
+    Soat::factory()->for($this->sede)->create(['fecha' => '2026-10-14', 'nombre_cliente' => 'Antiguo', 'valor_soat' => 580000]);
+    Soat::factory()->for($this->sede)->create(['fecha' => '2026-10-15', 'nombre_cliente' => 'Reciente']);
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.soats.index', $this->sede))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Pos/Soats/Index')
+            ->where('sede.id', $this->sede->id)
+            ->has('soats', 2)
+            ->where('soats.0.nombre_cliente', 'Reciente')
+            ->where('soats.1.nombre_cliente', 'Antiguo')
+            ->where('soats.1.valor_soat', '580000.00'));
+});
