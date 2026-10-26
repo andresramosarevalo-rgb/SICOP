@@ -14,7 +14,13 @@ defineOptions({
     },
 });
 
-const secciones: { titulo: string; detalle: string; href: string }[] = [];
+const secciones = [
+    {
+        titulo: 'Sedes',
+        detalle: 'Sedes de COVIACOL con su ciudad y dirección.',
+        href: pos.sedes.index(),
+    },
+];
 </script>
 
 <template>
