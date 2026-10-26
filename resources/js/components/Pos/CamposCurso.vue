@@ -8,6 +8,7 @@ import type { Curso, Opcion, OpcionTipoDocumento } from '@/types';
 defineProps<{
     errors: Record<string, string | undefined>;
     tiposDocumento: OpcionTipoDocumento[];
+    codigosInfraccion: Opcion[];
     formasPago: Opcion[];
     referidos: Opcion[];
     porcentajesDescuento: number[];
@@ -74,14 +75,24 @@ const claseSelect =
             <InputError :message="errors.fecha" />
         </div>
         <div class="grid gap-2">
-            <Label for="tipo_comparendo">Tipo de comparendo</Label>
-            <Input
-                id="tipo_comparendo"
-                name="tipo_comparendo"
-                :default-value="curso?.tipo_comparendo"
+            <Label for="codigo_infraccion">Tipo de comparendo</Label>
+            <select
+                id="codigo_infraccion"
+                name="codigo_infraccion"
+                :class="claseSelect"
+                :value="curso?.codigo_infraccion ?? ''"
                 required
-            />
-            <InputError :message="errors.tipo_comparendo" />
+            >
+                <option value="" disabled>Seleccione el tipo</option>
+                <option
+                    v-for="codigo in codigosInfraccion"
+                    :key="codigo.valor"
+                    :value="codigo.valor"
+                >
+                    {{ codigo.etiqueta }}
+                </option>
+            </select>
+            <InputError :message="errors.codigo_infraccion" />
         </div>
         <div class="grid gap-2">
             <Label for="valor_curso">Valor del curso</Label>

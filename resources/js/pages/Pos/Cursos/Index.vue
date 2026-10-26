@@ -58,7 +58,7 @@ defineOptions({
                         <th class="px-4 py-2 font-medium">Fecha</th>
                         <th class="px-4 py-2 font-medium">Documento</th>
                         <th class="px-4 py-2 font-medium">Cliente</th>
-                        <th class="px-4 py-2 font-medium">Comparendo</th>
+                        <th class="px-4 py-2 font-medium">Tipo</th>
                         <th class="px-4 py-2 font-medium">N.º comparendo</th>
                         <th class="px-4 py-2 font-medium">Pago</th>
                         <th class="px-4 py-2 font-medium">Valor</th>
@@ -81,7 +81,7 @@ defineOptions({
                             {{ registro.nombre_cliente }}
                         </td>
                         <td class="px-4 py-2">
-                            {{ registro.tipo_comparendo }}
+                            {{ registro.codigo_infraccion }}
                         </td>
                         <td class="px-4 py-2">
                             {{ registro.numero_comparendo }}
