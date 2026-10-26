@@ -268,3 +268,19 @@ test('el listado de cursos muestra la forma de pago de cada registro', function 
             ->where('cursos.0.forma_pago', 'qr')
             ->where('cursos.0.valor_qr', '350000.00'));
 });
+
+test('el listado muestra los cursos de la sede, los más recientes primero', function () {
+    Curso::factory()->for($this->sede)->create(['fecha' => '2026-10-14', 'nombre_cliente' => 'Antiguo', 'valor_curso' => 350000, 'porcentaje_descuento' => 50]);
+    Curso::factory()->for($this->sede)->create(['fecha' => '2026-10-15', 'nombre_cliente' => 'Reciente']);
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.cursos.index', $this->sede))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Pos/Cursos/Index')
+            ->where('sede.id', $this->sede->id)
+            ->has('cursos', 2)
+            ->where('cursos.0.nombre_cliente', 'Reciente')
+            ->where('cursos.1.nombre_cliente', 'Antiguo')
+            ->where('cursos.1.valor_curso', '350000.00')
+            ->where('cursos.1.porcentaje_descuento', '50.00'));
+});
