@@ -16,4 +16,12 @@ enum Rol: string
     {
         return in_array($this, [self::Administrador, self::AuxiliarNomina], true);
     }
+
+    /**
+     * Indica si el rol puede gestionar el módulo de punto de venta.
+     */
+    public function puedeGestionarPos(): bool
+    {
+        return $this === self::Administrador;
+    }
 }
