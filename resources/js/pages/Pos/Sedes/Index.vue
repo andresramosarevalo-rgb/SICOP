@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import pos from '@/routes/pos';
 import type { Sede } from '@/types';
 
@@ -31,6 +32,9 @@ defineProps<{
                 title="Sedes"
                 description="Cada sede registra sus cursos y SOAT vendidos."
             />
+            <Button as-child>
+                <Link :href="pos.sedes.create()">Nueva sede</Link>
+            </Button>
         </div>
 
         <div class="overflow-x-auto rounded-xl border">
@@ -41,6 +45,9 @@ defineProps<{
                         <th class="px-4 py-2 font-medium">Ciudad</th>
                         <th class="px-4 py-2 font-medium">Dirección</th>
                         <th class="px-4 py-2 font-medium">Estado</th>
+                        <th class="px-4 py-2">
+                            <span class="sr-only">Acciones</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="divide-y">
@@ -58,10 +65,19 @@ defineProps<{
                                 }}</Badge
                             >
                         </td>
+                        <td class="px-4 py-2">
+                            <div class="flex justify-end">
+                                <Button variant="outline" size="sm" as-child>
+                                    <Link :href="pos.sedes.edit(sede.id)"
+                                        >Editar</Link
+                                    >
+                                </Button>
+                            </div>
+                        </td>
                     </tr>
                     <tr v-if="sedes.length === 0">
                         <td
-                            colspan="4"
+                            colspan="5"
                             class="px-4 py-6 text-center text-muted-foreground"
                         >
                             Aún no hay sedes registradas.

@@ -22,6 +22,66 @@ function datosSede(array $sobrescribir = []): array
     ];
 }
 
+// Issue #68, criterio 1
+test('al guardar una sede nueva queda activa y aparece en el listado', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.store'), datosSede())
+        ->assertRedirect(route('pos.sedes.index'));
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Pos/Sedes/Index')
+            ->has('sedes', 1)
+            ->where('sedes.0.nombre', 'Sede Villavicencio')
+            ->where('sedes.0.ciudad', 'Villavicencio')
+            ->where('sedes.0.direccion', 'Calle 15 # 30-20')
+            ->where('sedes.0.es_activa', true));
+});
+
+// Issue #68, criterio 1
+test('nombre, ciudad y dirección son obligatorios', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.store'), [])
+        ->assertSessionHasErrors(['nombre', 'ciudad', 'direccion']);
+
+    expect(Sede::count())->toBe(0);
+});
+
+// Issue #68, criterio 2
+test('no se puede crear una sede con un nombre que ya existe', function () {
+    Sede::factory()->create(['nombre' => 'Sede Villavicencio']);
+
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.store'), datosSede())
+        ->assertSessionHasErrors(['nombre' => 'Ya existe una sede con ese nombre.']);
+
+    expect(Sede::count())->toBe(1);
+});
+
+// Issue #68, criterio 2
+test('se pueden editar los datos de la sede y conservar su propio nombre', function () {
+    $sede = Sede::factory()->create(['nombre' => 'Sede Villavicencio']);
+
+    $this->actingAs($this->gerente)
+        ->put(route('pos.sedes.update', $sede), datosSede(['ciudad' => 'Acacías']))
+        ->assertRedirect(route('pos.sedes.index'));
+
+    expect($sede->fresh()->ciudad)->toBe('Acacías');
+});
+
+// Issue #68, criterio 3
+test('al desactivar una sede se conserva pero deja de estar activa', function () {
+    $sede = Sede::factory()->create();
+
+    $this->actingAs($this->gerente)
+        ->put(route('pos.sedes.update', $sede), datosSede(['nombre' => $sede->nombre, 'es_activa' => false]))
+        ->assertRedirect(route('pos.sedes.index'));
+
+    expect(Sede::count())->toBe(1)
+        ->and(Sede::activas()->count())->toBe(0);
+});
+
 // Issue #67, criterios 1 y 2
 test('solo el administrador puede gestionar el punto de venta', function (?Rol $rol, bool $puedeGestionar) {
     $user = User::factory()->create(['rol' => $rol]);
@@ -69,7 +129,7 @@ test('todas las rutas de POS responden 403 al cajero y redirigen al visitante al
         }
     }
 
-    expect($rutas)->toHaveCount(2)
+    expect($rutas)->toHaveCount(6)
         ->and($expuestas)->toBe([]);
 });
 
