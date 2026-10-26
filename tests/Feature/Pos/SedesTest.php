@@ -21,6 +21,7 @@ function datosSede(array $sobrescribir = []): array
         'nombre' => 'Sede Villavicencio',
         'ciudad' => 'Villavicencio',
         'direccion' => 'Calle 15 # 30-20',
+        'valor_base_caja' => '200000',
         ...$sobrescribir,
     ];
 }
@@ -137,7 +138,7 @@ test('todas las rutas de POS responden 403 al cajero y redirigen al visitante al
         }
     }
 
-    expect($rutas)->toHaveCount(22)
+    expect($rutas)->toHaveCount(23)
         ->and($expuestas)->toBe([]);
 });
 

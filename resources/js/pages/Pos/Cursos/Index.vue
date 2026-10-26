@@ -39,6 +39,11 @@ defineOptions({
             />
             <div class="flex flex-wrap gap-2">
                 <Button variant="outline" as-child>
+                    <Link :href="pos.sedes.cierre.show(props.sede.id)"
+                        >Cierre de caja</Link
+                    >
+                </Button>
+                <Button variant="outline" as-child>
                     <Link :href="pos.sedes.soats.index(props.sede.id)"
                         >SOAT</Link
                     >

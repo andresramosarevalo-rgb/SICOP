@@ -3,6 +3,7 @@ export type Sede = {
     nombre: string;
     ciudad: string;
     direccion: string;
+    valor_base_caja: string;
     es_activa: boolean;
     usuario?: { id: number; email: string } | null;
 };
@@ -54,4 +55,14 @@ export type FilaTarifaGestor = {
     codigo: string;
     valor_base: string;
     ajuste: { id: number; valor_pago_gestor: string } | null;
+};
+
+export type ResumenCaja = {
+    valor_base_caja: string;
+    valor_efectivo_ventas: string;
+    valor_ventas_datafono: string;
+    valor_ventas_qr: string;
+    valor_pago_gestores: string;
+    cantidad_cursos: number;
+    cantidad_soats: number;
 };
