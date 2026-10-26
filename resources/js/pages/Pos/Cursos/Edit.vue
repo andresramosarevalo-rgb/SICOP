@@ -19,21 +19,20 @@ defineOptions({
     layout: {
         breadcrumbs: [
             { title: 'Punto de venta', href: pos.inicio.index() },
-            { title: 'Sedes', href: pos.sedes.index() },
-            { title: 'Curso', href: '' },
-            { title: 'Editar Curso', href: '' },
+            { title: 'Cursos', href: '' },
+            { title: 'Editar curso', href: '' },
         ],
     },
 });
 </script>
 
 <template>
-    <Head title="Editar Curso" />
+    <Head title="Editar curso" />
 
     <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
         <BotonAtras :respaldo="pos.sedes.cursos.index(props.sede.id)" />
 
-        <Heading title="Editar Curso" :description="props.sede.nombre" />
+        <Heading title="Editar curso" :description="props.sede.nombre" />
 
         <Form
             v-bind="CursoController.update.form(props.curso.id)"

@@ -9,6 +9,7 @@ use App\Http\Requests\Pos\UpdateCursoRequest;
 use App\Models\Curso;
 use App\Models\Sede;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,6 +20,8 @@ class CursoController extends Controller
      */
     public function index(Sede $sede): Response
     {
+        Gate::authorize('operar-sede', $sede);
+
         return Inertia::render('Pos/Cursos/Index', [
             'sede' => $sede,
             'cursos' => $sede->cursos()->orderByDesc('fecha')->orderByDesc('id')->get(),
@@ -30,6 +33,7 @@ class CursoController extends Controller
      */
     public function create(Sede $sede): Response
     {
+        Gate::authorize('operar-sede', $sede);
         abort_unless($sede->es_activa, 403, 'La sede está inactiva.');
 
         return Inertia::render('Pos/Cursos/Create', [
@@ -57,6 +61,8 @@ class CursoController extends Controller
      */
     public function edit(Curso $curso): Response
     {
+        Gate::authorize('operar-sede', $curso->sede);
+
         return Inertia::render('Pos/Cursos/Edit', [
             'curso' => $curso,
             'sede' => $curso->sede,
