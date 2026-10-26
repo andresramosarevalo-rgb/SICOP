@@ -132,3 +132,19 @@ test('el tipo de documento debe ser válido y el número solo lleva letras y nú
         ->post(route('pos.sedes.cursos.store', $this->sede), datosCurso(['tipo_documento' => 'XX', 'numero_documento' => '1.006 123']))
         ->assertSessionHasErrors(['tipo_documento', 'numero_documento']);
 });
+
+test('el listado muestra los cursos de la sede, los más recientes primero', function () {
+    Curso::factory()->for($this->sede)->create(['fecha' => '2026-10-14', 'nombre_cliente' => 'Antiguo', 'valor_curso' => 350000, 'porcentaje_descuento' => 50]);
+    Curso::factory()->for($this->sede)->create(['fecha' => '2026-10-15', 'nombre_cliente' => 'Reciente']);
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.cursos.index', $this->sede))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Pos/Cursos/Index')
+            ->where('sede.id', $this->sede->id)
+            ->has('cursos', 2)
+            ->where('cursos.0.nombre_cliente', 'Reciente')
+            ->where('cursos.1.nombre_cliente', 'Antiguo')
+            ->where('cursos.1.valor_curso', '350000.00')
+            ->where('cursos.1.porcentaje_descuento', '50.00'));
+});
