@@ -24,32 +24,6 @@ function datosSoat(array $sobrescribir = []): array
 }
 
 // Issue #70, criterio 1
-test('el listado muestra los SOAT de la sede, los más recientes primero', function () {
-    Soat::factory()->for($this->sede)->create(['fecha' => '2026-10-14', 'nombre_cliente' => 'Antiguo', 'valor_soat' => 580000]);
-    Soat::factory()->for($this->sede)->create(['fecha' => '2026-10-15', 'nombre_cliente' => 'Reciente']);
-
-    $this->actingAs($this->gerente)
-        ->get(route('pos.sedes.soats.index', $this->sede))
-        ->assertInertia(fn (Assert $page) => $page
-            ->component('Pos/Soats/Index')
-            ->where('sede.id', $this->sede->id)
-            ->has('soats', 2)
-            ->where('soats.0.nombre_cliente', 'Reciente')
-            ->where('soats.1.nombre_cliente', 'Antiguo')
-            ->where('soats.1.valor_soat', '580000.00'));
-});
-
-// Issue #70, criterio 1
-test('el listado de una sede no muestra los SOAT de otra', function () {
-    Soat::factory()->create();
-    Soat::factory()->for($this->sede)->create();
-
-    $this->actingAs($this->gerente)
-        ->get(route('pos.sedes.soats.index', $this->sede))
-        ->assertInertia(fn (Assert $page) => $page->has('soats', 1));
-});
-
-// Issue #70, criterio 1
 test('la sede registra un SOAT y este aparece en su listado', function () {
     $this->actingAs($this->gerente)
         ->post(route('pos.sedes.soats.store', $this->sede), datosSoat())
@@ -66,6 +40,16 @@ test('la sede registra un SOAT y este aparece en su listado', function () {
             ->where('soats.0.tipo_documento', 'CC')
             ->where('soats.0.numero_documento', '1006123456')
             ->where('soats.0.nombre_cliente', 'Carlos Pérez'));
+});
+
+// Issue #70, criterio 1
+test('el listado de una sede no muestra los SOAT de otra', function () {
+    Soat::factory()->create();
+    Soat::factory()->for($this->sede)->create();
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.soats.index', $this->sede))
+        ->assertInertia(fn (Assert $page) => $page->has('soats', 1));
 });
 
 // Issue #70, criterio 2
@@ -96,12 +80,19 @@ test('una sede inactiva no puede registrar SOAT', function () {
     expect(Soat::count())->toBe(0);
 });
 
-// Issue #70, criterio 2
-test('el tipo de documento debe ser válido y el número solo lleva letras y números', function () {
+// Issue #70, criterio 4
+test('se pueden editar los datos de un SOAT', function () {
+    $soat = Soat::factory()->for($this->sede)->create();
+
     $this->actingAs($this->gerente)
-        ->post(route('pos.sedes.soats.store', $this->sede), datosSoat(['tipo_documento' => 'XX', 'numero_documento' => '1.006 123']))
-        ->assertSessionHasErrors(['tipo_documento', 'numero_documento']);
+        ->put(route('pos.soats.update', $soat), datosSoat(['valor_soat' => '600000']))
+        ->assertRedirect(route('pos.sedes.soats.index', $this->sede));
+
+    expect($soat->fresh())
+        ->valor_soat->toBe('600000.00')
+        ->nombre_cliente->toBe('Carlos Pérez');
 });
+
 // Issue #67, criterio 2
 test('el cajero recibe 403 en los SOAT', function () {
     $cajero = User::factory()->conRol(Rol::Cajero)->create();
@@ -110,4 +101,26 @@ test('el cajero recibe 403 en los SOAT', function () {
     $this->actingAs($cajero)
         ->post(route('pos.sedes.soats.store', $this->sede), datosSoat())
         ->assertForbidden();
+});
+
+// Issue #70, criterio 2
+test('el tipo de documento debe ser válido y el número solo lleva letras y números', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.soats.store', $this->sede), datosSoat(['tipo_documento' => 'XX', 'numero_documento' => '1.006 123']))
+        ->assertSessionHasErrors(['tipo_documento', 'numero_documento']);
+});
+
+test('el listado muestra los SOAT de la sede, los más recientes primero', function () {
+    Soat::factory()->for($this->sede)->create(['fecha' => '2026-10-14', 'nombre_cliente' => 'Antiguo', 'valor_soat' => 580000]);
+    Soat::factory()->for($this->sede)->create(['fecha' => '2026-10-15', 'nombre_cliente' => 'Reciente']);
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.soats.index', $this->sede))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Pos/Soats/Index')
+            ->where('sede.id', $this->sede->id)
+            ->has('soats', 2)
+            ->where('soats.0.nombre_cliente', 'Reciente')
+            ->where('soats.1.nombre_cliente', 'Antiguo')
+            ->where('soats.1.valor_soat', '580000.00'));
 });

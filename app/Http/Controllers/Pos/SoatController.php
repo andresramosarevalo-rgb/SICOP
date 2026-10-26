@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pos;
 use App\Enums\TipoDocumento;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Pos\StoreSoatRequest;
+use App\Http\Requests\Pos\UpdateSoatRequest;
 use App\Models\Sede;
 use App\Models\Soat;
 use Illuminate\Http\RedirectResponse;
@@ -49,5 +50,29 @@ class SoatController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'SOAT registrado.']);
 
         return to_route('pos.sedes.soats.index', $sede);
+    }
+
+    /**
+     * Muestra el formulario de edición del SOAT.
+     */
+    public function edit(Soat $soat): Response
+    {
+        return Inertia::render('Pos/Soats/Edit', [
+            'soat' => $soat,
+            'sede' => $soat->sede,
+            'tiposDocumento' => TipoDocumento::opciones(),
+        ]);
+    }
+
+    /**
+     * Actualiza los datos del SOAT.
+     */
+    public function update(UpdateSoatRequest $request, Soat $soat): RedirectResponse
+    {
+        $soat->update($request->validated());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'SOAT actualizado.']);
+
+        return to_route('pos.sedes.soats.index', $soat->sede_id);
     }
 }
