@@ -59,6 +59,16 @@ class Sede extends Model
     }
 
     /**
+     * Cierres de caja diarios de la sede.
+     *
+     * @return HasMany<CierreCaja, $this>
+     */
+    public function cierresCaja(): HasMany
+    {
+        return $this->hasMany(CierreCaja::class);
+    }
+
+    /**
      * Cursos dictados en la sede.
      *
      * @return HasMany<Curso, $this>
