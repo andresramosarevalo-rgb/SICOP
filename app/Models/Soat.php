@@ -67,7 +67,7 @@ class Soat extends Model
         return [
             'modulo' => 'pos',
             'etiqueta' => 'SOAT',
-            'descripcion' => "{$this->nombre_cliente} · {$this->placa} · {$this->fecha?->toDateString()}",
+            'descripcion' => "{$this->nombre_cliente} · {$this->placa} · {$this->fecha->toDateString()}",
             'sede_id' => $this->sede_id,
         ];
     }
