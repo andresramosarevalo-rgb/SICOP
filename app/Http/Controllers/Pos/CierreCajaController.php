@@ -53,13 +53,18 @@ class CierreCajaController extends Controller
     {
         abort_unless($sede->es_activa, 403, 'La sede está inactiva.');
 
-        $datos = $request->validated();
+        $fecha = $request->string('fecha')->toString();
 
-        $cerrarCaja->ejecutar($sede, $datos['fecha'], $datos, $request->user());
+        $cerrarCaja->ejecutar($sede, $fecha, [
+            'valor_efectivo_contado' => $request->float('valor_efectivo_contado'),
+            'valor_reportado_datafono' => $request->float('valor_reportado_datafono'),
+            'valor_reportado_qr' => $request->float('valor_reportado_qr'),
+            'justificacion' => $request->string('justificacion')->toString(),
+        ], $request->user());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Día cerrado.']);
 
-        return to_route('pos.sedes.cierre.show', ['sede' => $sede, 'fecha' => $datos['fecha']]);
+        return to_route('pos.sedes.cierre.show', ['sede' => $sede, 'fecha' => $fecha]);
     }
 
     /**
