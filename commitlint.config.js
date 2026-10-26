@@ -39,6 +39,7 @@ export default {
                 'empleados',
                 'auth',
                 'usuarios',
+                'auditoria',
                 'baseDatos',
                 'docker',
                 'dependencias',
