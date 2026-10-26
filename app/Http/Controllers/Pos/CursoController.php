@@ -10,6 +10,7 @@ use App\Enums\TipoDocumento;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Pos\StoreCursoRequest;
 use App\Http\Requests\Pos\UpdateCursoRequest;
+use App\Models\CierreCaja;
 use App\Models\Curso;
 use App\Models\Sede;
 use Illuminate\Http\RedirectResponse;
@@ -54,6 +55,7 @@ class CursoController extends Controller
     public function store(StoreCursoRequest $request, Sede $sede, CalcularPagoGestor $calcularPagoGestor): RedirectResponse
     {
         abort_unless($sede->es_activa, 403, 'La sede está inactiva.');
+        abort_if(CierreCaja::diaCerrado($sede->id, $request->validated('fecha')), 403, 'El día está cerrado.');
 
         $datos = $request->datosParaGuardar();
 
@@ -74,6 +76,7 @@ class CursoController extends Controller
     public function edit(Request $request, Curso $curso): Response
     {
         Gate::authorize('operar-sede', $curso->sede);
+        abort_if(CierreCaja::diaCerrado($curso->sede_id, $curso->fecha), 403, 'El día está cerrado.');
 
         return Inertia::render('Pos/Cursos/Edit', [
             'curso' => $this->sinPagoGestorParaSedes($request, collect([$curso]))->first(),
@@ -87,6 +90,8 @@ class CursoController extends Controller
      */
     public function update(UpdateCursoRequest $request, Curso $curso, CalcularPagoGestor $calcularPagoGestor): RedirectResponse
     {
+        abort_if(CierreCaja::diaCerrado($curso->sede_id, $curso->fecha) || CierreCaja::diaCerrado($curso->sede_id, $request->validated('fecha')), 403, 'El día está cerrado.');
+
         $curso->fill($request->datosParaGuardar());
 
         if ($curso->isDirty(['codigo_infraccion', 'referido'])) {

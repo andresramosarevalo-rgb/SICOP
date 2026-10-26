@@ -35,6 +35,42 @@ function datosCierre(array $sobrescribir = []): array
     ];
 }
 
+function datosCursoDelDia(): array
+{
+    return [
+        'fecha' => today()->toDateString(),
+        'tipo_documento' => 'CC',
+        'numero_documento' => '1006123456',
+        'nombre_cliente' => 'Carlos Pérez',
+        'celular' => '3101234567',
+        'correo' => 'carlos@example.com',
+        'numero_certificado' => 'CERT-001',
+        'numero_comparendo' => '50001000000012345678',
+        'secretaria_transito' => 'Secretaría de Tránsito de Villavicencio',
+        'hora_inicio' => '08:00',
+        'hora_fin' => '10:00',
+        'codigo_infraccion' => 'C',
+        'valor_curso' => '350000',
+        'porcentaje_descuento' => 50,
+        'forma_pago' => 'efectivo',
+    ];
+}
+
+function datosSoatDelDia(): array
+{
+    return [
+        'fecha' => today()->toDateString(),
+        'tipo_documento' => 'CC',
+        'numero_documento' => '1006123456',
+        'nombre_cliente' => 'Carlos Pérez',
+        'celular' => '3101234567',
+        'correo' => 'carlos@example.com',
+        'placa' => 'ABC123',
+        'valor_soat' => '580000',
+        'forma_pago' => 'efectivo',
+    ];
+}
+
 // Issue #77, criterio 1
 test('la sede cierra el día cuando todo cuadra y se congelan las cifras', function () {
     $this->actingAs($this->usuarioSede)
@@ -172,6 +208,50 @@ test('las cifras cerradas no cambian aunque cambie la tarifa o se editen las ven
             ->where('valorEfectivoEsperado', 850000)
             ->where('cierre.valor_a_consignar', '650000.00')
             ->where('cierre.cerrado_por.name', $this->usuarioSede->name));
+});
+
+// Issue #77, criterio 3
+test('un día cerrado bloquea registrar y editar cursos y SOAT de esa fecha', function () {
+    $curso = Curso::first();
+    $soat = Soat::first();
+    $this->actingAs($this->usuarioSede)->post(route('pos.sedes.cierre.store', $this->sede), datosCierre());
+
+    $this->actingAs($this->usuarioSede)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCursoDelDia())
+        ->assertForbidden();
+    $this->actingAs($this->usuarioSede)
+        ->post(route('pos.sedes.soats.store', $this->sede), datosSoatDelDia())
+        ->assertForbidden();
+    $this->actingAs($this->usuarioSede)->get(route('pos.cursos.edit', $curso))->assertForbidden();
+    $this->actingAs($this->usuarioSede)->put(route('pos.cursos.update', $curso), datosCursoDelDia())->assertForbidden();
+    $this->actingAs($this->usuarioSede)->put(route('pos.soats.update', $soat), datosSoatDelDia())->assertForbidden();
+
+    expect(Curso::count())->toBe(2)->and(Soat::count())->toBe(1);
+});
+
+// Issue #77, criterio 3
+test('un día cerrado no impide registrar en otra fecha ni mover un registro hacia el día cerrado', function () {
+    $this->actingAs($this->usuarioSede)->post(route('pos.sedes.cierre.store', $this->sede), datosCierre());
+    $ayer = today()->subDay();
+    $curso = Curso::factory()->for($this->sede)->create(['fecha' => $ayer]);
+
+    $this->actingAs($this->usuarioSede)
+        ->post(route('pos.sedes.cursos.store', $this->sede), array_merge(datosCursoDelDia(), ['fecha' => $ayer->toDateString()]))
+        ->assertSessionHasNoErrors();
+
+    $this->actingAs($this->usuarioSede)
+        ->put(route('pos.cursos.update', $curso), datosCursoDelDia())
+        ->assertForbidden();
+});
+
+// Issue #77, criterio 3
+test('el cierre de otra sede no bloquea esta sede', function () {
+    $otraSede = Sede::factory()->create();
+    CierreCaja::factory()->cerrado()->for($otraSede)->create();
+
+    $this->actingAs($this->usuarioSede)
+        ->post(route('pos.sedes.cursos.store', $this->sede), datosCursoDelDia())
+        ->assertSessionHasNoErrors();
 });
 
 // Issue #77, criterio 5

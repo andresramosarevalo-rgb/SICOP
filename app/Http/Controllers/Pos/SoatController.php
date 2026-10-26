@@ -7,6 +7,7 @@ use App\Enums\TipoDocumento;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Pos\StoreSoatRequest;
 use App\Http\Requests\Pos\UpdateSoatRequest;
+use App\Models\CierreCaja;
 use App\Models\Sede;
 use App\Models\Soat;
 use Illuminate\Http\RedirectResponse;
@@ -50,6 +51,7 @@ class SoatController extends Controller
     public function store(StoreSoatRequest $request, Sede $sede): RedirectResponse
     {
         abort_unless($sede->es_activa, 403, 'La sede está inactiva.');
+        abort_if(CierreCaja::diaCerrado($sede->id, $request->validated('fecha')), 403, 'El día está cerrado.');
 
         $sede->soats()->create($request->datosParaGuardar());
 
@@ -64,6 +66,7 @@ class SoatController extends Controller
     public function edit(Soat $soat): Response
     {
         Gate::authorize('operar-sede', $soat->sede);
+        abort_if(CierreCaja::diaCerrado($soat->sede_id, $soat->fecha), 403, 'El día está cerrado.');
 
         return Inertia::render('Pos/Soats/Edit', [
             'soat' => $soat,
@@ -78,6 +81,8 @@ class SoatController extends Controller
      */
     public function update(UpdateSoatRequest $request, Soat $soat): RedirectResponse
     {
+        abort_if(CierreCaja::diaCerrado($soat->sede_id, $soat->fecha) || CierreCaja::diaCerrado($soat->sede_id, $request->validated('fecha')), 403, 'El día está cerrado.');
+
         $soat->update($request->datosParaGuardar());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'SOAT actualizado.']);
