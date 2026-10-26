@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Auditable;
 use App\Enums\FormaCalculo;
 use App\Enums\TipoConcepto;
 use Database\Factories\ConceptoNominaFactory;
@@ -33,7 +34,7 @@ use Illuminate\Support\Carbon;
 class ConceptoNomina extends Model
 {
     /** @use HasFactory<ConceptoNominaFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -41,6 +42,20 @@ class ConceptoNomina extends Model
      * @var string
      */
     protected $table = 'conceptos_nomina';
+
+    /**
+     * Cómo se presenta el registro en el historial de auditoría.
+     *
+     * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
+     */
+    public function configuracionAuditoria(): array
+    {
+        return [
+            'modulo' => 'nomina',
+            'etiqueta' => 'Concepto de nómina',
+            'descripcion' => "{$this->codigo} · {$this->nombre}",
+        ];
+    }
 
     /**
      * Get the attributes that should be cast.

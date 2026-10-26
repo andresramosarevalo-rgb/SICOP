@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Auditable;
 use App\Enums\TipoDocumento;
 use Database\Factories\EmpleadoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -37,7 +38,7 @@ use Illuminate\Support\Carbon;
 class Empleado extends Model
 {
     /** @use HasFactory<EmpleadoFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -94,6 +95,20 @@ class Empleado extends Model
     public function novedades(): HasMany
     {
         return $this->hasMany(Novedad::class);
+    }
+
+    /**
+     * Cómo se presenta el registro en el historial de auditoría.
+     *
+     * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
+     */
+    public function configuracionAuditoria(): array
+    {
+        return [
+            'modulo' => 'nomina',
+            'etiqueta' => 'Empleado',
+            'descripcion' => "{$this->nombres} {$this->apellidos}",
+        ];
     }
 
     /**

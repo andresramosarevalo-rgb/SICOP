@@ -1,11 +1,14 @@
 <?php
 
 use App\Enums\Rol;
+use App\Models\Area;
 use App\Models\Auditoria;
 use App\Models\CierreCaja;
 use App\Models\Consignacion;
 use App\Models\Curso;
+use App\Models\Empleado;
 use App\Models\GastoCaja;
+use App\Models\ReciboNomina;
 use App\Models\Sede;
 use App\Models\TarifaGestor;
 use App\Models\User;
@@ -165,6 +168,32 @@ test('al crear un usuario no se guarda su contraseña', function () {
         ->and($auditoria->cambios['password']['despues'])->toBe('[oculto]')
         ->and(json_encode($auditoria->cambios))->not->toContain('Clave-secreta-123')
         ->and($usuario->exists)->toBeTrue();
+});
+
+// Issue #81, criterio 1
+test('los cambios de nómina se auditan sin sede', function () {
+    $this->actingAs($this->gerente);
+    $area = Area::factory()->create(['nombre' => 'Instrucción']);
+    $empleado = Empleado::factory()->create(['nombres' => 'Ana', 'apellidos' => 'Ríos']);
+    $empleado->update(['cargo' => 'Instructora']);
+
+    expect(Auditoria::where('auditable_type', Area::class)->firstOrFail())
+        ->modulo->toBe('nomina')
+        ->descripcion->toBe('Instrucción')
+        ->sede_id->toBeNull()
+        ->and(Auditoria::where('auditable_type', Empleado::class)->where('evento', 'modificado')->firstOrFail())
+        ->descripcion->toBe('Ana Ríos')
+        ->and(Auditoria::where('auditable_type', Empleado::class)->where('evento', 'modificado')->first()->cambios['cargo']['despues'])->toBe('Instructora');
+});
+
+// Issue #81, criterio 1
+test('los recibos de nómina no se auditan para no tapar el historial al liquidar', function () {
+    ReciboNomina::factory()->create();
+    Auditoria::query()->delete();
+
+    ReciboNomina::query()->first()->update(['enviado_en' => now()]);
+
+    expect(Auditoria::where('auditable_type', ReciboNomina::class)->count())->toBe(0);
 });
 
 // Issue #81, criterio 1

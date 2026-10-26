@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Auditable;
 use Database\Factories\AreaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -23,7 +24,7 @@ use Illuminate\Support\Carbon;
 class Area extends Model
 {
     /** @use HasFactory<AreaFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -41,6 +42,20 @@ class Area extends Model
     protected function activas(Builder $query): void
     {
         $query->where('es_activa', true);
+    }
+
+    /**
+     * Cómo se presenta el registro en el historial de auditoría.
+     *
+     * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
+     */
+    public function configuracionAuditoria(): array
+    {
+        return [
+            'modulo' => 'nomina',
+            'etiqueta' => 'Área',
+            'descripcion' => $this->nombre,
+        ];
     }
 
     /**
