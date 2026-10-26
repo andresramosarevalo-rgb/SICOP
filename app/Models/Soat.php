@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Auditable;
 use App\Enums\FormaPago;
 use App\Enums\TipoDocumento;
 use Database\Factories\SoatFactory;
@@ -37,7 +38,7 @@ use Illuminate\Support\Carbon;
 class Soat extends Model
 {
     /** @use HasFactory<SoatFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -54,6 +55,21 @@ class Soat extends Model
     public function sede(): BelongsTo
     {
         return $this->belongsTo(Sede::class);
+    }
+
+    /**
+     * Cómo se presenta el registro en el historial de auditoría.
+     *
+     * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
+     */
+    public function configuracionAuditoria(): array
+    {
+        return [
+            'modulo' => 'pos',
+            'etiqueta' => 'SOAT',
+            'descripcion' => "{$this->nombre_cliente} · {$this->placa} · {$this->fecha->toDateString()}",
+            'sede_id' => $this->sede_id,
+        ];
     }
 
     /**

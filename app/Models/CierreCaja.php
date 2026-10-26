@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Auditable;
 use App\Enums\EstadoCierre;
 use Carbon\CarbonInterface;
 use Database\Factories\CierreCajaFactory;
@@ -53,7 +54,7 @@ use Illuminate\Support\Carbon;
 class CierreCaja extends Model
 {
     /** @use HasFactory<CierreCajaFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -121,6 +122,21 @@ class CierreCaja extends Model
     public function gastos(): HasMany
     {
         return $this->hasMany(GastoCaja::class);
+    }
+
+    /**
+     * Cómo se presenta el registro en el historial de auditoría.
+     *
+     * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
+     */
+    public function configuracionAuditoria(): array
+    {
+        return [
+            'modulo' => 'pos',
+            'etiqueta' => 'Cierre de caja',
+            'descripcion' => "Cierre del {$this->fecha->toDateString()}",
+            'sede_id' => $this->sede_id,
+        ];
     }
 
     /**

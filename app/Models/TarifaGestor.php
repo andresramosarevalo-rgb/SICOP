@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\Auditable;
 use App\Enums\CodigoInfraccion;
 use Database\Factories\TarifaGestorFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -25,7 +26,7 @@ use Illuminate\Support\Carbon;
 class TarifaGestor extends Model
 {
     /** @use HasFactory<TarifaGestorFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -42,6 +43,21 @@ class TarifaGestor extends Model
     public function sede(): BelongsTo
     {
         return $this->belongsTo(Sede::class);
+    }
+
+    /**
+     * Cómo se presenta el registro en el historial de auditoría.
+     *
+     * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
+     */
+    public function configuracionAuditoria(): array
+    {
+        return [
+            'modulo' => 'pos',
+            'etiqueta' => 'Tarifa del gestor',
+            'descripcion' => "Tipo {$this->codigo_infraccion->value} · ".($this->sede->nombre ?? 'base'),
+            'sede_id' => $this->sede_id,
+        ];
     }
 
     /**
