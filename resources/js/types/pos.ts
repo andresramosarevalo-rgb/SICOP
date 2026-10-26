@@ -73,3 +73,19 @@ export type GastoCaja = {
     valor_gasto: string;
     nombre_soporte: string;
 };
+
+export type CierreCaja = {
+    valor_efectivo_esperado: string;
+    valor_efectivo_contado: string;
+    valor_diferencia_efectivo: string;
+    valor_ventas_datafono: string;
+    valor_reportado_datafono: string;
+    valor_diferencia_datafono: string;
+    valor_ventas_qr: string;
+    valor_reportado_qr: string;
+    valor_diferencia_qr: string;
+    valor_a_consignar: string;
+    justificacion: string | null;
+    cerrado_en: string | null;
+    cerrado_por: { id: number; name: string } | null;
+};

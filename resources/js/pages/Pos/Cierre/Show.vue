@@ -3,7 +3,9 @@ import { Form, Head, router } from '@inertiajs/vue3';
 import GastoCajaController from '@/actions/App/Http/Controllers/Pos/GastoCajaController';
 import Heading from '@/components/Heading.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
+import FormularioArqueo from '@/components/Pos/FormularioArqueo.vue';
 import FormularioGasto from '@/components/Pos/FormularioGasto.vue';
+import ResultadoArqueo from '@/components/Pos/ResultadoArqueo.vue';
 import ResumenCaja from '@/components/Pos/ResumenCaja.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { formatearPesos } from '@/lib/formato';
 import pos from '@/routes/pos';
 import type {
+    CierreCaja,
     GastoCaja,
     ResumenCaja as ResumenCajaDelDia,
     Sede,
@@ -25,6 +28,7 @@ const props = defineProps<{
     valorGastos: number;
     valorEfectivoEsperado: number;
     estaCerrado: boolean;
+    cierre: CierreCaja | null;
 }>();
 
 defineOptions({
@@ -145,6 +149,18 @@ function cambiarDia(fecha: string | number): void {
                 v-if="!estaCerrado && sede.es_activa"
                 :sede-id="sede.id"
                 :fecha="fecha"
+            />
+        </section>
+
+        <ResultadoArqueo v-if="cierre" :cierre="cierre" />
+
+        <section v-else-if="sede.es_activa" class="flex flex-col gap-4">
+            <h2 class="font-medium">Cerrar el día</h2>
+            <FormularioArqueo
+                :sede-id="sede.id"
+                :fecha="fecha"
+                :resumen="resumen"
+                :valor-efectivo-esperado="valorEfectivoEsperado"
             />
         </section>
     </div>
