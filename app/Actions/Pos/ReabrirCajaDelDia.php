@@ -15,6 +15,7 @@ class ReabrirCajaDelDia
     public function ejecutar(CierreCaja $cierre, User $usuario): CierreCaja
     {
         abort_unless($cierre->estaCerrado(), 403, 'El día no está cerrado.');
+        abort_if($cierre->consignacion()->exists(), 403, 'El día ya tiene una consignación: elimínela antes de reabrirlo.');
 
         $cierre->update([
             'estado' => EstadoCierre::Abierto,
