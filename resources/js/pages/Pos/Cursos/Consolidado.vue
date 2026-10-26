@@ -69,6 +69,7 @@ function filtrarPorDia(fecha: string | number): void {
                         <th class="px-4 py-2 font-medium">Tipo</th>
                         <th class="px-4 py-2 font-medium">N.º comparendo</th>
                         <th class="px-4 py-2 font-medium">Pago</th>
+                        <th class="px-4 py-2 font-medium">Pago gestor</th>
                         <th class="px-4 py-2 font-medium">Valor</th>
                         <th class="px-4 py-2 font-medium">Descuento</th>
                         <th class="px-4 py-2">
@@ -92,6 +93,15 @@ function filtrarPorDia(fecha: string | number): void {
                             {{ etiquetaFormaPago(curso.forma_pago) }}
                         </td>
                         <td class="px-4 py-2">
+                            {{
+                                Number(curso.valor_pago_gestor) > 0
+                                    ? formatearPesos(
+                                          curso.valor_pago_gestor ?? 0,
+                                      )
+                                    : '—'
+                            }}
+                        </td>
+                        <td class="px-4 py-2">
                             {{ formatearPesos(curso.valor_curso) }}
                         </td>
                         <td class="px-4 py-2">
@@ -109,7 +119,7 @@ function filtrarPorDia(fecha: string | number): void {
                     </tr>
                     <tr v-if="cursos.length === 0">
                         <td
-                            colspan="9"
+                            colspan="10"
                             class="px-4 py-6 text-center text-muted-foreground"
                         >
                             Ninguna sede registró cursos este día.

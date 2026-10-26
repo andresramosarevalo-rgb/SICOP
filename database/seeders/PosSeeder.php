@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\CodigoInfraccion;
 use App\Models\Sede;
+use App\Models\TarifaGestor;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -19,12 +21,27 @@ class PosSeeder extends Seeder
     ];
 
     /**
+     * Pago al gestor por código de infracción, valor de referencia que el gerente ajusta en la
+     * pantalla de tarifas. Los códigos sin valor confirmado quedan en cero.
+     *
+     * @var array<string, int>
+     */
+    public const TARIFAS_BASE_GESTOR = ['B' => 10000, 'C' => 20000, 'D' => 30000, 'H' => 5000];
+
+    /**
      * Carga las sedes de ejemplo. Lo que ya existe no se modifica.
      */
     public function run(): void
     {
         foreach (self::SEDES as $sede) {
             Sede::firstOrCreate(['nombre' => $sede['nombre']], $sede);
+        }
+
+        foreach (CodigoInfraccion::cases() as $codigo) {
+            TarifaGestor::firstOrCreate(
+                ['codigo_infraccion' => $codigo, 'sede_id' => null],
+                ['valor_pago_gestor' => self::TARIFAS_BASE_GESTOR[$codigo->value] ?? 0],
+            );
         }
 
         $this->crearAccesoDeEjemplo(Sede::where('nombre', 'Sede Villavicencio')->firstOrFail());

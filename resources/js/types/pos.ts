@@ -25,6 +25,7 @@ export type Curso = {
     codigo_infraccion: string;
     valor_curso: string;
     porcentaje_descuento: string;
+    valor_pago_gestor?: string;
     forma_pago: string;
     valor_efectivo: string;
     valor_datafono: string;

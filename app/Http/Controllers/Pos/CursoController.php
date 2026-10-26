@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pos;
 
+use App\Actions\Pos\CalcularPagoGestor;
 use App\Enums\CodigoInfraccion;
 use App\Enums\FormaPago;
 use App\Enums\Referido;
@@ -12,6 +13,8 @@ use App\Http\Requests\Pos\UpdateCursoRequest;
 use App\Models\Curso;
 use App\Models\Sede;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,13 +24,13 @@ class CursoController extends Controller
     /**
      * Muestra los cursos de la sede, los más recientes primero.
      */
-    public function index(Sede $sede): Response
+    public function index(Request $request, Sede $sede): Response
     {
         Gate::authorize('operar-sede', $sede);
 
         return Inertia::render('Pos/Cursos/Index', [
             'sede' => $sede,
-            'cursos' => $sede->cursos()->orderByDesc('fecha')->orderByDesc('id')->get(),
+            'cursos' => $this->sinPagoGestorParaSedes($request, $sede->cursos()->orderByDesc('fecha')->orderByDesc('id')->get()),
         ]);
     }
 
@@ -48,11 +51,17 @@ class CursoController extends Controller
     /**
      * Registra un curso en la sede.
      */
-    public function store(StoreCursoRequest $request, Sede $sede): RedirectResponse
+    public function store(StoreCursoRequest $request, Sede $sede, CalcularPagoGestor $calcularPagoGestor): RedirectResponse
     {
         abort_unless($sede->es_activa, 403, 'La sede está inactiva.');
 
-        $sede->cursos()->create($request->datosParaGuardar());
+        $datos = $request->datosParaGuardar();
+
+        $sede->cursos()->create([...$datos, 'valor_pago_gestor' => $calcularPagoGestor->ejecutar(
+            $sede->id,
+            CodigoInfraccion::from($datos['codigo_infraccion']),
+            Referido::tryFrom((string) ($datos['referido'] ?? '')),
+        )]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Curso registrado.']);
 
@@ -62,12 +71,12 @@ class CursoController extends Controller
     /**
      * Muestra el formulario de edición del curso.
      */
-    public function edit(Curso $curso): Response
+    public function edit(Request $request, Curso $curso): Response
     {
         Gate::authorize('operar-sede', $curso->sede);
 
         return Inertia::render('Pos/Cursos/Edit', [
-            'curso' => $curso,
+            'curso' => $this->sinPagoGestorParaSedes($request, collect([$curso]))->first(),
             'sede' => $curso->sede,
             ...$this->opcionesFormulario(),
         ]);
@@ -76,9 +85,15 @@ class CursoController extends Controller
     /**
      * Actualiza los datos del curso.
      */
-    public function update(UpdateCursoRequest $request, Curso $curso): RedirectResponse
+    public function update(UpdateCursoRequest $request, Curso $curso, CalcularPagoGestor $calcularPagoGestor): RedirectResponse
     {
-        $curso->update($request->datosParaGuardar());
+        $curso->fill($request->datosParaGuardar());
+
+        if ($curso->isDirty(['codigo_infraccion', 'referido'])) {
+            $curso->valor_pago_gestor = $calcularPagoGestor->ejecutar($curso->sede_id, $curso->codigo_infraccion, $curso->referido);
+        }
+
+        $curso->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Curso actualizado.']);
 
@@ -99,5 +114,20 @@ class CursoController extends Controller
             'referidos' => Referido::opciones(),
             'porcentajesDescuento' => Curso::PORCENTAJES_DESCUENTO,
         ];
+    }
+
+    /**
+     * Oculta el pago al gestor a quien no gestiona POS: el instructor de la sede no lo ve.
+     *
+     * @param  Collection<int, Curso>  $cursos
+     * @return Collection<int, Curso>
+     */
+    private function sinPagoGestorParaSedes(Request $request, Collection $cursos): Collection
+    {
+        if (! $request->user()->can('gestionar-pos')) {
+            $cursos->each->makeHidden('valor_pago_gestor');
+        }
+
+        return $cursos;
     }
 }
