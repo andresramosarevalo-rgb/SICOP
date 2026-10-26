@@ -53,14 +53,21 @@ function describir(valor: string): string {
                 title="Cierres de caja"
                 description="Estado del cierre y arqueo de cada sede en el día seleccionado."
             />
-            <div class="grid gap-2">
-                <Label for="fecha">Día</Label>
-                <Input
-                    id="fecha"
-                    type="date"
-                    :model-value="fecha"
-                    @update:model-value="filtrarPorDia"
-                />
+            <div class="flex flex-wrap items-end gap-3">
+                <Button variant="outline" as-child>
+                    <a :href="pos.cierres.exportar.url({ query: { fecha } })"
+                        >Descargar CSV</a
+                    >
+                </Button>
+                <div class="grid gap-2">
+                    <Label for="fecha">Día</Label>
+                    <Input
+                        id="fecha"
+                        type="date"
+                        :model-value="fecha"
+                        @update:model-value="filtrarPorDia"
+                    />
+                </div>
             </div>
         </div>
 
