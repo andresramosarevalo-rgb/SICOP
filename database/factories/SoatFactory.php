@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\FormaPago;
 use App\Enums\TipoDocumento;
 use App\Models\Sede;
 use App\Models\Soat;
@@ -19,13 +20,21 @@ class SoatFactory extends Factory
      */
     public function definition(): array
     {
+        $valorSoat = fake()->numberBetween(300, 1500) * 1000;
+
         return [
             'sede_id' => Sede::factory(),
             'fecha' => fake()->dateTimeBetween('-30 days', 'today'),
             'tipo_documento' => TipoDocumento::CedulaCiudadania,
             'numero_documento' => fake()->numerify('##########'),
             'nombre_cliente' => fake()->name(),
-            'valor_soat' => fake()->numberBetween(300, 1500) * 1000,
+            'celular' => fake()->numerify('3#########'),
+            'correo' => fake()->safeEmail(),
+            'placa' => fake()->bothify('???###'),
+            'valor_soat' => $valorSoat,
+            'forma_pago' => FormaPago::Efectivo,
+            'valor_efectivo' => $valorSoat,
+            'valor_qr' => 0,
         ];
     }
 }

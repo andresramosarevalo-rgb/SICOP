@@ -39,6 +39,12 @@ export type Soat = {
     tipo_documento: string;
     numero_documento: string;
     nombre_cliente: string;
+    celular: string;
+    correo: string;
+    placa: string;
     valor_soat: string;
+    forma_pago: string;
+    valor_efectivo: string;
+    valor_qr: string;
     sede?: Pick<Sede, 'id' | 'nombre' | 'ciudad'>;
 };

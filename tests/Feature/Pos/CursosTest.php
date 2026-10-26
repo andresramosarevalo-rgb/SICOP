@@ -247,6 +247,17 @@ test('al editar el curso cambiando a una forma simple se reasignan los valores p
         ->valor_qr->toBe('420000.00');
 });
 
+// Issue #74, criterio 5
+test('el listado de cursos muestra la forma de pago de cada registro', function () {
+    Curso::factory()->for($this->sede)->create(['forma_pago' => 'qr', 'valor_efectivo' => 0, 'valor_qr' => 350000]);
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.cursos.index', $this->sede))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('cursos.0.forma_pago', 'qr')
+            ->where('cursos.0.valor_qr', '350000.00'));
+});
+
 test('el listado muestra los cursos de la sede, los más recientes primero', function () {
     Curso::factory()->for($this->sede)->create(['fecha' => '2026-10-14', 'nombre_cliente' => 'Antiguo', 'valor_curso' => 350000, 'porcentaje_descuento' => 50]);
     Curso::factory()->for($this->sede)->create(['fecha' => '2026-10-15', 'nombre_cliente' => 'Reciente']);

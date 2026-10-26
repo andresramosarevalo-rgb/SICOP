@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pos;
 
+use App\Enums\FormaPago;
 use App\Enums\TipoDocumento;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Pos\StoreSoatRequest;
@@ -39,6 +40,7 @@ class SoatController extends Controller
         return Inertia::render('Pos/Soats/Create', [
             'sede' => $sede,
             'tiposDocumento' => TipoDocumento::opciones(),
+            'formasPago' => FormaPago::opciones(FormaPago::PARA_SOAT),
         ]);
     }
 
@@ -49,7 +51,7 @@ class SoatController extends Controller
     {
         abort_unless($sede->es_activa, 403, 'La sede está inactiva.');
 
-        $sede->soats()->create($request->validated());
+        $sede->soats()->create($request->datosParaGuardar());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'SOAT registrado.']);
 
@@ -67,6 +69,7 @@ class SoatController extends Controller
             'soat' => $soat,
             'sede' => $soat->sede,
             'tiposDocumento' => TipoDocumento::opciones(),
+            'formasPago' => FormaPago::opciones(FormaPago::PARA_SOAT),
         ]);
     }
 
@@ -75,7 +78,7 @@ class SoatController extends Controller
      */
     public function update(UpdateSoatRequest $request, Soat $soat): RedirectResponse
     {
-        $soat->update($request->validated());
+        $soat->update($request->datosParaGuardar());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'SOAT actualizado.']);
 

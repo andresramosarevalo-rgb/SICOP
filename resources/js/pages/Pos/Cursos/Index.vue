@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import Heading from '@/components/Heading.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Button } from '@/components/ui/button';
-import { formatearPesos } from '@/lib/formato';
+import { etiquetaFormaPago, formatearPesos } from '@/lib/formato';
 import pos from '@/routes/pos';
 import type { Curso, Sede } from '@/types';
 
@@ -60,6 +60,7 @@ defineOptions({
                         <th class="px-4 py-2 font-medium">Cliente</th>
                         <th class="px-4 py-2 font-medium">Comparendo</th>
                         <th class="px-4 py-2 font-medium">N.º comparendo</th>
+                        <th class="px-4 py-2 font-medium">Pago</th>
                         <th class="px-4 py-2 font-medium">Valor</th>
                         <th class="px-4 py-2 font-medium">Descuento</th>
                         <th class="px-4 py-2">
@@ -86,6 +87,9 @@ defineOptions({
                             {{ registro.numero_comparendo }}
                         </td>
                         <td class="px-4 py-2">
+                            {{ etiquetaFormaPago(registro.forma_pago) }}
+                        </td>
+                        <td class="px-4 py-2">
                             {{ formatearPesos(registro.valor_curso) }}
                         </td>
                         <td class="px-4 py-2">
@@ -103,7 +107,7 @@ defineOptions({
                     </tr>
                     <tr v-if="cursos.length === 0">
                         <td
-                            colspan="8"
+                            colspan="9"
                             class="px-4 py-6 text-center text-muted-foreground"
                         >
                             Esta sede aún no ha registrado cursos.
