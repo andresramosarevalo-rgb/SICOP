@@ -94,3 +94,11 @@ export type FilaCierreCaja = {
     sede: Pick<Sede, 'id' | 'nombre' | 'ciudad'>;
     cierre: CierreCaja | null;
 };
+
+export type Consignacion = {
+    id: number;
+    fecha_consignacion: string;
+    valor_consignado: string;
+    referencia: string;
+    nombre_soporte: string;
+};

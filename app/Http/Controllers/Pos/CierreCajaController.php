@@ -43,6 +43,8 @@ class CierreCajaController extends Controller
             'valorEfectivoEsperado' => (float) $resumen['valor_base_caja'] + (float) $resumen['valor_efectivo_ventas'] - (float) $resumen['valor_pago_gestores'] - $valorGastos,
             'estaCerrado' => $cierre?->estaCerrado() ?? false,
             'cierre' => $cierre?->estaCerrado() ? $cierre->load('cerradoPor:id,name') : null,
+            'consignacion' => $cierre?->estaCerrado() ? $cierre->consignacion : null,
+            'cierreId' => $cierre?->id,
         ]);
     }
 

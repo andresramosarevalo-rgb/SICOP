@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Pos\CierreCajaController;
 use App\Http\Controllers\Pos\CierreCajaGeneralController;
+use App\Http\Controllers\Pos\ConsignacionController;
 use App\Http\Controllers\Pos\CursoConsolidadoController;
 use App\Http\Controllers\Pos\CursoController;
 use App\Http\Controllers\Pos\GastoCajaController;
@@ -27,6 +28,7 @@ Route::middleware(['auth', 'verified'])
             Route::post('sedes/{sede}/cierre', [CierreCajaController::class, 'store'])->name('sedes.cierre.store');
             Route::post('sedes/{sede}/cierre/gastos', [GastoCajaController::class, 'store'])->name('sedes.cierre.gastos.store');
             Route::delete('cierre/gastos/{gasto}', [GastoCajaController::class, 'destroy'])->name('cierre.gastos.destroy');
+            Route::get('consignaciones/{consignacion}/soporte', [ConsignacionController::class, 'soporte'])->name('consignaciones.soporte');
             Route::get('cierre/gastos/{gasto}/soporte', [GastoCajaController::class, 'soporte'])->name('cierre.gastos.soporte');
         });
 
@@ -36,6 +38,7 @@ Route::middleware(['auth', 'verified'])
             Route::get('cursos', CursoConsolidadoController::class)->name('cursos.index');
             Route::get('soats', SoatConsolidadoController::class)->name('soats.index');
             Route::get('cierres', CierreCajaGeneralController::class)->name('cierres.index');
+            Route::post('cierre/{cierre}/consignacion', [ConsignacionController::class, 'store'])->name('cierre.consignacion.store');
             Route::post('sedes/{sede}/cierre/reabrir', [CierreCajaController::class, 'reabrir'])->name('sedes.cierre.reabrir');
             Route::put('sedes/{sede}/acceso', SedeAccesoController::class)->name('sedes.acceso.update');
         });
