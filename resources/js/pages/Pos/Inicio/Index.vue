@@ -25,6 +25,11 @@ const secciones = [
         detalle: 'Cursos registrados por todas las sedes en un día.',
         href: pos.cursos.index(),
     },
+    {
+        titulo: 'SOAT de todas las sedes',
+        detalle: 'SOAT registrados por todas las sedes en un día.',
+        href: pos.soats.index(),
+    },
 ];
 </script>
 

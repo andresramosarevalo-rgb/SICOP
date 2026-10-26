@@ -28,4 +28,5 @@ export type Soat = {
     numero_documento: string;
     nombre_cliente: string;
     valor_soat: string;
+    sede?: Pick<Sede, 'id' | 'nombre' | 'ciudad'>;
 };

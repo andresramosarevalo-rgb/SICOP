@@ -5,6 +5,7 @@ use App\Http\Controllers\Pos\CursoController;
 use App\Http\Controllers\Pos\InicioController;
 use App\Http\Controllers\Pos\SedeAccesoController;
 use App\Http\Controllers\Pos\SedeController;
+use App\Http\Controllers\Pos\SoatConsolidadoController;
 use App\Http\Controllers\Pos\SoatController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,8 +21,9 @@ Route::middleware(['auth', 'verified'])
         });
 
         Route::middleware('can:gestionar-pos')->group(function () {
-            Route::get('cursos', CursoConsolidadoController::class)->name('cursos.index');
             Route::resource('sedes', SedeController::class)->except(['show', 'destroy']);
+            Route::get('cursos', CursoConsolidadoController::class)->name('cursos.index');
+            Route::get('soats', SoatConsolidadoController::class)->name('soats.index');
             Route::put('sedes/{sede}/acceso', SedeAccesoController::class)->name('sedes.acceso.update');
         });
     });
