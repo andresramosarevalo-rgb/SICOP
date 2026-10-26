@@ -18,7 +18,7 @@ class SedeController extends Controller
     public function index(): Response
     {
         return Inertia::render('Pos/Sedes/Index', [
-            'sedes' => Sede::query()->orderBy('nombre')->get(),
+            'sedes' => Sede::query()->with('usuario:id,sede_id,email')->orderBy('nombre')->get(),
         ]);
     }
 
@@ -48,7 +48,7 @@ class SedeController extends Controller
     public function edit(Sede $sede): Response
     {
         return Inertia::render('Pos/Sedes/Edit', [
-            'sede' => $sede,
+            'sede' => $sede->load('usuario:id,sede_id,email'),
         ]);
     }
 

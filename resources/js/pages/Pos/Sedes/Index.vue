@@ -45,6 +45,7 @@ defineProps<{
                         <th class="px-4 py-2 font-medium">Ciudad</th>
                         <th class="px-4 py-2 font-medium">Dirección</th>
                         <th class="px-4 py-2 font-medium">Estado</th>
+                        <th class="px-4 py-2 font-medium">Acceso</th>
                         <th class="px-4 py-2">
                             <span class="sr-only">Acciones</span>
                         </th>
@@ -64,6 +65,9 @@ defineProps<{
                                     sede.es_activa ? 'Activa' : 'Inactiva'
                                 }}</Badge
                             >
+                        </td>
+                        <td class="px-4 py-2">
+                            {{ sede.usuario?.email ?? 'Sin acceso' }}
                         </td>
                         <td class="px-4 py-2">
                             <div class="flex justify-end gap-2">
@@ -88,7 +92,7 @@ defineProps<{
                     </tr>
                     <tr v-if="sedes.length === 0">
                         <td
-                            colspan="5"
+                            colspan="6"
                             class="px-4 py-6 text-center text-muted-foreground"
                         >
                             Aún no hay sedes registradas.

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -44,6 +45,16 @@ class Sede extends Model
     protected function activas(Builder $query): void
     {
         $query->where('es_activa', true);
+    }
+
+    /**
+     * Usuario con el que la sede inicia sesión.
+     *
+     * @return HasOne<User, $this>
+     */
+    public function usuario(): HasOne
+    {
+        return $this->hasOne(User::class);
     }
 
     /**
