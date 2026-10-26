@@ -23,7 +23,7 @@ Route::middleware(['auth', 'verified'])
 
         Route::middleware('can:gestionar-pos')->group(function () {
             Route::resource('sedes', SedeController::class)->except(['show', 'destroy']);
-            Route::resource('tarifas', TarifaGestorController::class)->only(['index', 'store']);
+            Route::resource('tarifas', TarifaGestorController::class)->only(['index', 'store', 'destroy']);
             Route::get('cursos', CursoConsolidadoController::class)->name('cursos.index');
             Route::get('soats', SoatConsolidadoController::class)->name('soats.index');
             Route::put('sedes/{sede}/acceso', SedeAccesoController::class)->name('sedes.acceso.update');

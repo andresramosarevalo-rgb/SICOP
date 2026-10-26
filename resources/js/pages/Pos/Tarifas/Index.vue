@@ -80,6 +80,9 @@ function elegirSede(evento: Event): void {
                         <th class="px-4 py-2 font-medium">
                             {{ sedeId ? 'Ajuste de la sede' : 'Tarifa base' }}
                         </th>
+                        <th class="px-4 py-2">
+                            <span class="sr-only">Acciones</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="divide-y">
@@ -143,6 +146,25 @@ function elegirSede(evento: Event): void {
                                     variant="outline"
                                     :disabled="processing"
                                     >Guardar</Button
+                                >
+                            </Form>
+                        </td>
+                        <td class="px-4 py-2">
+                            <Form
+                                v-if="sedeId && fila.ajuste"
+                                v-bind="
+                                    TarifaGestorController.destroy.form(
+                                        fila.ajuste.id,
+                                    )
+                                "
+                                class="flex justify-end"
+                                v-slot="{ processing }"
+                            >
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    :disabled="processing"
+                                    >Quitar ajuste</Button
                                 >
                             </Form>
                         </td>
