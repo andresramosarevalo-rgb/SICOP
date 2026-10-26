@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Pos;
 
 use App\Actions\Pos\CerrarCajaDelDia;
+use App\Actions\Pos\ReabrirCajaDelDia;
 use App\Actions\Pos\ResumirCajaDelDia;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Pos\CerrarCajaRequest;
 use App\Http\Requests\Pos\ConsultarCierreRequest;
+use App\Http\Requests\Pos\ReabrirCajaRequest;
 use App\Models\CierreCaja;
 use App\Models\Sede;
 use Illuminate\Http\RedirectResponse;
@@ -61,6 +63,21 @@ class CierreCajaController extends Controller
         ], $request->user());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Día cerrado.']);
+
+        return to_route('pos.sedes.cierre.show', ['sede' => $sede, 'fecha' => $fecha]);
+    }
+
+    /**
+     * Reabre el día cerrado de la sede. Solo lo hace el gerente.
+     */
+    public function reabrir(ReabrirCajaRequest $request, Sede $sede, ReabrirCajaDelDia $reabrirCaja): RedirectResponse
+    {
+        $fecha = $request->validated('fecha');
+        $cierre = CierreCaja::query()->where('sede_id', $sede->id)->whereDate('fecha', $fecha)->firstOrFail();
+
+        $reabrirCaja->ejecutar($cierre, $request->user());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Día reabierto.']);
 
         return to_route('pos.sedes.cierre.show', ['sede' => $sede, 'fecha' => $fecha]);
     }

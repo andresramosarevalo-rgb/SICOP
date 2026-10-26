@@ -37,6 +37,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $justificacion
  * @property int|null $cerrado_por
  * @property Carbon|null $cerrado_en
+ * @property int|null $reabierto_por
+ * @property Carbon|null $reabierto_en
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -45,7 +47,7 @@ use Illuminate\Support\Carbon;
     'valor_gastos', 'valor_efectivo_esperado', 'valor_efectivo_contado', 'valor_diferencia_efectivo',
     'valor_ventas_datafono', 'valor_reportado_datafono', 'valor_diferencia_datafono', 'valor_ventas_qr',
     'valor_reportado_qr', 'valor_diferencia_qr', 'valor_a_consignar', 'justificacion', 'cerrado_por',
-    'cerrado_en',
+    'cerrado_en', 'reabierto_por', 'reabierto_en',
 ])]
 class CierreCaja extends Model
 {
@@ -129,6 +131,7 @@ class CierreCaja extends Model
             'fecha' => 'date:Y-m-d',
             'estado' => EstadoCierre::class,
             'cerrado_en' => 'datetime',
+            'reabierto_en' => 'datetime',
         ];
     }
 }

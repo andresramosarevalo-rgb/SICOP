@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Form, Head, router } from '@inertiajs/vue3';
+import { Form, Head, router, usePage } from '@inertiajs/vue3';
+import CierreCajaController from '@/actions/App/Http/Controllers/Pos/CierreCajaController';
 import GastoCajaController from '@/actions/App/Http/Controllers/Pos/GastoCajaController';
 import Heading from '@/components/Heading.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
@@ -19,6 +20,8 @@ import type {
     ResumenCaja as ResumenCajaDelDia,
     Sede,
 } from '@/types';
+
+const page = usePage();
 
 const props = defineProps<{
     sede: Sede;
@@ -153,6 +156,21 @@ function cambiarDia(fecha: string | number): void {
         </section>
 
         <ResultadoArqueo v-if="cierre" :cierre="cierre" />
+
+        <Form
+            v-if="cierre && page.props.auth.permisos.gestionarPos"
+            v-bind="CierreCajaController.reabrir.form(sede.id)"
+            class="flex items-center gap-3"
+            v-slot="{ processing }"
+        >
+            <input type="hidden" name="fecha" :value="fecha" />
+            <Button variant="outline" :disabled="processing"
+                >Reabrir el día</Button
+            >
+            <p class="text-sm text-muted-foreground">
+                Descarta el arqueo para corregir y volver a cerrar.
+            </p>
+        </Form>
 
         <section v-else-if="sede.es_activa" class="flex flex-col gap-4">
             <h2 class="font-medium">Cerrar el día</h2>
