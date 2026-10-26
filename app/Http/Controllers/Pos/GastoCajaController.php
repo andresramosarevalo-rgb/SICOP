@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Pos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Pos\StoreGastoCajaRequest;
 use App\Models\CierreCaja;
+use App\Models\GastoCaja;
 use App\Models\Sede;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class GastoCajaController extends Controller
 {
@@ -36,5 +40,33 @@ class GastoCajaController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Gasto registrado.']);
 
         return to_route('pos.sedes.cierre.show', ['sede' => $sede, 'fecha' => $datos['fecha']]);
+    }
+
+    /**
+     * Elimina un gasto de un día que aún no está cerrado, junto con su soporte.
+     */
+    public function destroy(GastoCaja $gasto): RedirectResponse
+    {
+        $cierre = $gasto->cierreCaja;
+
+        Gate::authorize('operar-sede', $cierre->sede);
+        abort_if($cierre->estaCerrado(), 403, 'El día está cerrado.');
+
+        Storage::delete($gasto->ruta_soporte);
+        $gasto->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Gasto eliminado.']);
+
+        return to_route('pos.sedes.cierre.show', ['sede' => $cierre->sede_id, 'fecha' => $cierre->fecha->toDateString()]);
+    }
+
+    /**
+     * Entrega el soporte de un gasto a quien opera la sede.
+     */
+    public function soporte(GastoCaja $gasto): StreamedResponse
+    {
+        Gate::authorize('operar-sede', $gasto->cierreCaja->sede);
+
+        return Storage::download($gasto->ruta_soporte, $gasto->nombre_soporte);
     }
 }

@@ -46,7 +46,8 @@ test('el resumen suma las ventas del día por medio de pago y el pago a gestores
             ->where('resumen.valor_pago_gestores', '30000.00')
             ->where('resumen.cantidad_cursos', 2)
             ->where('resumen.cantidad_soats', 1)
-            ->where('valorEfectivoEsperado', 850000));
+            ->where('valorEfectivoEsperado', 850000)
+            ->where('estaCerrado', false));
 });
 
 // Issue #76, criterio 1
@@ -64,29 +65,6 @@ test('el resumen solo cuenta las ventas de esa sede y de ese día', function () 
         ->assertInertia(fn (Assert $page) => $page->where('resumen.valor_efectivo_ventas', '999000.00'));
 });
 
-// Issue #76, criterio 1
-test('la fecha de la consulta no puede ser futura ni inválida', function () {
-    $this->actingAs($this->gerente)
-        ->get(route('pos.sedes.cierre.show', ['sede' => $this->sede, 'fecha' => today()->addDay()->toDateString()]))
-        ->assertSessionHasErrors(['fecha' => 'La fecha no puede ser futura.']);
-
-    $this->actingAs($this->gerente)
-        ->get(route('pos.sedes.cierre.show', ['sede' => $this->sede, 'fecha' => 'ayer']))
-        ->assertSessionHasErrors(['fecha' => 'Escriba una fecha válida.']);
-});
-
-// Issue #76, criterio 2
-test('el gerente fija la base de caja de la sede', function () {
-    $this->actingAs($this->gerente)
-        ->put(route('pos.sedes.update', $this->sede), ['nombre' => $this->sede->nombre, 'ciudad' => 'Villavicencio', 'direccion' => 'Calle 1', 'valor_base_caja' => '350000'])
-        ->assertRedirect();
-
-    expect($this->sede->fresh()->valor_base_caja)->toBe('350000.00');
-
-    $this->actingAs($this->gerente)
-        ->put(route('pos.sedes.update', $this->sede), ['nombre' => $this->sede->nombre, 'ciudad' => 'Villavicencio', 'direccion' => 'Calle 1', 'valor_base_caja' => '-1'])
-        ->assertSessionHasErrors('valor_base_caja');
-});
 // Issue #76, criterio 3
 test('los gastos restan del efectivo que debe haber en caja', function () {
     Curso::factory()->for($this->sede)->create(['fecha' => today(), 'valor_efectivo' => 100000, 'valor_pago_gestor' => 0]);
@@ -139,6 +117,32 @@ test('el gasto exige concepto, valor mayor que cero y fecha no futura', function
         ->assertSessionHasErrors(['concepto', 'valor_gasto', 'fecha']);
 });
 
+// Issue #76, criterio 4
+test('al eliminar un gasto se borra también su soporte', function () {
+    $this->actingAs($this->gerente)->post(route('pos.sedes.cierre.gastos.store', $this->sede), datosGasto());
+    $gasto = GastoCaja::firstOrFail();
+
+    $this->actingAs($this->gerente)
+        ->delete(route('pos.cierre.gastos.destroy', $gasto))
+        ->assertRedirect();
+
+    expect(GastoCaja::count())->toBe(0);
+    Storage::disk('local')->assertMissing($gasto->ruta_soporte);
+});
+
+// Issue #77, criterio 3
+test('un día cerrado no admite agregar ni eliminar gastos', function () {
+    $cierre = CierreCaja::factory()->cerrado()->for($this->sede)->create();
+    $gasto = GastoCaja::factory()->for($cierre)->create();
+
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.cierre.gastos.store', $this->sede), datosGasto())
+        ->assertForbidden();
+    $this->actingAs($this->gerente)->delete(route('pos.cierre.gastos.destroy', $gasto))->assertForbidden();
+
+    expect(GastoCaja::count())->toBe(1);
+});
+
 // Issue #76, criterio 3
 test('una sede inactiva no registra gastos', function () {
     $sede = Sede::factory()->create(['es_activa' => false]);
@@ -146,6 +150,17 @@ test('una sede inactiva no registra gastos', function () {
     $this->actingAs($this->gerente)
         ->post(route('pos.sedes.cierre.gastos.store', $sede), datosGasto())
         ->assertForbidden();
+});
+
+// Issue #76, criterio 1
+test('la fecha de la consulta no puede ser futura ni inválida', function () {
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.cierre.show', ['sede' => $this->sede, 'fecha' => today()->addDay()->toDateString()]))
+        ->assertSessionHasErrors(['fecha' => 'La fecha no puede ser futura.']);
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.sedes.cierre.show', ['sede' => $this->sede, 'fecha' => 'ayer']))
+        ->assertSessionHasErrors(['fecha' => 'Escriba una fecha válida.']);
 });
 
 // Issue #76, criterio 5
@@ -162,4 +177,28 @@ test('el usuario de la sede ve y gestiona solo la caja de su sede', function () 
     $this->actingAs($usuarioSede)
         ->post(route('pos.sedes.cierre.gastos.store', $otraSede), datosGasto())
         ->assertForbidden();
+});
+
+// Issue #76, criterio 4
+test('el soporte solo lo descarga quien opera la sede', function () {
+    $this->actingAs($this->gerente)->post(route('pos.sedes.cierre.gastos.store', $this->sede), datosGasto());
+    $gasto = GastoCaja::firstOrFail();
+
+    $this->actingAs($this->gerente)->get(route('pos.cierre.gastos.soporte', $gasto))->assertOk();
+    $this->actingAs(User::factory()->paraSede($this->sede)->create())->get(route('pos.cierre.gastos.soporte', $gasto))->assertOk();
+    $this->actingAs(User::factory()->paraSede(Sede::factory()->create())->create())->get(route('pos.cierre.gastos.soporte', $gasto))->assertForbidden();
+    $this->actingAs(User::factory()->conRol(Rol::Contador)->create())->get(route('pos.cierre.gastos.soporte', $gasto))->assertForbidden();
+});
+
+// Issue #76, criterio 2
+test('el gerente fija la base de caja de la sede', function () {
+    $this->actingAs($this->gerente)
+        ->put(route('pos.sedes.update', $this->sede), ['nombre' => $this->sede->nombre, 'ciudad' => 'Villavicencio', 'direccion' => 'Calle 1', 'valor_base_caja' => '350000'])
+        ->assertRedirect();
+
+    expect($this->sede->fresh()->valor_base_caja)->toBe('350000.00');
+
+    $this->actingAs($this->gerente)
+        ->put(route('pos.sedes.update', $this->sede), ['nombre' => $this->sede->nombre, 'ciudad' => 'Villavicencio', 'direccion' => 'Calle 1', 'valor_base_caja' => '-1'])
+        ->assertSessionHasErrors('valor_base_caja');
 });
