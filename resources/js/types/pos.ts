@@ -89,3 +89,8 @@ export type CierreCaja = {
     cerrado_en: string | null;
     cerrado_por: { id: number; name: string } | null;
 };
+
+export type FilaCierreCaja = {
+    sede: Pick<Sede, 'id' | 'nombre' | 'ciudad'>;
+    cierre: CierreCaja | null;
+};

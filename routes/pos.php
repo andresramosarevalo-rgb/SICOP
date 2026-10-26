@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Pos\CierreCajaController;
+use App\Http\Controllers\Pos\CierreCajaGeneralController;
 use App\Http\Controllers\Pos\CursoConsolidadoController;
 use App\Http\Controllers\Pos\CursoController;
 use App\Http\Controllers\Pos\GastoCajaController;
@@ -34,6 +35,7 @@ Route::middleware(['auth', 'verified'])
             Route::resource('tarifas', TarifaGestorController::class)->only(['index', 'store', 'destroy']);
             Route::get('cursos', CursoConsolidadoController::class)->name('cursos.index');
             Route::get('soats', SoatConsolidadoController::class)->name('soats.index');
+            Route::get('cierres', CierreCajaGeneralController::class)->name('cierres.index');
             Route::post('sedes/{sede}/cierre/reabrir', [CierreCajaController::class, 'reabrir'])->name('sedes.cierre.reabrir');
             Route::put('sedes/{sede}/acceso', SedeAccesoController::class)->name('sedes.acceso.update');
         });
