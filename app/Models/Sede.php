@@ -100,7 +100,7 @@ class Sede extends Model
             'modulo' => 'pos',
             'etiqueta' => 'Sede',
             'descripcion' => $this->nombre,
-            'sede_id' => $this->id,
+            'sede_id' => $this->exists ? $this->id : null,
         ];
     }
 
