@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pos;
 
+use App\Enums\FormaPago;
 use App\Enums\Referido;
 use App\Enums\TipoDocumento;
 use App\Http\Controllers\Controller;
@@ -50,7 +51,7 @@ class CursoController extends Controller
     {
         abort_unless($sede->es_activa, 403, 'La sede está inactiva.');
 
-        $sede->cursos()->create($request->validated());
+        $sede->cursos()->create($request->datosParaGuardar());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Curso registrado.']);
 
@@ -76,7 +77,7 @@ class CursoController extends Controller
      */
     public function update(UpdateCursoRequest $request, Curso $curso): RedirectResponse
     {
-        $curso->update($request->validated());
+        $curso->update($request->datosParaGuardar());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Curso actualizado.']);
 
@@ -86,12 +87,13 @@ class CursoController extends Controller
     /**
      * Opciones de los selectores del formulario de curso.
      *
-     * @return array{tiposDocumento: list<array{valor: string, etiqueta: string}>, referidos: list<array{valor: string, etiqueta: string}>, porcentajesDescuento: list<int>}
+     * @return array{tiposDocumento: list<array{valor: string, etiqueta: string}>, formasPago: list<array{valor: string, etiqueta: string}>, referidos: list<array{valor: string, etiqueta: string}>, porcentajesDescuento: list<int>}
      */
     private function opcionesFormulario(): array
     {
         return [
             'tiposDocumento' => TipoDocumento::opciones(),
+            'formasPago' => FormaPago::opciones(),
             'referidos' => Referido::opciones(),
             'porcentajesDescuento' => Curso::PORCENTAJES_DESCUENTO,
         ];

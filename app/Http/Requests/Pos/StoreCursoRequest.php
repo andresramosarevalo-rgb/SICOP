@@ -2,15 +2,20 @@
 
 namespace App\Http\Requests\Pos;
 
+use App\Concerns\ReglasPago;
+use App\Enums\FormaPago;
 use App\Enums\Referido;
 use App\Enums\TipoDocumento;
 use App\Models\Curso;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreCursoRequest extends FormRequest
 {
+    use ReglasPago;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -42,7 +47,28 @@ class StoreCursoRequest extends FormRequest
             'tipo_comparendo' => ['required', 'string', 'max:100'],
             'valor_curso' => ['required', 'numeric', 'gt:0', 'decimal:0,2', 'max:9999999999999'],
             'porcentaje_descuento' => ['required', Rule::in(Curso::PORCENTAJES_DESCUENTO)],
+            ...$this->reglasPago(FormaPago::cases()),
         ];
+    }
+
+    /**
+     * Get the "after" validation callables for the request.
+     *
+     * @return array<int, callable(Validator): void>
+     */
+    public function after(): array
+    {
+        return [fn (Validator $validator) => $this->validarSumaMixta($validator, 'valor_curso')];
+    }
+
+    /**
+     * Datos del curso listos para guardar, con los valores por medio de pago resueltos.
+     *
+     * @return array<string, mixed>
+     */
+    public function datosParaGuardar(): array
+    {
+        return $this->datosConPago('valor_curso', FormaPago::cases());
     }
 
     /**
