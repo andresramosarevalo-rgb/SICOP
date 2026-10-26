@@ -55,7 +55,7 @@ class TarifaGestor extends Model
         return [
             'modulo' => 'pos',
             'etiqueta' => 'Tarifa del gestor',
-            'descripcion' => "Tipo {$this->codigo_infraccion->value} · ".($this->sede?->nombre ?? 'base'),
+            'descripcion' => "Tipo {$this->codigo_infraccion->value} · ".($this->sede->nombre ?? 'base'),
             'sede_id' => $this->sede_id,
         ];
     }
