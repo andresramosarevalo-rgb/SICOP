@@ -12,6 +12,8 @@ use App\Models\ReciboNomina;
 use App\Models\Sede;
 use App\Models\TarifaGestor;
 use App\Models\User;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Schema;
 
 beforeEach(function () {
     $this->gerente = User::factory()->conRol(Rol::Administrador)->create();
@@ -221,4 +223,19 @@ test('al eliminar una sede se audita el borrado y las auditorías anteriores se 
         ->user_id->toBe($this->gerente->id)
         ->and(Auditoria::where('auditable_type', Sede::class)->where('auditable_id', $sede->id)->count())->toBe(3)
         ->and(Auditoria::where('auditable_type', Sede::class)->whereNotNull('sede_id')->count())->toBe(0);
+});
+
+// Issue #81, criterio 1
+test('si falla el registro de auditoría el cambio tampoco se guarda', function () {
+    $sede = Sede::factory()->create(['ciudad' => 'Villavicencio']);
+    Schema::drop('auditorias');
+
+    expect(fn () => Sede::factory()->create())->toThrow(QueryException::class)
+        ->and(Sede::count())->toBe(1);
+
+    expect(fn () => $sede->update(['ciudad' => 'Acacías']))->toThrow(QueryException::class)
+        ->and($sede->fresh()->ciudad)->toBe('Villavicencio');
+
+    expect(fn () => $sede->delete())->toThrow(QueryException::class)
+        ->and(Sede::count())->toBe(1);
 });
