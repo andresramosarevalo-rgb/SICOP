@@ -24,6 +24,6 @@ class CalcularPagoGestor
             ->orderByRaw('sede_id is null')
             ->first();
 
-        return $tarifa?->valor_pago_gestor ?? '0.00';
+        return $tarifa->valor_pago_gestor ?? '0.00';
     }
 }
