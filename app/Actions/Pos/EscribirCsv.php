@@ -2,6 +2,7 @@
 
 namespace App\Actions\Pos;
 
+use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EscribirCsv
@@ -21,7 +22,7 @@ class EscribirCsv
     public function ejecutar(string $nombreArchivo, array $encabezados, iterable $filas): StreamedResponse
     {
         return response()->streamDownload(function () use ($encabezados, $filas): void {
-            $salida = fopen('php://output', 'w');
+            $salida = fopen('php://output', 'w') ?: throw new RuntimeException('No se pudo abrir la salida del archivo.');
 
             fwrite($salida, "\xEF\xBB\xBF");
             fputcsv($salida, $encabezados, self::SEPARADOR);

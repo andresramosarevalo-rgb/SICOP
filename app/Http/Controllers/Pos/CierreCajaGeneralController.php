@@ -21,7 +21,7 @@ class CierreCajaGeneralController extends Controller
         return Inertia::render('Pos/Cierre/Index', [
             'fecha' => $fecha,
             'filas' => $filas,
-            'valorTotalAConsignar' => $filas->sum(fn (array $fila) => (float) ($fila['cierre']?->valor_a_consignar ?? 0)),
+            'valorTotalAConsignar' => $filas->sum(fn (array $fila) => (float) ($fila['cierre']->valor_a_consignar ?? 0)),
         ]);
     }
 }
