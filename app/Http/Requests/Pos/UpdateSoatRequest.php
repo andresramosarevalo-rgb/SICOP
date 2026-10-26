@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Pos;
 
+use App\Models\Soat;
+
 class UpdateSoatRequest extends StoreSoatRequest
 {
     /**
@@ -9,6 +11,8 @@ class UpdateSoatRequest extends StoreSoatRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('operar-sede', $this->route('soat')->sede);
+        $soat = $this->route('soat');
+
+        return $soat instanceof Soat && $this->user()->can('operar-sede', $soat->sede);
     }
 }
