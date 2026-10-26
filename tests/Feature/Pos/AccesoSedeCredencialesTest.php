@@ -121,3 +121,34 @@ test('el listado y la edición de la sede muestran su acceso', function () {
         ->get(route('pos.sedes.edit', $this->sede))
         ->assertInertia(fn (Assert $page) => $page->where('sede.usuario.email', $usuario->email));
 });
+
+// Issue #71, criterio 5
+test('la sede inactiva no puede iniciar sesión', function () {
+    $this->sede->update(['es_activa' => false]);
+    User::factory()->paraSede($this->sede)->create(['email' => 'villavicencio@example.com']);
+
+    $this->post(route('login.store'), ['email' => 'villavicencio@example.com', 'password' => 'password'])
+        ->assertSessionHasErrors(['email' => 'La sede está inactiva. Comuníquese con el gerente.']);
+
+    $this->assertGuest();
+});
+
+// Issue #71, criterio 5
+test('al reactivar la sede su usuario vuelve a poder iniciar sesión', function () {
+    $this->sede->update(['es_activa' => false]);
+    User::factory()->paraSede($this->sede)->create(['email' => 'villavicencio@example.com']);
+    $this->sede->update(['es_activa' => true]);
+
+    $this->post(route('login.store'), ['email' => 'villavicencio@example.com', 'password' => 'password'])
+        ->assertSessionHasNoErrors();
+
+    $this->assertAuthenticated();
+});
+
+// Issue #71, criterio 5
+test('los usuarios que no son de una sede no se ven afectados por el bloqueo', function () {
+    $this->post(route('login.store'), ['email' => $this->gerente->email, 'password' => 'password'])
+        ->assertSessionHasNoErrors();
+
+    $this->assertAuthenticated();
+});
