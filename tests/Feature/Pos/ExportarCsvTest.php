@@ -7,6 +7,7 @@ use App\Models\Curso;
 use App\Models\Sede;
 use App\Models\Soat;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 beforeEach(function () {
     $this->gerente = User::factory()->conRol(Rol::Administrador)->create();
@@ -233,4 +234,23 @@ test('solo el administrador exporta los cierres y la fecha debe ser válida', fu
 
     auth()->logout();
     $this->get(route('pos.cierres.exportar'))->assertRedirect(route('login'));
+});
+
+// Issue #138, criterio 1
+test('exportar las ventas del día no consulta la sede por cada fila', function () {
+    $otra = Sede::factory()->create();
+    Curso::factory()->count(3)->for($this->sede)->create(['fecha' => '2026-10-15']);
+    Curso::factory()->count(3)->for($otra)->create(['fecha' => '2026-10-15']);
+    Soat::factory()->count(3)->for($this->sede)->create(['fecha' => '2026-10-15']);
+    Soat::factory()->count(3)->for($otra)->create(['fecha' => '2026-10-15']);
+
+    $consultasDeSedes = 0;
+    DB::listen(function ($consulta) use (&$consultasDeSedes) {
+        $consultasDeSedes += str_contains($consulta->sql, 'from "sedes"') ? 1 : 0;
+    });
+
+    $this->actingAs($this->gerente)->get(route('pos.cursos.exportar', ['fecha' => '2026-10-15']))->streamedContent();
+    $this->actingAs($this->gerente)->get(route('pos.soats.exportar', ['fecha' => '2026-10-15']))->streamedContent();
+
+    expect($consultasDeSedes)->toBeLessThanOrEqual(2);
 });
