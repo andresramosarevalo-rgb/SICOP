@@ -92,6 +92,16 @@ test('un texto que parece fórmula se neutraliza para que Excel no lo ejecute', 
         ->and($soats[1][7])->toBe("'@otro.com");
 });
 
+// Issue #137, criterio 1
+test('un celular con prefijo internacional se exporta sin alterar', function () {
+    Soat::factory()->for($this->sede)->create(['fecha' => '2026-10-15', 'celular' => '+573001234567', 'nombre_cliente' => '-1+1']);
+
+    $soats = leerCsv($this->actingAs($this->gerente)->get(route('pos.soats.exportar', ['fecha' => '2026-10-15']))->streamedContent());
+
+    expect($soats[1][6])->toBe('+573001234567')
+        ->and($soats[1][5])->toBe("'-1+1");
+});
+
 // Issue #82, criterio 1
 test('sin fecha el CSV trae los registros de hoy y el nombre lleva la fecha', function () {
     Curso::factory()->for($this->sede)->create(['fecha' => today()]);
