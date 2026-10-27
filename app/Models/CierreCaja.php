@@ -72,6 +72,20 @@ class CierreCaja extends Model
     }
 
     /**
+     * Bloquea la sede dentro de la transacción en curso y exige que los días indicados estén abiertos.
+     * Con el bloqueo, el cierre del día y los registros del día se ejecutan uno a la vez y no se
+     * cuela una venta o un gasto en un día que se está cerrando.
+     */
+    public static function exigirDiaAbierto(int $sedeId, CarbonInterface|string ...$fechas): void
+    {
+        Sede::query()->whereKey($sedeId)->lockForUpdate()->first();
+
+        foreach ($fechas as $fecha) {
+            abort_if(static::diaCerrado($sedeId, $fecha), 403, 'El día está cerrado.');
+        }
+    }
+
+    /**
      * Indica si la sede ya cerró la caja de un día: desde entonces no se registran ni modifican
      * sus cursos, SOAT ni gastos.
      */

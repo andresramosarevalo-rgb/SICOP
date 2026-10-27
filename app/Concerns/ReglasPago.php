@@ -40,16 +40,20 @@ trait ReglasPago
     }
 
     /**
-     * Exige que los valores por medio de un pago mixto sumen el valor de la venta.
+     * Exige que los valores por medio de un pago mixto sumen el valor de la venta. Solo cuentan los
+     * medios que la venta acepta: el valor de un medio que no acepta se descarta al guardar.
+     *
+     * @param  list<FormaPago>  $formas  Formas de pago que acepta la venta.
      */
-    protected function validarSumaMixta(Validator $validator, string $campoValor): void
+    protected function validarSumaMixta(Validator $validator, string $campoValor, array $formas): void
     {
         if ($validator->errors()->isNotEmpty() || $this->input('forma_pago') !== FormaPago::Mixto->value) {
             return;
         }
 
         $centavos = fn (mixed $valor): int => (int) round((float) $valor * 100);
-        $suma = $centavos($this->input('valor_efectivo')) + $centavos($this->input('valor_datafono')) + $centavos($this->input('valor_qr'));
+        $suma = $centavos($this->input('valor_efectivo')) + $centavos($this->input('valor_qr'))
+            + (in_array(FormaPago::Datafono, $formas, true) ? $centavos($this->input('valor_datafono')) : 0);
 
         if ($suma !== $centavos($this->input($campoValor))) {
             $validator->errors()->add('forma_pago', 'Los valores por medio deben sumar el valor total.');

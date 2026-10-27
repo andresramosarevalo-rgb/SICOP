@@ -59,7 +59,7 @@ class NovedadController extends Controller
      */
     public function store(StoreNovedadRequest $request): RedirectResponse
     {
-        Novedad::create($request->validated());
+        Novedad::create($request->datosParaGuardar());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Novedad registrada.']);
 
@@ -81,7 +81,7 @@ class NovedadController extends Controller
      */
     public function update(UpdateNovedadRequest $request, Novedad $novedad): RedirectResponse
     {
-        $novedad->update($request->validated());
+        $novedad->update($request->datosParaGuardar());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Novedad actualizada.']);
 

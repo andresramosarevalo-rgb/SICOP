@@ -6,6 +6,8 @@ use App\Enums\EstadoCierre;
 use App\Http\Controllers\Controller;
 use App\Models\CierreCaja;
 use App\Models\Sede;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -44,13 +46,33 @@ class SaldoConsignacionController extends Controller
         return Inertia::render('Pos/Consignaciones/Index', [
             'filas' => $filas,
             'sedeId' => $sede?->id,
-            'dias' => $sede === null ? [] : CierreCaja::query()
-                ->with('consignacion')
-                ->where('sede_id', $sede->id)
-                ->where('estado', EstadoCierre::Cerrado)
-                ->orderByDesc('fecha')
-                ->limit(90)
-                ->get(['id', 'sede_id', 'fecha', 'valor_a_consignar']),
+            'dias' => $sede === null ? [] : $this->diasDeLaSede($sede),
         ]);
+    }
+
+    /**
+     * Días cerrados de la sede: los 90 más recientes y, además, todos los que aún tienen efectivo
+     * pendiente de consignar, para que el detalle explique siempre el saldo de la sede.
+     *
+     * @return Collection<int, CierreCaja>
+     */
+    private function diasDeLaSede(Sede $sede): Collection
+    {
+        $recientes = CierreCaja::query()
+            ->where('sede_id', $sede->id)
+            ->where('estado', EstadoCierre::Cerrado)
+            ->orderByDesc('fecha')
+            ->limit(90)
+            ->pluck('id');
+
+        return CierreCaja::query()
+            ->with('consignacion')
+            ->where('sede_id', $sede->id)
+            ->where('estado', EstadoCierre::Cerrado)
+            ->where(fn (Builder $query) => $query
+                ->whereIn('id', $recientes)
+                ->orWhere(fn (Builder $query) => $query->doesntHave('consignacion')->where('valor_a_consignar', '>', 0)))
+            ->orderByDesc('fecha')
+            ->get(['id', 'sede_id', 'fecha', 'valor_a_consignar']);
     }
 }

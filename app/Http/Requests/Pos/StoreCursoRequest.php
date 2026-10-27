@@ -59,7 +59,7 @@ class StoreCursoRequest extends FormRequest
      */
     public function after(): array
     {
-        return [fn (Validator $validator) => $this->validarSumaMixta($validator, 'valor_curso')];
+        return [fn (Validator $validator) => $this->validarSumaMixta($validator, 'valor_curso', FormaPago::cases())];
     }
 
     /**
