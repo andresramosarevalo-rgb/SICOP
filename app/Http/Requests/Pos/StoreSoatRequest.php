@@ -60,7 +60,7 @@ class StoreSoatRequest extends FormRequest
      */
     public function after(): array
     {
-        return [fn (Validator $validator) => $this->validarSumaMixta($validator, 'valor_soat')];
+        return [fn (Validator $validator) => $this->validarSumaMixta($validator, 'valor_soat', FormaPago::PARA_SOAT)];
     }
 
     /**
