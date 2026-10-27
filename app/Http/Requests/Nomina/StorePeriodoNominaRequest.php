@@ -3,9 +3,11 @@
 namespace App\Http\Requests\Nomina;
 
 use App\Enums\PeriodicidadPago;
+use App\Models\PeriodoNomina;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StorePeriodoNominaRequest extends FormRequest
 {
@@ -32,6 +34,31 @@ class StorePeriodoNominaRequest extends FormRequest
             ],
             'fecha_fin' => ['required', 'date', 'after:fecha_inicio'],
         ];
+    }
+
+    /**
+     * Impide que el periodo se cruce con otro de la misma periodicidad: un empleado cobraría dos
+     * veces los días en común.
+     *
+     * @return array<int, callable(Validator): void>
+     */
+    public function after(): array
+    {
+        return [function (Validator $validator): void {
+            if ($validator->errors()->isNotEmpty()) {
+                return;
+            }
+
+            $seCruza = PeriodoNomina::query()
+                ->where('periodicidad_pago', $this->input('periodicidad_pago'))
+                ->whereDate('fecha_inicio', '<=', $this->input('fecha_fin'))
+                ->whereDate('fecha_fin', '>=', $this->input('fecha_inicio'))
+                ->exists();
+
+            if ($seCruza) {
+                $validator->errors()->add('fecha_inicio', 'El periodo se cruza con otro de la misma periodicidad.');
+            }
+        }];
     }
 
     /**
