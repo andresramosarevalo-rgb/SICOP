@@ -146,6 +146,21 @@ test('el gerente ve el estado del cierre de todas las sedes en un día', functio
             ->where('valorTotalAConsignar', 750000));
 });
 
+// Issue #136, criterio 1
+test('una sede inactiva con el día sin cerrar no aparece en el consolidado', function () {
+    $inactivaAbierta = Sede::factory()->create(['nombre' => 'Inactiva abierta', 'es_activa' => false]);
+    $inactivaCerrada = Sede::factory()->create(['nombre' => 'Inactiva cerrada', 'es_activa' => false]);
+    CierreCaja::factory()->for($inactivaAbierta)->create(['fecha' => today()]);
+    cerrarDiaDeEjemplo($inactivaCerrada, today()->toDateString());
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.cierres.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('filas', 2)
+            ->where('filas.0.sede.nombre', 'Inactiva cerrada')
+            ->where('filas.1.sede.id', $this->sede->id));
+});
+
 // Issue #78, criterio 3
 test('la lista de cierres filtra por día y valida la fecha', function () {
     cerrarDiaDeEjemplo($this->sede, today()->subDay()->toDateString(), ['valor_a_consignar' => 123000]);
