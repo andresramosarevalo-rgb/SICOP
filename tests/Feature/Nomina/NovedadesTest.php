@@ -159,3 +159,21 @@ test('una novedad sin liquidar se puede editar y eliminar', function () {
 
     expect($novedad->fresh())->toBeNull();
 });
+
+// Issue #129, criterio 1
+test('al cambiar el tipo de una novedad se descartan los datos del tipo anterior', function () {
+    $novedad = Novedad::factory()->for($this->empleado)->create([
+        'tipo' => TipoNovedad::Incapacidad, 'fecha_inicio' => '2026-02-10', 'fecha_fin' => '2026-02-14', 'cantidad' => null,
+    ]);
+
+    $this->actingAs($this->auxiliar)
+        ->put(route('nomina.novedades.update', $novedad), [
+            'empleado_id' => $this->empleado->id,
+            'tipo' => TipoNovedad::HoraExtraDiurna->value,
+            'fecha_inicio' => '2026-02-10',
+            'cantidad' => 3,
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect($novedad->fresh())->fecha_fin->toBeNull()->cantidad->toBe(3)->dias()->toBe(1);
+});
