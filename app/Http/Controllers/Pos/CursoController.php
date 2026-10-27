@@ -16,6 +16,7 @@ use App\Models\Sede;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -55,15 +56,18 @@ class CursoController extends Controller
     public function store(StoreCursoRequest $request, Sede $sede, CalcularPagoGestor $calcularPagoGestor): RedirectResponse
     {
         abort_unless($sede->es_activa, 403, 'La sede está inactiva.');
-        abort_if(CierreCaja::diaCerrado($sede->id, $request->validated('fecha')), 403, 'El día está cerrado.');
 
         $datos = $request->datosParaGuardar();
 
-        $sede->cursos()->create([...$datos, 'valor_pago_gestor' => $calcularPagoGestor->ejecutar(
-            $sede->id,
-            CodigoInfraccion::from($datos['codigo_infraccion']),
-            Referido::tryFrom((string) ($datos['referido'] ?? '')),
-        )]);
+        DB::transaction(function () use ($sede, $datos, $calcularPagoGestor): void {
+            CierreCaja::exigirDiaAbierto($sede->id, $datos['fecha']);
+
+            $sede->cursos()->create([...$datos, 'valor_pago_gestor' => $calcularPagoGestor->ejecutar(
+                $sede->id,
+                CodigoInfraccion::from($datos['codigo_infraccion']),
+                Referido::tryFrom((string) ($datos['referido'] ?? '')),
+            )]);
+        });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Curso registrado.']);
 
@@ -90,15 +94,17 @@ class CursoController extends Controller
      */
     public function update(UpdateCursoRequest $request, Curso $curso, CalcularPagoGestor $calcularPagoGestor): RedirectResponse
     {
-        abort_if(CierreCaja::diaCerrado($curso->sede_id, $curso->fecha) || CierreCaja::diaCerrado($curso->sede_id, $request->validated('fecha')), 403, 'El día está cerrado.');
+        DB::transaction(function () use ($request, $curso, $calcularPagoGestor): void {
+            CierreCaja::exigirDiaAbierto($curso->sede_id, $curso->fecha, $request->validated('fecha'));
 
-        $curso->fill($request->datosParaGuardar());
+            $curso->fill($request->datosParaGuardar());
 
-        if ($curso->isDirty(['codigo_infraccion', 'referido'])) {
-            $curso->valor_pago_gestor = $calcularPagoGestor->ejecutar($curso->sede_id, $curso->codigo_infraccion, $curso->referido);
-        }
+            if ($curso->isDirty(['codigo_infraccion', 'referido'])) {
+                $curso->valor_pago_gestor = $calcularPagoGestor->ejecutar($curso->sede_id, $curso->codigo_infraccion, $curso->referido);
+            }
 
-        $curso->save();
+            $curso->save();
+        });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Curso actualizado.']);
 
