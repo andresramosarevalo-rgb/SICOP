@@ -149,6 +149,15 @@ test('con una forma de pago simple todo el valor va al medio elegido', function 
     'QR' => ['qr', ['0.00', '580000.00']],
 ]);
 
+// Issue #126, criterio 1
+test('el pago mixto del SOAT no cuenta un valor de datáfono que no acepta', function () {
+    $this->actingAs($this->gerente)
+        ->post(route('pos.sedes.soats.store', $this->sede), datosSoat(['forma_pago' => 'mixto', 'valor_efectivo' => 290000, 'valor_qr' => 0, 'valor_datafono' => 290000]))
+        ->assertSessionHasErrors(['forma_pago' => 'Los valores por medio deben sumar el valor total.']);
+
+    expect(Soat::count())->toBe(0);
+});
+
 // Issue #74, criterio 3
 test('el SOAT no acepta pago por datáfono', function () {
     $this->actingAs($this->gerente)
