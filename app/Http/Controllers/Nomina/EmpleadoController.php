@@ -31,14 +31,15 @@ class EmpleadoController extends Controller
     public function index(Request $request): Response
     {
         $busqueda = trim((string) $request->query('buscar', ''));
+        $patron = '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower($busqueda)).'%';
         $estado = in_array($request->query('estado'), ['activos', 'inactivos'], true) ? $request->query('estado') : '';
 
         $empleados = Empleado::query()
             ->with(['area:id,nombre', 'contratoVigente:id,empleado_id,periodicidad_pago'])
             ->when($busqueda !== '', fn (Builder $query) => $query->where(fn (Builder $query) => $query
-                ->whereLike('numero_documento', "%{$busqueda}%")
-                ->orWhereLike('nombres', "%{$busqueda}%")
-                ->orWhereLike('apellidos', "%{$busqueda}%")))
+                ->whereRaw("lower(numero_documento) like ? escape '!'", [$patron])
+                ->orWhereRaw("lower(nombres) like ? escape '!'", [$patron])
+                ->orWhereRaw("lower(apellidos) like ? escape '!'", [$patron])))
             ->when($estado !== '', fn (Builder $query) => $query->where('es_activo', $estado === 'activos'))
             ->orderBy('apellidos')
             ->orderBy('nombres')
