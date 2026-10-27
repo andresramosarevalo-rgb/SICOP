@@ -10,7 +10,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 
 class ConsignacionController extends Controller
 {
@@ -22,14 +24,22 @@ class ConsignacionController extends Controller
         $datos = $request->validated();
         $soporte = $request->file('soporte');
 
-        $cierre->consignacion()->create([
-            'fecha_consignacion' => $datos['fecha_consignacion'],
-            'valor_consignado' => $datos['valor_consignado'],
-            'referencia' => $datos['referencia'],
-            'ruta_soporte' => $soporte->store('soportes-consignacion'),
-            'nombre_soporte' => $soporte->getClientOriginalName(),
-            'registrado_por' => $request->user()->id,
-        ]);
+        $rutaSoporte = $soporte->store('soportes-consignacion') ?: throw new RuntimeException('No se pudo guardar el soporte.');
+
+        try {
+            $cierre->consignacion()->create([
+                'fecha_consignacion' => $datos['fecha_consignacion'],
+                'valor_consignado' => $datos['valor_consignado'],
+                'referencia' => $datos['referencia'],
+                'ruta_soporte' => $rutaSoporte,
+                'nombre_soporte' => $soporte->getClientOriginalName(),
+                'registrado_por' => $request->user()->id,
+            ]);
+        } catch (Throwable $excepcion) {
+            Storage::delete($rutaSoporte);
+
+            throw $excepcion;
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Consignación registrada.']);
 
@@ -45,8 +55,8 @@ class ConsignacionController extends Controller
 
         $cierre = $consignacion->cierreCaja;
 
-        Storage::delete($consignacion->ruta_soporte);
         $consignacion->delete();
+        Storage::delete($consignacion->ruta_soporte);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Consignación eliminada.']);
 

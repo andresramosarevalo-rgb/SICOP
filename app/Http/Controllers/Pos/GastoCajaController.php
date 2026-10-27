@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 
 class GastoCajaController extends Controller
 {
@@ -26,19 +28,27 @@ class GastoCajaController extends Controller
         $datos = $request->validated();
         $soporte = $request->file('soporte');
 
-        DB::transaction(function () use ($sede, $datos, $soporte): void {
-            CierreCaja::exigirDiaAbierto($sede->id, $datos['fecha']);
+        $rutaSoporte = $soporte->store('soportes-caja') ?: throw new RuntimeException('No se pudo guardar el soporte.');
 
-            $cierre = CierreCaja::query()->where('sede_id', $sede->id)->whereDate('fecha', $datos['fecha'])->first()
-                ?? CierreCaja::create(['sede_id' => $sede->id, 'fecha' => $datos['fecha']]);
+        try {
+            DB::transaction(function () use ($sede, $datos, $soporte, $rutaSoporte): void {
+                CierreCaja::exigirDiaAbierto($sede->id, $datos['fecha']);
 
-            $cierre->gastos()->create([
-                'concepto' => $datos['concepto'],
-                'valor_gasto' => $datos['valor_gasto'],
-                'ruta_soporte' => $soporte->store('soportes-caja'),
-                'nombre_soporte' => $soporte->getClientOriginalName(),
-            ]);
-        });
+                $cierre = CierreCaja::query()->where('sede_id', $sede->id)->whereDate('fecha', $datos['fecha'])->first()
+                    ?? CierreCaja::create(['sede_id' => $sede->id, 'fecha' => $datos['fecha']]);
+
+                $cierre->gastos()->create([
+                    'concepto' => $datos['concepto'],
+                    'valor_gasto' => $datos['valor_gasto'],
+                    'ruta_soporte' => $rutaSoporte,
+                    'nombre_soporte' => $soporte->getClientOriginalName(),
+                ]);
+            });
+        } catch (Throwable $excepcion) {
+            Storage::delete($rutaSoporte);
+
+            throw $excepcion;
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Gasto registrado.']);
 
@@ -57,9 +67,10 @@ class GastoCajaController extends Controller
         DB::transaction(function () use ($cierre, $gasto): void {
             CierreCaja::exigirDiaAbierto($cierre->sede_id, $cierre->fecha);
 
-            Storage::delete($gasto->ruta_soporte);
             $gasto->delete();
         });
+
+        Storage::delete($gasto->ruta_soporte);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Gasto eliminado.']);
 
