@@ -52,6 +52,21 @@ test('no se pueden crear dos periodos con la misma periodicidad y fecha de inici
         ->assertSessionHasErrors(['fecha_inicio' => 'Ya existe un periodo con esa periodicidad y fecha de inicio.']);
 });
 
+// Issue #128, criterio 1
+test('no se puede crear un periodo que se cruce con otro de la misma periodicidad', function () {
+    PeriodoNomina::factory()->create(['periodicidad_pago' => 'mensual', 'fecha_inicio' => '2026-02-01', 'fecha_fin' => '2026-02-28']);
+
+    $this->actingAs($this->auxiliar)
+        ->post(route('nomina.periodos.store'), ['periodicidad_pago' => 'mensual', 'fecha_inicio' => '2026-02-15', 'fecha_fin' => '2026-03-14'])
+        ->assertSessionHasErrors(['fecha_inicio' => 'El periodo se cruza con otro de la misma periodicidad.']);
+
+    $this->actingAs($this->auxiliar)
+        ->post(route('nomina.periodos.store'), ['periodicidad_pago' => 'mensual', 'fecha_inicio' => '2026-03-01', 'fecha_fin' => '2026-03-31'])
+        ->assertSessionHasNoErrors();
+
+    expect(PeriodoNomina::count())->toBe(2);
+});
+
 test('el listado muestra los periodos con su cantidad de recibos', function () {
     PeriodoNomina::factory()->create();
 
