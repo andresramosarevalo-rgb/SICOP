@@ -59,6 +59,17 @@ class StoreNovedadRequest extends FormRequest
     }
 
     /**
+     * Datos de la novedad listos para guardar: los campos que no aplican al tipo quedan en null, para
+     * que al cambiar el tipo de una novedad no se conserven los valores del tipo anterior.
+     *
+     * @return array<string, mixed>
+     */
+    public function datosParaGuardar(): array
+    {
+        return [...array_fill_keys(['fecha_fin', 'cantidad', 'concepto_nomina_id', 'valor_eventual'], null), ...$this->validated()];
+    }
+
+    /**
      * Get the custom messages for validator errors.
      *
      * @return array<string, string>
