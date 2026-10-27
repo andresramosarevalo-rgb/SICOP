@@ -69,6 +69,23 @@ test('al elegir una sede muestra sus días cerrados con el estado de la consigna
             ->where('dias.1.consignacion.referencia', 'REF-XYZ'));
 });
 
+// Issue #135, criterio 1
+test('el detalle de la sede incluye los días antiguos que aún están sin consignar', function () {
+    $antiguo = CierreCaja::factory()->cerrado()->for($this->sede)->create(['fecha' => today()->subDays(200), 'valor_a_consignar' => 50000]);
+    $consignadoAntiguo = CierreCaja::factory()->cerrado()->for($this->sede)->create(['fecha' => today()->subDays(201), 'valor_a_consignar' => 50000]);
+    Consignacion::factory()->create(['cierre_caja_id' => $consignadoAntiguo->id]);
+
+    foreach (range(2, 91) as $atras) {
+        CierreCaja::factory()->cerrado()->for($this->sede)->create(['fecha' => today()->subDays($atras), 'valor_a_consignar' => 0]);
+    }
+
+    $this->actingAs($this->gerente)
+        ->get(route('pos.consignaciones.index', ['sede_id' => $this->sede->id]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('dias', 91)
+            ->where('dias.90.id', $antiguo->id));
+});
+
 // Issue #80, criterio 4
 test('el usuario de la sede no ve los saldos de consignación', function () {
     $this->actingAs($this->usuarioSede)->get(route('pos.consignaciones.index'))->assertForbidden();
