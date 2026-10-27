@@ -5,6 +5,8 @@ use App\Models\CierreCaja;
 use App\Models\GastoCaja;
 use App\Models\Sede;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 // Issue #77, criterio 1
 test('un cierre cerrado se distingue de uno abierto', function () {
@@ -39,4 +41,20 @@ test('una sede tiene un solo cierre por día', function () {
 // Issue #76, criterio 2
 test('la base de caja de una sede es un valor con dos decimales', function () {
     expect(Sede::factory()->create(['valor_base_caja' => 200000])->fresh()->valor_base_caja)->toBe('200000.00');
+});
+
+// Issue #127, criterio 1
+test('exigir el día abierto consulta la sede para bloquearla y rechaza un día cerrado', function () {
+    $sede = Sede::factory()->create();
+    CierreCaja::factory()->cerrado()->for($sede)->create(['fecha' => '2026-02-10']);
+
+    $consultas = [];
+    DB::listen(function ($consulta) use (&$consultas) {
+        $consultas[] = $consulta->sql;
+    });
+
+    CierreCaja::exigirDiaAbierto($sede->id, '2026-02-11');
+
+    expect(collect($consultas)->contains(fn (string $sql) => str_contains($sql, 'from "sedes"')))->toBeTrue()
+        ->and(fn () => CierreCaja::exigirDiaAbierto($sede->id, '2026-02-11', '2026-02-10'))->toThrow(HttpException::class);
 });

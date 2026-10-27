@@ -25,6 +25,8 @@ class CerrarCajaDelDia
     public function ejecutar(Sede $sede, string $fecha, array $datos, User $usuario): CierreCaja
     {
         return DB::transaction(function () use ($sede, $fecha, $datos, $usuario): CierreCaja {
+            Sede::query()->whereKey($sede->id)->lockForUpdate()->first();
+
             $cierre = CierreCaja::query()->where('sede_id', $sede->id)->whereDate('fecha', $fecha)->lockForUpdate()->first()
                 ?? CierreCaja::create(['sede_id' => $sede->id, 'fecha' => $fecha]);
 
