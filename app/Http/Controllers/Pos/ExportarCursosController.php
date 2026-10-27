@@ -22,7 +22,7 @@ class ExportarCursosController extends Controller
             ->whereDate('fecha', $fecha)
             ->orderBy('sede_id')
             ->orderBy('id')
-            ->cursor();
+            ->lazy();
 
         return $escribirCsv->ejecutar(
             "cursos-{$fecha}.csv",

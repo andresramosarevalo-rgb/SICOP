@@ -24,7 +24,7 @@ class ConsultarCierresDelDia
             ->keyBy('sede_id');
 
         return Sede::query()
-            ->where(fn (Builder $query) => $query->where('es_activa', true)->orWhereIn('id', $cierres->keys()))
+            ->where(fn (Builder $query) => $query->where('es_activa', true)->orWhereIn('id', $cierres->filter->estaCerrado()->keys()))
             ->orderBy('nombre')
             ->get(['id', 'nombre', 'ciudad'])
             ->map(fn (Sede $sede) => [

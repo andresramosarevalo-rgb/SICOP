@@ -37,7 +37,8 @@ class EscribirCsv
 
     /**
      * Formatea una celda. Los textos que Excel podría tomar por una fórmula (empiezan por =, +, - o @)
-     * se neutralizan para que un dato digitado no se ejecute al abrir el archivo.
+     * se neutralizan para que un dato digitado no se ejecute al abrir el archivo. Un número con signo
+     * (como un celular con prefijo internacional, +573001234567) no es una fórmula y se deja intacto.
      */
     private function formatearCelda(int|float|string|null $celda): string
     {
@@ -49,6 +50,8 @@ class EscribirCsv
             return str_replace('.', ',', (string) $celda);
         }
 
-        return preg_match('/^[=+\-@\t\r]/', $celda) === 1 ? "'".$celda : $celda;
+        $esNumeroConSigno = preg_match('/^[+\-]\d+$/', $celda) === 1;
+
+        return ! $esNumeroConSigno && preg_match('/^[=+\-@\t\r]/', $celda) === 1 ? "'".$celda : $celda;
     }
 }

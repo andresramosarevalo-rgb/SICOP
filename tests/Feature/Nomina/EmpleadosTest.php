@@ -29,6 +29,18 @@ test('la búsqueda solo muestra los empleados que coinciden', function (string $
     'por apellido sin distinguir mayúsculas' => ['GóMEZ'],
 ]);
 
+// Issue #139, criterio 1
+test('los comodines de SQL se buscan como texto literal', function (string $buscar) {
+    Empleado::factory()->create(['numero_documento' => '1012345678', 'nombres' => 'Laura', 'apellidos' => 'Gómez']);
+    Empleado::factory()->create(['numero_documento' => '79888777', 'nombres' => 'Ana_100%', 'apellidos' => 'Rincón']);
+
+    $this->actingAs($this->auxiliar)
+        ->get(route('nomina.empleados.index', ['buscar' => $buscar]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('empleados', 1)
+            ->where('empleados.0.numero_documento', '79888777'));
+})->with(['guion bajo' => ['a_1'], 'porcentaje' => ['0%']]);
+
 // Issue #6, criterio 3
 test('sin búsqueda se listan todos los empleados', function () {
     Empleado::factory()->count(3)->create();

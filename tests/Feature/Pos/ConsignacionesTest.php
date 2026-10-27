@@ -156,3 +156,21 @@ test('el usuario de la sede no registra consignaciones pero sí ve su comprobant
         ->get(route('pos.consignaciones.soporte', $consignacion))
         ->assertForbidden();
 });
+
+// Issue #134, criterio 1
+test('si falla el borrado o el registro de una consignación no se pierde ni sobra un comprobante', function () {
+    $this->actingAs($this->gerente)->post(route('pos.cierre.consignacion.store', $this->cierre), datosConsignacion());
+    $consignacion = Consignacion::firstOrFail();
+
+    Consignacion::deleting(fn () => throw new RuntimeException('falla al borrar'));
+    $this->withoutExceptionHandling();
+
+    expect(fn () => $this->actingAs($this->gerente)->delete(route('pos.consignaciones.destroy', $consignacion)))->toThrow(RuntimeException::class);
+    Storage::disk('local')->assertExists($consignacion->ruta_soporte);
+
+    $otro = CierreCaja::factory()->cerrado()->for($this->sede)->create(['fecha' => today()->subDays(2), 'valor_a_consignar' => 100000]);
+    Consignacion::creating(fn () => throw new RuntimeException('falla al crear'));
+
+    expect(fn () => $this->actingAs($this->gerente)->post(route('pos.cierre.consignacion.store', $otro), datosConsignacion(['valor_consignado' => '50000'])))->toThrow(RuntimeException::class)
+        ->and(Storage::disk('local')->allFiles('soportes-consignacion'))->toHaveCount(1);
+});
