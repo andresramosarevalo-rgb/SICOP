@@ -3,13 +3,21 @@
 namespace App\Http\Requests\Nomina;
 
 use App\Enums\TipoNovedad;
+use App\Models\Novedad;
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreNovedadRequest extends FormRequest
 {
+    private const MAXIMO_HORAS_EXTRA_DIA = 2;
+
+    private const MAXIMO_HORAS_EXTRA_SEMANA = 12;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -67,6 +75,56 @@ class StoreNovedadRequest extends FormRequest
     public function datosParaGuardar(): array
     {
         return [...array_fill_keys(['fecha_fin', 'cantidad', 'concepto_nomina_id', 'valor_eventual'], null), ...$this->validated()];
+    }
+
+    /**
+     * Impide que las horas extra del empleado pasen del máximo legal: 2 por día y 12 por semana
+     * (de lunes a domingo), sumando las diurnas y las nocturnas. Al editar no se cuenta la propia novedad.
+     *
+     * @return array<int, callable(Validator): void>
+     */
+    public function after(): array
+    {
+        return [function (Validator $validator): void {
+            $tipo = TipoNovedad::tryFrom((string) $this->input('tipo'));
+
+            if ($validator->errors()->isNotEmpty() || ! in_array($tipo, [TipoNovedad::HoraExtraDiurna, TipoNovedad::HoraExtraNocturna], true)) {
+                return;
+            }
+
+            $fecha = CarbonImmutable::parse($this->input('fecha_inicio'));
+            $horas = (int) $this->input('cantidad');
+            $horasEnElDia = $this->horasExtraRegistradas($fecha, $fecha);
+            $horasEnLaSemana = $this->horasExtraRegistradas(
+                $fecha->startOfWeek(CarbonInterface::MONDAY),
+                $fecha->endOfWeek(CarbonInterface::SUNDAY),
+            );
+
+            if ($horasEnElDia + $horas > self::MAXIMO_HORAS_EXTRA_DIA) {
+                $restantes = max(0, self::MAXIMO_HORAS_EXTRA_DIA - $horasEnElDia);
+                $validator->errors()->add('cantidad', 'Supera el máximo de '.self::MAXIMO_HORAS_EXTRA_DIA.' horas extra por día; al empleado le '.($restantes === 1 ? 'queda 1 hora' : "quedan {$restantes} horas").' ese día.');
+            } elseif ($horasEnLaSemana + $horas > self::MAXIMO_HORAS_EXTRA_SEMANA) {
+                $restantes = max(0, self::MAXIMO_HORAS_EXTRA_SEMANA - $horasEnLaSemana);
+                $validator->errors()->add('cantidad', 'Supera el máximo de '.self::MAXIMO_HORAS_EXTRA_SEMANA.' horas extra por semana (de lunes a domingo); al empleado le '.($restantes === 1 ? 'queda 1 hora' : "quedan {$restantes} horas").' esa semana.');
+            }
+        }];
+    }
+
+    /**
+     * Horas extra que el empleado ya tiene entre dos fechas, sin contar la novedad que se está editando.
+     */
+    private function horasExtraRegistradas(CarbonImmutable $desde, CarbonImmutable $hasta): int
+    {
+        /** @var Novedad|null $editada */
+        $editada = $this->route('novedad');
+
+        return (int) Novedad::query()
+            ->where('empleado_id', $this->input('empleado_id'))
+            ->whereIn('tipo', [TipoNovedad::HoraExtraDiurna, TipoNovedad::HoraExtraNocturna])
+            ->whereDate('fecha_inicio', '>=', $desde)
+            ->whereDate('fecha_inicio', '<=', $hasta)
+            ->when($editada, fn ($query) => $query->whereKeyNot($editada->getKey()))
+            ->sum('cantidad');
     }
 
     /**
