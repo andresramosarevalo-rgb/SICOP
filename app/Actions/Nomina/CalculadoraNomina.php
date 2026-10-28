@@ -67,20 +67,54 @@ final class CalculadoraNomina
         $diasTrabajados = max(0, $dias - $diasAusencia - $diasIncapacidad - $diasVacaciones);
 
         $salario = $this->redondear($salarioDiario * $diasTrabajados);
-        $lineas = [$this->linea(ConceptoSistema::Salario, $salario, $diasTrabajados)];
 
-        if ($salarioMensual <= new Number($parametros->valor_salario_minimo) * 2 && $diasTrabajados > 0) {
-            $auxilio = $this->redondear(new Number($parametros->valor_auxilio_transporte) * $diasTrabajados / self::DIAS_MES);
-            $lineas[] = $this->linea(ConceptoSistema::AuxilioTransporte, $auxilio, $diasTrabajados);
+        $lineas = [
+            $this->linea(ConceptoSistema::Salario, $salario, $diasTrabajados),
+            ...$this->lineasAuxilioTransporte($salarioMensual, $parametros, $diasTrabajados),
+            ...$this->lineasDeRecargos($novedades, $periodo, $parametros, $valorHora),
+            ...$this->lineasDeIncapacidad($diasIncapacidad, $salarioDiario, $parametros),
+            ...$this->lineasDeVacaciones($diasVacaciones, $salarioDiario),
+            ...$this->lineasDeRetardo($novedades, $periodo, $valorHora),
+            ...$this->lineasDeAsignaciones($asignaciones, $periodo, $salario),
+            ...$this->lineasDeConceptosEventuales($novedades, $periodo),
+        ];
+
+        return new ResultadoLiquidacion(
+            [...$lineas, ...$this->lineasDeLey($lineas, $parametros, $dias)],
+            $diasTrabajados,
+        );
+    }
+
+    /**
+     * @return list<LineaLiquidacion>
+     */
+    private function lineasAuxilioTransporte(Number $salarioMensual, ParametroNomina $parametros, int $diasTrabajados): array
+    {
+        if ($salarioMensual > new Number($parametros->valor_salario_minimo) * 2 || $diasTrabajados <= 0) {
+            return [];
         }
 
-        // Las horas extra pagan la hora completa más el recargo; los recargos pagan solo el recargo.
+        $auxilio = $this->redondear(new Number($parametros->valor_auxilio_transporte) * $diasTrabajados / self::DIAS_MES);
+
+        return [$this->linea(ConceptoSistema::AuxilioTransporte, $auxilio, $diasTrabajados)];
+    }
+
+    /**
+     * Las horas extra pagan la hora completa más el recargo; los recargos pagan solo el recargo.
+     *
+     * @param  array<int, Novedad>  $novedades
+     * @return list<LineaLiquidacion>
+     */
+    private function lineasDeRecargos(array $novedades, PeriodoNomina $periodo, ParametroNomina $parametros, Number $valorHora): array
+    {
         $horasConRecargo = [
             [TipoNovedad::HoraExtraDiurna, ConceptoSistema::HoraExtraDiurna, new Number($parametros->porcentaje_recargo_hora_extra_diurna) + 100],
             [TipoNovedad::HoraExtraNocturna, ConceptoSistema::HoraExtraNocturna, new Number($parametros->porcentaje_recargo_hora_extra_nocturna) + 100],
             [TipoNovedad::RecargoNocturno, ConceptoSistema::RecargoNocturno, new Number($parametros->porcentaje_recargo_nocturno)],
             [TipoNovedad::DominicalFestivo, ConceptoSistema::RecargoDominicalFestivo, new Number($parametros->porcentaje_recargo_dominical_festivo)],
         ];
+
+        $lineas = [];
 
         foreach ($horasConRecargo as [$tipo, $concepto, $porcentaje]) {
             $horas = $this->cantidadDe($novedades, $tipo, $periodo);
@@ -90,28 +124,76 @@ final class CalculadoraNomina
             }
         }
 
-        if ($diasIncapacidad > 0) {
-            $diarioIncapacidad = $salarioDiario * new Number($parametros->porcentaje_incapacidad) / 100;
-            $minimoDiario = new Number($parametros->valor_salario_minimo) / self::DIAS_MES;
-            $diario = $diarioIncapacidad < $minimoDiario ? $minimoDiario : $diarioIncapacidad;
-            $lineas[] = $this->linea(ConceptoSistema::Incapacidad, $this->redondear($diario * $diasIncapacidad), $diasIncapacidad);
+        return $lineas;
+    }
+
+    /**
+     * @return list<LineaLiquidacion>
+     */
+    private function lineasDeIncapacidad(int $diasIncapacidad, Number $salarioDiario, ParametroNomina $parametros): array
+    {
+        if ($diasIncapacidad <= 0) {
+            return [];
         }
 
-        if ($diasVacaciones > 0) {
-            $lineas[] = $this->linea(ConceptoSistema::Vacaciones, $this->redondear($salarioDiario * $diasVacaciones), $diasVacaciones);
+        $diarioIncapacidad = $salarioDiario * new Number($parametros->porcentaje_incapacidad) / 100;
+        $minimoDiario = new Number($parametros->valor_salario_minimo) / self::DIAS_MES;
+        $diario = $diarioIncapacidad < $minimoDiario ? $minimoDiario : $diarioIncapacidad;
+
+        return [$this->linea(ConceptoSistema::Incapacidad, $this->redondear($diario * $diasIncapacidad), $diasIncapacidad)];
+    }
+
+    /**
+     * @return list<LineaLiquidacion>
+     */
+    private function lineasDeVacaciones(int $diasVacaciones, Number $salarioDiario): array
+    {
+        if ($diasVacaciones <= 0) {
+            return [];
         }
 
+        return [$this->linea(ConceptoSistema::Vacaciones, $this->redondear($salarioDiario * $diasVacaciones), $diasVacaciones)];
+    }
+
+    /**
+     * @param  array<int, Novedad>  $novedades
+     * @return list<LineaLiquidacion>
+     */
+    private function lineasDeRetardo(array $novedades, PeriodoNomina $periodo, Number $valorHora): array
+    {
         $minutosRetardo = $this->cantidadDe($novedades, TipoNovedad::Retardo, $periodo);
 
-        if ($minutosRetardo > 0) {
-            $lineas[] = $this->linea(ConceptoSistema::DescuentoRetardo, $this->redondear($valorHora * $minutosRetardo / 60), $minutosRetardo);
+        if ($minutosRetardo <= 0) {
+            return [];
         }
+
+        return [$this->linea(ConceptoSistema::DescuentoRetardo, $this->redondear($valorHora * $minutosRetardo / 60), $minutosRetardo)];
+    }
+
+    /**
+     * @param  array<int, AsignacionConcepto>  $asignaciones
+     * @return list<LineaLiquidacion>
+     */
+    private function lineasDeAsignaciones(array $asignaciones, PeriodoNomina $periodo, Number $salario): array
+    {
+        $lineas = [];
 
         foreach ($asignaciones as $asignacion) {
             if ($this->estaVigente($asignacion, $periodo)) {
                 $lineas[] = $this->lineaDeConcepto($asignacion->concepto, $this->valorAsignado($asignacion, $salario));
             }
         }
+
+        return $lineas;
+    }
+
+    /**
+     * @param  array<int, Novedad>  $novedades
+     * @return list<LineaLiquidacion>
+     */
+    private function lineasDeConceptosEventuales(array $novedades, PeriodoNomina $periodo): array
+    {
+        $lineas = [];
 
         foreach ($novedades as $novedad) {
             if ($novedad->tipo === TipoNovedad::ConceptoEventual && $novedad->concepto !== null
@@ -120,20 +202,27 @@ final class CalculadoraNomina
             }
         }
 
-        $baseCotizacion = new Number('0');
+        return $lineas;
+    }
 
-        foreach ($lineas as $linea) {
-            if ($linea->esConstitutivoSalario) {
-                $baseCotizacion += $linea->valor;
-            }
-        }
-
+    /**
+     * Deducciones de ley sobre los devengos: salud, pensión, Fondo de Solidaridad y retención en la fuente.
+     *
+     * El FSP y la retención se calculan sobre el equivalente mensual y se proporcionan al periodo.
+     *
+     * @param  list<LineaLiquidacion>  $devengos
+     * @return list<LineaLiquidacion>
+     */
+    private function lineasDeLey(array $devengos, ParametroNomina $parametros, int $dias): array
+    {
+        $baseCotizacion = $this->baseDeCotizacion($devengos);
         $salud = $this->porcentaje($baseCotizacion, $parametros->porcentaje_salud_empleado);
         $pension = $this->porcentaje($baseCotizacion, $parametros->porcentaje_pension_empleado);
-        $lineas[] = $this->linea(ConceptoSistema::Salud, $salud);
-        $lineas[] = $this->linea(ConceptoSistema::Pension, $pension);
+        $lineas = [
+            $this->linea(ConceptoSistema::Salud, $salud),
+            $this->linea(ConceptoSistema::Pension, $pension),
+        ];
 
-        // El FSP y la retención se calculan sobre el equivalente mensual y se proporcionan al periodo.
         $aMensual = new Number(self::DIAS_MES) / $dias;
         $salarioMinimo = new Number($parametros->valor_salario_minimo);
         $porcentajeFsp = $this->porcentajeFondoSolidaridad($baseCotizacion * $aMensual / $salarioMinimo);
@@ -143,7 +232,7 @@ final class CalculadoraNomina
             $lineas[] = $this->linea(ConceptoSistema::FondoSolidaridadPensional, $fondoSolidaridad);
         }
 
-        $ingresosLaborales = (new ResultadoLiquidacion($lineas, $diasTrabajados))->totalDevengado();
+        $ingresosLaborales = (new ResultadoLiquidacion($devengos, 0))->totalDevengado();
         $depurado = ($ingresosLaborales - $salud - $pension - $fondoSolidaridad) * $aMensual;
         $retencion = $this->retencionMensual($depurado, new Number($parametros->valor_uvt)) / $aMensual;
         $retencion = ($retencion / 1000)->round(0, RoundingMode::HalfAwayFromZero) * 1000;
@@ -152,7 +241,25 @@ final class CalculadoraNomina
             $lineas[] = $this->linea(ConceptoSistema::RetencionFuente, $retencion);
         }
 
-        return new ResultadoLiquidacion($lineas, $diasTrabajados);
+        return $lineas;
+    }
+
+    /**
+     * Suma de los devengos constitutivos de salario.
+     *
+     * @param  list<LineaLiquidacion>  $lineas
+     */
+    private function baseDeCotizacion(array $lineas): Number
+    {
+        $base = new Number('0');
+
+        foreach ($lineas as $linea) {
+            if ($linea->esConstitutivoSalario) {
+                $base += $linea->valor;
+            }
+        }
+
+        return $base;
     }
 
     /**
