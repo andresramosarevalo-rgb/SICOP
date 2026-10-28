@@ -17,7 +17,9 @@ export const options = {
 };
 
 function xsrf(jar) {
-    const cookie = jar.cookiesForURL(BASE).XSRF_TOKEN || jar.cookiesForURL(BASE)['XSRF-TOKEN'];
+    const cookie =
+        jar.cookiesForURL(BASE).XSRF_TOKEN ||
+        jar.cookiesForURL(BASE)['XSRF-TOKEN'];
     return decodeURIComponent(cookie[0]);
 }
 
@@ -45,7 +47,9 @@ export default function (datos) {
     check(respuesta, {
         'listado 200': (r) => r.status === 200,
         // Inertia escapa las barras en el JSON de la página (Nomina\/Empleados\/Index).
-        'es el listado de empleados': (r) => r.url.includes('/nomina/empleados') && /Nomina\\?\/Empleados\\?\/Index/.test(r.body),
+        'es el listado de empleados': (r) =>
+            r.url.includes('/nomina/empleados') &&
+            /Nomina\\?\/Empleados\\?\/Index/.test(r.body),
     });
     sleep(1);
 }
