@@ -13,6 +13,7 @@
 | Capa                             | Guía oficial                                                      | Herramienta que la aplica                                                                       | Archivo de configuración         |
 | -------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------- |
 | PHP (Laravel)                    | PSR-12 + convenciones de Laravel                                  | Laravel Pint, preset `laravel`                                                                  | `pint.json`                      |
+| PHP: análisis estático           | Larastan nivel 7 (tipos y errores de lógica)                      | Larastan vía PHPStan (`composer types:check`)                                                   | `phpstan.neon`                   |
 | Vue 3 / TypeScript               | Guía de estilo oficial de Vue (Composition API, `<script setup>`) | Oxlint vía Vite+ (`vp lint`), con reglas sensibles a tipos y advertencias tratadas como errores | `vite.config.ts` (bloque `lint`) |
 | Formato de `.vue`, `.ts` y `.js` | —                                                                 | Oxfmt vía Vite+ (`vp fmt`), compatible con Prettier; ordena las clases de Tailwind              | `vite.config.ts` (bloque `fmt`)  |
 | Mensajes de commit               | Conventional Commits (sección 2)                                  | commitlint                                                                                      | `commitlint.config.js`           |
@@ -60,7 +61,8 @@ Scripts en `package.json`:
 Comandos de verificación:
 
 ```bash
-sail pint --test            # PHP
+sail pint --test            # PHP (formato)
+sail composer types:check   # PHP (análisis estático, Larastan nivel 7)
 sail npm run lint           # Vue/JS (reglas)
 sail npm run format:check   # Vue/JS (formato)
 ```
@@ -196,7 +198,7 @@ Una historia puede entrar al sprint solo si su issue cumple todas estas condicio
 Una historia está terminada solo si se cumplen todas estas condiciones. Cada una se comprueba abriendo el repositorio o ejecutando el comando indicado:
 
 1. **Integrada en `develop`** mediante un PR aprobado por al menos un integrante distinto del autor (visible en la pestaña del PR).
-2. **PHP formateado:** `sail pint --test` termina sin errores sobre `develop`.
+2. **PHP formateado y sin errores de análisis estático:** `sail pint --test` y `sail composer types:check` (Larastan nivel 7) terminan sin errores sobre `develop`.
 3. **Vue/JS sin errores:** `sail npm run lint` y `sail npm run format:check` terminan sin errores.
 4. **Tests pasan y cubren la historia:** `sail artisan test` termina sin fallos, y cada criterio de aceptación tiene al menos un test en `tests/Feature/` cuyo nombre o comentario cita el número del issue (p. ej. `// Issue #12, criterio 2`).
 5. **Base de datos reproducible:** `sail artisan migrate:fresh --seed` corre sin errores sobre PostgreSQL.
@@ -233,7 +235,7 @@ Solo estas causales justifican bloquear un PR. Todo comentario bloqueante cita e
 
 | Código | Causal                                                                                                                                         |
 | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| B1     | Falla cualquier comando de la DoD (Pint, ESLint, Prettier, tests, `migrate:fresh --seed`, commitlint, búsqueda de código de depuración).       |
+| B1     | Falla cualquier comando de la DoD (Pint, Larastan, ESLint, Prettier, tests, `migrate:fresh --seed`, commitlint, búsqueda de código de depuración).|
 | B2     | Un criterio de aceptación del issue no tiene test que lo cubra.                                                                                |
 | B3     | Incumple una regla de nombres R1, R2 o R3, o las convenciones de la sección 1.4.                                                               |
 | B4     | Hay credenciales, contraseñas o llaves en el código, o se versiona el archivo `.env`.                                                          |
