@@ -233,16 +233,16 @@ El equipo tiene dos integrantes, así que cada PR lo revisa siempre el otro. El 
 
 Solo estas causales justifican bloquear un PR. Todo comentario bloqueante cita el código de la causal.
 
-| Código | Causal                                                                                                                                         |
-| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| B1     | Falla cualquier comando de la DoD (Pint, Larastan, ESLint, Prettier, tests, `migrate:fresh --seed`, commitlint, búsqueda de código de depuración).|
-| B2     | Un criterio de aceptación del issue no tiene test que lo cubra.                                                                                |
-| B3     | Incumple una regla de nombres R1, R2 o R3, o las convenciones de la sección 1.4.                                                               |
-| B4     | Hay credenciales, contraseñas o llaves en el código, o se versiona el archivo `.env`.                                                          |
-| B5     | Hay una consulta SQL que concatena datos del usuario en lugar de usar Eloquent, el Query Builder o bindings (`DB::select('... ?', [$valor])`). |
-| B6     | Se modifica una migración que ya está en `develop` en lugar de crear una migración nueva.                                                      |
-| B7     | Hay una ruta nueva sin middleware `auth`, salvo las de autenticación.                                                                          |
-| B8     | El PR supera las 400 líneas cambiadas definidas en 5.1.                                                                                        |
+| Código | Causal                                                                                                                                             |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| B1     | Falla cualquier comando de la DoD (Pint, Larastan, ESLint, Prettier, tests, `migrate:fresh --seed`, commitlint, búsqueda de código de depuración). |
+| B2     | Un criterio de aceptación del issue no tiene test que lo cubra.                                                                                    |
+| B3     | Incumple una regla de nombres R1, R2 o R3, o las convenciones de la sección 1.4.                                                                   |
+| B4     | Hay credenciales, contraseñas o llaves en el código, o se versiona el archivo `.env`.                                                              |
+| B5     | Hay una consulta SQL que concatena datos del usuario en lugar de usar Eloquent, el Query Builder o bindings (`DB::select('... ?', [$valor])`).     |
+| B6     | Se modifica una migración que ya está en `develop` en lugar de crear una migración nueva.                                                          |
+| B7     | Hay una ruta nueva sin middleware `auth`, salvo las de autenticación.                                                                              |
+| B8     | El PR supera las 400 líneas cambiadas definidas en 5.1.                                                                                            |
 
 ### 5.4 Qué no bloquea
 
