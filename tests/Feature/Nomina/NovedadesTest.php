@@ -38,13 +38,13 @@ test('una novedad de horas extra con cantidad de horas se registra', function ()
             'empleado_id' => $this->empleado->id,
             'tipo' => TipoNovedad::HoraExtraDiurna->value,
             'fecha_inicio' => '2026-02-10',
-            'cantidad' => 3,
+            'cantidad' => 2,
         ])
         ->assertRedirect(route('nomina.novedades.create'));
 
     $novedad = Novedad::sole();
     expect($novedad->tipo)->toBe(TipoNovedad::HoraExtraDiurna)
-        ->and($novedad->cantidad)->toBe(3)
+        ->and($novedad->cantidad)->toBe(2)
         ->and($novedad->empleado_id)->toBe($this->empleado->id);
 });
 
@@ -147,11 +147,11 @@ test('una novedad sin liquidar se puede editar y eliminar', function () {
             'empleado_id' => $this->empleado->id,
             'tipo' => TipoNovedad::HoraExtraDiurna->value,
             'fecha_inicio' => '2026-02-10',
-            'cantidad' => 8,
+            'cantidad' => 1,
         ])
         ->assertRedirect(route('nomina.novedades.index'));
 
-    expect($novedad->fresh()->cantidad)->toBe(8);
+    expect($novedad->fresh()->cantidad)->toBe(1);
 
     $this->actingAs($this->auxiliar)
         ->delete(route('nomina.novedades.destroy', $novedad))
@@ -171,9 +171,9 @@ test('al cambiar el tipo de una novedad se descartan los datos del tipo anterior
             'empleado_id' => $this->empleado->id,
             'tipo' => TipoNovedad::HoraExtraDiurna->value,
             'fecha_inicio' => '2026-02-10',
-            'cantidad' => 3,
+            'cantidad' => 2,
         ])
         ->assertSessionHasNoErrors();
 
-    expect($novedad->fresh())->fecha_fin->toBeNull()->cantidad->toBe(3)->dias()->toBe(1);
+    expect($novedad->fresh())->fecha_fin->toBeNull()->cantidad->toBe(2)->dias()->toBe(1);
 });
