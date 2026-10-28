@@ -101,7 +101,8 @@ test('CP-04 un cajero que abre el módulo de empleados recibe 403', function () 
         ->assertForbidden();
 });
 
-// HU-02 · CA1 (issue #12, criterio 1) · valores límite de 1 a 200 horas enteras
+// HU-02 · CA1 (issue #12, criterio 1) · valores límite de 1 a 200 horas enteras; desde el issue #145 las
+// horas extra de un día no pueden pasar de 2, así que 200 horas se rechazan por el máximo legal
 test('CP-05 a CP-08 la cantidad de horas extra debe estar entre 1 y 200', function (int $horas, bool $seRegistra) {
     $respuesta = $this->actingAs($this->auxiliar)->post(route('nomina.novedades.store'), [
         'empleado_id' => Empleado::factory()->create()->id,
@@ -115,7 +116,7 @@ test('CP-05 a CP-08 la cantidad de horas extra debe estar entre 1 y 200', functi
 })->with([
     'CP-05 · 0 horas' => [0, false],
     'CP-06 · 1 hora' => [1, true],
-    'CP-07 · 200 horas' => [200, true],
+    'CP-07 · 200 horas' => [200, false],
     'CP-08 · 201 horas' => [201, false],
 ]);
 
