@@ -1,0 +1,46 @@
+ACQ-03 · Remedición tras corregir DEF-06 (28 de octubre de 2026)
+
+Script: docs/calidad/acq03-listado-empleados.js (k6, imagen grafana/k6:latest)
+Entorno: app de Sail contra la base `testing` de PostgreSQL con 10 usuarios k6-1 a k6-10 (auxiliar de nómina),
+300 empleados con contrato y 4 workers de PHP en el puerto 8001.
+Comando: docker run --network sicop_sail -e BASE_URL=http://laravel.test:8001 grafana/k6 run acq03-listado-empleados.js
+
+Cambios al script: (1) el chequeo acepta las barras escapadas del JSON de Inertia; (2) noCookiesReset: true,
+porque k6 borra las cookies en cada iteración y desde la segunda el usuario virtual pedía el listado sin sesión
+(se medía la página de login). En la medición anterior el chequeo fallaba por ambas causas.
+
+== Resultado ==
+  █ TOTAL RESULTS 
+
+    checks_total.......: 2170    17.944048/s
+    checks_succeeded...: 100.00% 2170 out of 2170
+    checks_failed......: 0.00%   0 out of 2170
+
+    ✓ login redirige
+    ✓ listado 200
+    ✓ es el listado de empleados
+
+    HTTP
+    http_req_duration..............: avg=114.64ms min=62.21ms med=107.58ms max=858.64ms p(90)=125.59ms p(95)=136.25ms
+      { endpoint:listado }.........: avg=109.27ms min=62.21ms med=107.43ms max=513.69ms p(90)=124.24ms p(95)=129.12ms
+      { expected_response:true }...: avg=114.64ms min=62.21ms med=107.58ms max=858.64ms p(90)=125.59ms p(95)=136.25ms
+    http_req_failed................: 0.00%  0 out of 1100
+    http_reqs......................: 1100   9.096061/s
+
+    EXECUTION
+    iteration_duration.............: avg=1.11s    min=1.06s   med=1.1s     max=2.22s    p(90)=1.12s    p(95)=1.13s   
+    iterations.....................: 1080   8.930678/s
+    vus............................: 10     min=10        max=10
+    vus_max........................: 10     min=10        max=10
+
+    NETWORK
+    data_received..................: 22 MB  177 kB/s
+    data_sent......................: 902 kB 7.5 kB/s
+
+
+
+
+running (2m00.9s), 00/10 VUs, 1080 complete and 0 interrupted iterations
+default ✓ [ 100% ] 10 VUs  2m0s
+
+Lectura: los 2170 chequeos pasan (login 302, listado 200 y es el listado de empleados). p95 del listado = 129,12 ms (umbral < 2 000 ms). Cumple.

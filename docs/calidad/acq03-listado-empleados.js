@@ -9,6 +9,8 @@ const BASE = __ENV.BASE_URL || 'http://laravel.test:8001';
 export const options = {
     vus: 10,
     duration: '2m',
+    // k6 borra las cookies en cada iteración; sin esto solo la primera conserva la sesión.
+    noCookiesReset: true,
     thresholds: {
         'http_req_duration{endpoint:listado}': ['p(95)<2000'],
     },
