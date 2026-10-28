@@ -1,0 +1,358 @@
+SICOP - Ejecución de la suite de pruebas (ronda 2, con el módulo de nómina)
+Fecha: 2026-10-08 | Rama: feat/1-moduloNomina | Commit: 7058d9dc (+ instrumentos del plan sin commit:
+  tests/Feature/Nomina/PlanCalidadTest.php y tests/Feature/Nomina/ProteccionRutasNominaTest.php)
+Entorno: Laravel Sail · PHP 8.5.11 · Pest 5.2.1 · pcov · PostgreSQL 18
+
+== 1. Suite completa sobre SQLite en memoria (phpunit.xml) con cobertura ==
+Comando: sail artisan test --coverage
+
+   PASS  Tests\Unit\Actions\Nomina\CalculadoraConceptosTest
+  ✓ un concepto recurrente vigente aparece como devengo o deducción      0.03s  
+  ✓ un concepto asignado sin valor propio usa el valor del concepto
+  ✓ un concepto asignado fuera de su vigencia no se aplica with dataset "terminó antes del periodo"
+  ✓ un concepto asignado fuera de su vigencia no se aplica with dataset "empieza después del periodo"
+  ✓ un bono constitutivo de salario suma a la base de aportes
+  ✓ un concepto eventual del periodo aparece en el recibo
+
+   PASS  Tests\Unit\Actions\Nomina\CalculadoraNominaTest
+  ✓ un salario mínimo mensual recibe auxilio de transporte y paga salud… 0.01s  
+  ✓ el auxilio de transporte solo se paga hasta dos salarios mínimos with dataset "exactamente dos salarios mínimos"
+  ✓ el auxilio de transporte solo se paga hasta dos salarios mínimos with dataset "un peso por encima"
+  ✓ el auxilio de transporte solo se paga hasta dos salarios mínimos with dataset "tres millones y medio largo"
+  ✓ una quincena liquida 15 de 30 días del salario y del auxilio
+  ✓ una semana liquida 7 de 30 días del salario
+
+   PASS  Tests\Unit\Actions\Nomina\CalculadoraNovedadesTest
+  ✓ las horas extra pagan la hora más el recargo y los recargos pagan s… 0.01s  
+  ✓ las horas extra pagan la hora más el recargo y los recargos pagan solo el recargo with dataset "1 hora extra nocturna al 175 %"
+  ✓ las horas extra pagan la hora más el recargo y los recargos pagan solo el recargo with dataset "2 horas de recargo nocturno al 35 %"
+  ✓ las horas extra pagan la hora más el recargo y los recargos pagan solo el recargo with dataset "8 horas dominicales al 90 %"
+  ✓ las horas extra hacen parte de la base de salud y pensión
+  ✓ una falta descuenta un día de salario y de auxilio de transporte
+  ✓ un retardo descuenta los minutos al valor de la hora
+  ✓ la incapacidad se paga al porcentaje parametrizado sin bajar del salario mínimo diario with dataset "salario mínimo: se paga el mínimo diario"
+  ✓ la incapacidad se paga al porcentaje parametrizado sin bajar del salario mínimo diario with dataset "tres millones: 66,67 % del salario diario"
+  ✓ una incapacidad que empieza en el mes anterior solo cuenta los días dentro del periodo
+  ✓ las vacaciones se pagan a salario base en su propia línea
+
+   PASS  Tests\Unit\Actions\Nomina\CalculadoraRetencionTest
+  ✓ el Fondo de Solidaridad Pensional se descuenta desde cuatro salario… 0.01s  
+  ✓ el Fondo de Solidaridad Pensional se descuenta desde cuatro salarios mínimos with dataset "exactamente 4 SMMLV: 1 %"
+  ✓ el Fondo de Solidaridad Pensional se descuenta desde cuatro salarios mínimos with dataset "16 SMMLV: 1,2 %"
+  ✓ el Fondo de Solidaridad Pensional se descuenta desde cuatro salarios mínimos with dataset "más de 20 SMMLV: 2 %"
+  ✓ sin base depurada mayor a 95 UVT no hay retención en la fuente
+  ✓ la retención aplica la franja del art. 383 y se redondea al múltiplo de mil with dataset "franja del 19 %"
+  ✓ la retención aplica la franja del art. 383 y se redondea al múltiplo de mil with dataset "franja del 28 % con tope de renta exenta"
+  ✓ en una quincena el FSP y la retención se calculan sobre el equivalente mensual
+
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true
+
+   PASS  Tests\Unit\Models\NovedadTest
+  ✓ una novedad por días cuenta el primer y el último día with dataset "un solo día"
+  ✓ una novedad por días cuenta el primer y el último día with dataset "tres días"
+  ✓ una novedad por días cuenta el primer y el último día with dataset "cruza de mes"
+  ✓ una novedad está liquidada cuando pertenece a un periodo de nómina
+
+   WARN  Tests\Feature\Auth\AuthenticationTest
+  ✓ login screen can be rendered                                         0.14s  
+  ✓ users can authenticate using the login screen                        0.03s  
+  - users with two factor enabled are redirected to two factor challeng… 0.01s  
+  ✓ users can not authenticate with invalid password                     0.22s  
+  ✓ users can logout                                                     0.02s  
+  ✓ users are rate limited                                               0.02s  
+
+   PASS  Tests\Feature\Auth\EmailVerificationTest
+  ✓ email verification screen can be rendered                            0.02s  
+  ✓ unverified users are redirected to the email verification prompt     0.02s  
+  ✓ email can be verified                                                0.02s  
+  ✓ email is not verified with invalid hash                              0.02s  
+  ✓ email is not verified with invalid user id                           0.02s  
+  ✓ verified user is redirected to dashboard from verification prompt    0.02s  
+  ✓ already verified user visiting verification link is redirected with… 0.02s  
+
+   PASS  Tests\Feature\Auth\PasswordConfirmationTest
+  ✓ confirm password screen can be rendered                              0.03s  
+  ✓ password confirmation requires authentication                        0.02s  
+
+   PASS  Tests\Feature\Auth\PasswordResetTest
+  ✓ reset password link screen can be rendered                           0.02s  
+  ✓ reset password link can be requested                                 0.22s  
+  ✓ reset password screen can be rendered                                0.23s  
+  ✓ password can be reset with valid token                               0.24s  
+  ✓ password cannot be reset with invalid token                          0.22s  
+
+   PASS  Tests\Feature\Auth\RegistrationTest
+  ✓ registration screen can be rendered                                  0.02s  
+  ✓ new users can register                                               0.04s  
+
+   PASS  Tests\Feature\Auth\VerificationNotificationTest
+  ✓ sends verification notification                                      0.02s  
+  ✓ does not send verification notification if email is verified         0.02s  
+
+   PASS  Tests\Feature\DashboardTest
+  ✓ guests are redirected to the login page                              0.02s  
+  ✓ authenticated users can visit the dashboard                          0.02s  
+
+   PASS  Tests\Feature\ExampleTest
+  ✓ returns a successful response                                        0.02s  
+
+   PASS  Tests\Feature\Nomina\AccesoNominaTest
+  ✓ solo administradores y auxiliares de nómina pueden gestionar la nóm… 0.01s  
+  ✓ solo administradores y auxiliares de nómina pueden gestionar la nóm… 0.01s  
+  ✓ solo administradores y auxiliares de nómina pueden gestionar la nóm… 0.02s  
+  ✓ solo administradores y auxiliares de nómina pueden gestionar la nóm… 0.01s  
+  ✓ solo administradores y auxiliares de nómina pueden gestionar la nóm… 0.01s  
+  ✓ el auxiliar de nómina ve el módulo y el menú de nómina               0.02s  
+  ✓ el cajero recibe 403 en nómina y no ve el menú                       0.02s  
+  ✓ un visitante sin sesión es redirigido al login                       0.01s  
+
+   PASS  Tests\Feature\Nomina\AreasTest
+  ✓ al guardar un área nueva queda registrada como activa y aparece en…  0.03s  
+  ✓ no se puede crear un área con un nombre que ya existe                0.02s  
+  ✓ no se puede renombrar un área con el nombre de otra                  0.02s  
+  ✓ al desactivar un área se conserva pero deja de ofrecerse como activ… 0.02s  
+  ✓ un cajero no puede crear áreas                                       0.02s  
+
+   PASS  Tests\Feature\Nomina\CierreYRecibosTest
+  ✓ al cerrar un periodo liquidado queda cerrado y ya no se puede volve… 0.05s  
+  ✓ un periodo sin liquidar no se puede cerrar                           0.03s  
+  ✓ el recibo muestra los devengos, las deducciones, los totales y el n… 0.05s  
+  ✓ un cajero no puede ver un recibo de pago                             0.05s  
+
+   PASS  Tests\Feature\Nomina\ConceptosNominaTest
+  ✓ la base de datos sembrada tiene los conceptos de sistema             0.03s  
+  ✓ el listado muestra primero los devengos y luego las deducciones      0.02s  
+  ✓ al crear un concepto de valor fijo aparece en el listado             0.03s  
+  ✓ un concepto de porcentaje exige el porcentaje                        0.02s  
+  ✓ un concepto de sistema no se puede eliminar ni editar                0.02s  
+  ✓ un concepto que no es de sistema sí se puede eliminar                0.02s  
+  ✓ no se puede crear un concepto con un código que ya existe            0.02s  
+
+   PASS  Tests\Feature\Nomina\ConceptosRecurrentesTest
+  ✓ al asignar un concepto activo con valor y fecha de inicio aparece e… 0.04s  
+  ✓ no se pueden asignar conceptos de sistema ni conceptos inactivos wi… 0.02s  
+  ✓ no se pueden asignar conceptos de sistema ni conceptos inactivos wi… 0.02s  
+  ✓ no se puede asignar un concepto con fecha de fin anterior a la de i… 0.02s  
+  ✓ al retirar un concepto asignado deja de aparecer en el expediente    0.03s  
+
+   PASS  Tests\Feature\Nomina\ContratosTest
+  ✓ un empleado sin contrato vigente queda con el contrato registrado c… 0.03s  
+  ✓ el contrato nuevo debe iniciar después del contrato vigente          0.02s  
+  ✓ un contrato a término fijo exige una fecha de fin posterior al inic… 0.02s  
+  ✓ un contrato a término fijo exige una fecha de fin posterior al inic… 0.02s  
+
+   PASS  Tests\Feature\Nomina\EmpleadosTest
+  ✓ la búsqueda solo muestra los empleados que coinciden with dataset "… 0.03s  
+  ✓ la búsqueda solo muestra los empleados que coinciden with dataset "… 0.02s  
+  ✓ la búsqueda solo muestra los empleados que coinciden with dataset "… 0.02s  
+  ✓ sin búsqueda se listan todos los empleados                           0.03s  
+  ✓ un empleado conserva su área aunque el área se desactive             0.02s  
+  ✓ al registrar un empleado con datos válidos queda activo              0.02s  
+  ✓ no se registra un empleado sin los datos obligatorios                0.02s  
+  ✓ no se registra un empleado con un número de documento ya registrado  0.02s  
+  ✓ al registrar un empleado solo se ofrecen y aceptan áreas activas     0.03s  
+  ✓ un cajero no puede ver los empleados                                 0.02s  
+
+   PASS  Tests\Feature\Nomina\EnvioRecibosTest
+  ✓ al enviar los recibos de un periodo cerrado sale un correo por empl… 0.07s  
+  ✓ no se pueden enviar los recibos de un periodo que no está cerrado    0.05s  
+  ✓ un recibo ya enviado no se reenvía al enviar de nuevo los del perio… 0.05s  
+  ✓ un recibo ya enviado se puede reenviar a petición                    0.05s  
+  ✓ el correo del recibo muestra el desglose y el neto a pagar           0.06s  
+
+   PASS  Tests\Feature\Nomina\ExpedienteEmpleadoTest
+  ✓ al editar el correo y el área del empleado los cambios se ven en su… 0.04s  
+  ✓ al editar no se acepta el documento de otro empleado                 0.02s  
+  ✓ al editar se puede conservar el área actual aunque esté inactiva     0.03s  
+  ✓ un empleado desactivado sale del filtro de activos pero conserva su… 0.04s  
+  ✓ el expediente muestra el historial de contratos del más reciente al… 0.03s  
+
+   PASS  Tests\Feature\Nomina\LiquidacionConNovedadesTest
+  ✓ la liquidación aplica las horas extra y las faltas registradas del…  0.05s  
+  ✓ la liquidación incluye los conceptos recurrentes vigentes del emple… 0.04s  
+  ✓ las novedades liquidadas quedan asociadas al periodo y las de otros… 0.04s  
+  ✓ al volver a liquidar no se duplican las horas extra del periodo      0.05s  
+
+   PASS  Tests\Feature\Nomina\LiquidacionRetencionTest
+  ✓ el recibo de un salario alto incluye FSP y retención en la fuente    0.04s  
+  ✓ el recibo de un salario mínimo no tiene FSP ni retención             0.04s  
+
+   PASS  Tests\Feature\Nomina\LiquidarPeriodoNominaTest
+  ✓ liquidar un mes de salario mínimo genera el recibo con salario, aux… 0.05s  
+  ✓ un empleado con más de dos salarios mínimos no recibe auxilio de tr… 0.04s  
+  ✓ un periodo quincenal liquida el salario y el auxilio proporcionales… 0.04s  
+  ✓ volver a liquidar un periodo no cerrado reemplaza los recibos sin d… 0.05s  
+  ✓ un periodo cerrado no se puede volver a liquidar                     0.03s  
+  ✓ solo se liquidan empleados activos con contrato vigente de la misma… 0.05s  
+  ✓ sin parámetros legales del año no se puede liquidar                  0.03s  
+
+   PASS  Tests\Feature\Nomina\NovedadesTest
+  ✓ una novedad de horas extra o recargo sin cantidad de horas se recha… 0.03s  
+  ✓ una novedad de horas extra o recargo sin cantidad de horas se recha… 0.02s  
+  ✓ una novedad de horas extra o recargo sin cantidad de horas se recha… 0.02s  
+  ✓ una novedad de horas extra o recargo sin cantidad de horas se recha… 0.02s  
+  ✓ una novedad de horas extra con cantidad de horas se registra         0.02s  
+  ✓ una incapacidad o vacaciones con fecha de fin anterior a la de inic… 0.03s  
+  ✓ una incapacidad o vacaciones con fecha de fin anterior a la de inic… 0.02s  
+  ✓ una incapacidad registrada abarca los días de su rango               0.02s  
+  ✓ un concepto eventual exige el concepto y el valor                    0.03s  
+  ✓ el filtro por empleado y rango de fechas solo muestra las novedades… 0.03s  
+  ✓ una novedad ya liquidada no se puede editar ni eliminar              0.03s  
+  ✓ una novedad sin liquidar se puede editar y eliminar                  0.03s  
+
+   PASS  Tests\Feature\Nomina\ParametrosNominaTest
+  ✓ la base de datos sembrada tiene los parámetros legales de 2026       0.03s  
+  ✓ volver a sembrar no duplica ni sobrescribe los parámetros ya ajusta… 0.03s  
+  ✓ el listado de parámetros muestra los años registrados                0.04s  
+  ✓ al editar un valor de los parámetros de un año queda registrado      0.03s  
+  ✓ no se pueden registrar dos veces los parámetros del mismo año        0.03s  
+
+   PASS  Tests\Feature\Nomina\PeriodosNominaTest
+  ✓ al liquidar un periodo se muestran sus recibos con el neto a pagar   0.06s  
+  ✓ liquidar un periodo cerrado devuelve el error al usuario             0.03s  
+  ✓ no se pueden crear dos periodos con la misma periodicidad y fecha d… 0.02s  
+  ✓ el listado muestra los periodos con su cantidad de recibos           0.02s  
+  ✓ un periodo nuevo se crea en borrador                                 0.02s  
+
+   PASS  Tests\Feature\Nomina\PlanCalidadTest
+  ✓ CP-01 un contrato a término fijo con fecha de fin igual a la de ini… 0.02s  
+  ✓ CP-02 un contrato a término fijo con fecha de fin un día después de… 0.02s  
+  ✓ CP-03 un documento ya registrado se rechaza y no crea el empleado    0.02s  
+  ✓ CP-04 un cajero que abre el módulo de empleados recibe 403           0.02s  
+  ✓ CP-05 a CP-08 la cantidad de horas extra debe estar entre 1 y 200 w… 0.02s  
+  ✓ CP-05 a CP-08 la cantidad de horas extra debe estar entre 1 y 200 w… 0.02s  
+  ✓ CP-05 a CP-08 la cantidad de horas extra debe estar entre 1 y 200 w… 0.02s  
+  ✓ CP-05 a CP-08 la cantidad de horas extra debe estar entre 1 y 200 w… 0.02s  
+  ✓ CP-09 una novedad ya liquidada no se puede modificar                 0.02s  
+  ✓ CP-10 con 2 SMMLV y 30 días se paga el auxilio de transporte comple… 0.04s  
+  ✓ CP-11 con 2 SMMLV más un peso no se paga auxilio de transporte       0.04s  
+  ✓ CP-12 con 1 SMMLV y 15 días laborados el auxilio es el 50 %          0.04s  
+  ✓ CP-13 con 4 SMMLV se descuentan salud 4 %, pensión 4 % y fondo de s… 0.04s  
+  ✓ CP-14 con 4 SMMLV menos un peso solo se descuentan salud y pensión   0.04s  
+  ✓ CP-15 con 3 SMMLV el neto es el devengado menos las deducciones red… 0.04s  
+  ✓ CP-16 el recibo de una liquidación cerrada muestra el mismo neto li… 0.05s  
+  ✓ CP-17 una liquidación que no está cerrada no permite enviar el reci… 0.04s  
+
+   PASS  Tests\Feature\Nomina\ProteccionRutasNominaTest
+  ✓ el 100 % de las rutas de nómina responde 403 al cajero y redirige a… 0.23s  
+
+   PASS  Tests\Feature\Nomina\RegistrarContratoTest
+  ✓ el contrato de un empleado sin contrato vigente queda vigente        0.02s  
+  ✓ el contrato vigente anterior se cierra el día antes del nuevo y que… 0.02s  
+  ✓ un contrato a término fijo que ya terminó conserva su fecha de fin…  0.02s  
+
+   PASS  Tests\Feature\Settings\ProfileUpdateTest
+  ✓ profile page is displayed                                            0.02s  
+  ✓ profile information can be updated                                   0.02s  
+  ✓ email verification status is unchanged when the email address is un… 0.02s  
+  ✓ user can delete their account                                        0.02s  
+  ✓ correct password must be provided to delete account                  0.02s  
+
+   WARN  Tests\Feature\Settings\SecurityTest
+  - security page is displayed → Fortify feature [two-factor-authentica… 0.01s  
+  - security page requires password confirmation when enabled → Fortify… 0.01s  
+  - security page renders without two factor when feature is disabled →… 0.01s  
+  ✓ password can be updated                                              0.02s  
+  ✓ correct password must be provided to update password                 0.02s  
+
+  Tests:    4 skipped, 178 passed (695 assertions)
+  Duration: 5.55s
+
+  Actions/Fortify/CreateNewUser ....................................... 100.0%  
+  Actions/Fortify/ResetUserPassword ................................... 100.0%  
+  Actions/Nomina/CalculadoraNomina .................................... 100.0%  
+  Actions/Nomina/EnviarRecibosPeriodo ................................. 100.0%  
+  Actions/Nomina/LineaLiquidacion ..................................... 100.0%  
+  Actions/Nomina/LiquidarPeriodoNomina ............................ 43 / 98.1%  
+  Actions/Nomina/RegistrarContrato .................................... 100.0%  
+  Actions/Nomina/ResultadoLiquidacion ................................. 100.0%  
+  Concerns/PasswordValidationRules .................................... 100.0%  
+  Concerns/ProfileValidationRules ..................................... 100.0%  
+  Enums/ConceptoSistema ............................................... 100.0%  
+  Enums/EstadoPeriodo ................................................... 0.0%  
+  Enums/FormaCalculo .................................................... 0.0%  
+  Enums/PeriodicidadPago .............................................. 100.0%  
+  Enums/Rol ........................................................... 100.0%  
+  Enums/TipoConcepto .................................................... 0.0%  
+  Enums/TipoContrato .......................................... 19..20 / 60.0%  
+  Enums/TipoDocumento ................................................. 100.0%  
+  Enums/TipoNovedad ............................................... 30 / 93.8%  
+  Http/Controllers/Controller ......................................... 100.0%  
+  Http/Controllers/Nomina/AreaController .............................. 100.0%  
+  Http/Controllers/Nomina/AsignacionConceptoController ................ 100.0%  
+  Http/Controllers/Nomina/ConceptoNominaController .... 35, 55..71, 59 / 63.6%  
+  Http/Controllers/Nomina/ContratoController .............. 22..28, 29 / 27.3%  
+  Http/Controllers/Nomina/EmpleadoController .......................... 100.0%  
+  Http/Controllers/Nomina/NovedadController  54, 74..76, 113..118, 112..121 / 69.8%  
+  Http/Controllers/Nomina/ParametroNominaController ... 30, 50..51, 52 / 69.2%  
+  Http/Controllers/Nomina/PeriodoNominaController ......... 39..41, 42 / 86.2%  
+  Http/Controllers/Nomina/ReciboNominaController ...................... 100.0%  
+  Http/Controllers/Settings/ProfileController ......................... 100.0%  
+  Http/Controllers/Settings/SecurityController ............ 21..24, 22 / 55.6%  
+  Http/Middleware/HandleAppearance .................................... 100.0%  
+  Http/Middleware/HandleInertiaRequests ............................... 100.0%  
+  Http/Requests/Nomina/StoreAreaRequest ............................... 100.0%  
+  Http/Requests/Nomina/StoreAsignacionConceptoRequest ................. 100.0%  
+  Http/Requests/Nomina/StoreConceptoNominaRequest ..................... 100.0%  
+  Http/Requests/Nomina/StoreContratoRequest ........................... 100.0%  
+  Http/Requests/Nomina/StoreEmpleadoRequest ........................... 100.0%  
+  Http/Requests/Nomina/StoreNovedadRequest ............................ 100.0%  
+  Http/Requests/Nomina/StoreParametroNominaRequest .................... 100.0%  
+  Http/Requests/Nomina/StorePeriodoNominaRequest ...................... 100.0%  
+  Http/Requests/Nomina/UpdateAreaRequest .............................. 100.0%  
+  Http/Requests/Nomina/UpdateConceptoNominaRequest .................... 100.0%  
+  Http/Requests/Nomina/UpdateEmpleadoRequest .......................... 100.0%  
+  Http/Requests/Nomina/UpdateNovedadRequest ........................... 100.0%  
+  Http/Requests/Nomina/UpdateParametroNominaRequest ................... 100.0%  
+  Http/Requests/Settings/PasswordUpdateRequest ........................ 100.0%  
+  Http/Requests/Settings/ProfileDeleteRequest ......................... 100.0%  
+  Http/Requests/Settings/ProfileUpdateRequest ......................... 100.0%  
+  Http/Requests/Settings/TwoFactorAuthenticationRequest ................. 0.0%  
+  Mail/ReciboNominaMail ............................................... 100.0%  
+  Models/Area ......................................................... 100.0%  
+  Models/AsignacionConcepto ........................................... 100.0%  
+  Models/ConceptoNomina ............................................... 100.0%  
+  Models/Contrato ..................................................... 100.0%  
+  Models/DetalleReciboNomina .......................................... 100.0%  
+  Models/Empleado ..................................................... 100.0%  
+  Models/Novedad ...................................................... 100.0%  
+  Models/ParametroNomina .............................................. 100.0%  
+  Models/PeriodoNomina ................................................ 100.0%  
+  Models/ReciboNomina ................................................. 100.0%  
+  Models/User ......................................................... 100.0%  
+  Providers/AppServiceProvider ................................ 52..57 / 64.7%  
+  Providers/FortifyServiceProvider .................................... 100.0%  
+  ────────────────────────────────────────────────────────────────────────────  
+                                                                 Total: 92.7 %  
+
+== 2. Suite completa sobre PostgreSQL (base testing de Sail) ==
+Comando: sail pest --configuration=storage/framework/testing/phpunit.pgsql.xml
+(copia de phpunit.xml con DB_CONNECTION=pgsql y DB_DATABASE=testing; evidencia para DEF-04)
+  Tests:    4 skipped, 178 passed (695 assertions)
+  Duration: 6.26s
+
+== 3. Cobertura solo del módulo de nómina (ACQ-04) ==
+Alcance: app/Actions/Nomina, app/Http/Controllers/Nomina, app/Http/Requests/Nomina, app/Mail, app/Enums y app/Models (sin User). 48 archivos.
+Líneas ejecutadas: 683 de 735 = 92.9 %  (umbral ACQ-04: >= 70 %)
+Archivos por debajo del 70 % (no incumplen el umbral, que es del módulo completo):
+  Enums/EstadoPeriodo.php: 0/4 = 0.0 %
+  Enums/FormaCalculo.php: 0/4 = 0.0 %
+  Enums/TipoConcepto.php: 0/3 = 0.0 %
+  Http/Controllers/Nomina/ContratoController.php: 3/11 = 27.3 %
+  Enums/TipoContrato.php: 3/5 = 60.0 %
+  Http/Controllers/Nomina/ConceptoNominaController.php: 14/22 = 63.6 %
+  Http/Controllers/Nomina/ParametroNominaController.php: 9/13 = 69.2 %
+  Http/Controllers/Nomina/NovedadController.php: 30/43 = 69.8 %
+
+== Verificaciones de DoD y estándares ==
+DoD 2 · Pint (pint --test)               APROBADA
+DoD 3 · npm run lint                     APROBADA
+DoD 3 · npm run format:check             APROBADA
+DoD 6 · commitlint (34 commits de la rama)APROBADA
+DoD 8 · código de depuración           APROBADA (sin resultados)
+R1 · booleanos es_/tiene_                APROBADA (sin resultados)
+R2 · protected $table en modelos         APROBADA (sin resultados)
+R3 · dinero decimal valor_/porcentaje_   APROBADA (sin resultados)
+Larastan nivel 7 (composer types:check)   APROBADA
+DoD 5 · migrate:fresh --seed (PostgreSQL)APROBADA

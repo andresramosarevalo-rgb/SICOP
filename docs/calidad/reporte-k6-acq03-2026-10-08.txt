@@ -1,0 +1,45 @@
+SICOP - ACQ-03 · Prueba de carga del listado de empleados con k6
+Fecha: 2026-10-08 13:57 | Rama: feat/1-moduloNomina | Commit: 7058d9dc
+Entorno: Laravel Sail en el equipo de desarrollo (16 núcleos), servidor 'php artisan serve' igual al de Sail,
+base testing de PostgreSQL 18 sembrada con 500 empleados por factory. k6 (imagen grafana/k6) en la red sicop_sail.
+Carga: 10 usuarios virtuales durante 2 minutos, cada uno con su propio usuario auxiliar de nómina,
+GET /nomina/empleados?buscar=<nombre> con 1 s de pausa. Script: acq03-listado-empleados.js (adjunto).
+
+  █ THRESHOLDS 
+    http_req_duration{endpoint:listado}
+    ✓ 'p(95)<2000' p(95)=89.26ms
+  █ TOTAL RESULTS 
+    checks_total.......: 1794   17.853733/s
+    checks_succeeded...: 50.27% 902 out of 1794
+    checks_failed......: 49.72% 892 out of 1794
+    ✓ login redirige
+    ✓ listado 200
+    ✗ es el listado de empleados
+      ↳  0% — ✓ 0 / ✗ 892
+    HTTP
+    http_req_duration..............: avg=63.97ms med=60.5ms  p(90)=83.88ms p(95)=91.72ms max=820.97ms
+      { endpoint:listado }.........: avg=60.85ms med=59.27ms p(90)=82.96ms p(95)=89.26ms max=369.16ms
+      { expected_response:true }...: avg=63.97ms med=60.5ms  p(90)=83.88ms p(95)=91.72ms max=820.97ms
+    http_req_failed................: 0.00%  0 out of 1804
+    http_reqs......................: 1804   17.953252/s
+    EXECUTION
+    iteration_duration.............: avg=1.13s   med=1.12s   p(90)=1.13s   p(95)=1.14s   max=2.18s   
+    iterations.....................: 882    8.777588/s
+    vus............................: 10     min=10        max=10
+    vus_max........................: 10     min=10        max=10
+    NETWORK
+    data_received..................: 17 MB  170 kB/s
+    data_sent......................: 880 kB 8.8 kB/s
+
+== Lectura del resultado ==
+p95 del listado = 89,26 ms (umbral < 2 000 ms). Cumple. Los 10 inicios de sesión funcionaron y no hubo
+peticiones fallidas (http_req_failed 0 %).
+
+DEF-06 (instrumento): el chequeo 'es el listado de empleados' falló en las 892 peticiones. El código de
+respuesta fue 200 y las sesiones eran válidas, así que la causa probable es el propio chequeo: busca el texto
+'Nomina/Empleados/Index' y el JSON de Inertia escapa las barras ('Nomina\/Empleados\/Index'). Mientras el
+chequeo no se corrija, no hay evidencia automática de que cada respuesta fue el listado.
+
+Corridas previas descartadas: con un solo usuario para los 10 usuarios virtuales, el límite de Fortify
+(5 inicios de sesión por minuto por correo e IP) bloqueó 5 de los 10, y sus peticiones midieron la página
+de login (p95 = 97,54 ms).
