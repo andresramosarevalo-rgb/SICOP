@@ -1,0 +1,81 @@
+SICOP - Reporte de análisis estático (ronda 2, con el módulo de nómina)
+Herramienta nativa de PHP: PHPStan (Larastan). Frontend: oxlint. SonarCloud es opcional y no se conectó.
+Fecha: 2026-10-08 | Rama: feat/1-moduloNomina | Commit: 7058d9dc
+Entorno: Laravel Sail · PHP 8.5.11 · Composer 2.10.3 · Node 24.21.0 · PhpMetrics 2.11.0
+
+== 1. Larastan (PHPStan) nivel 7 - phpstan.neon ==
+Comando: composer types:check (phpstan analyse --memory-limit=1G)
+Note: Using configuration file /var/www/html/phpstan.neon.
+
+ [OK] No errors                                                                 
+
+
+== 2. Laravel Pint --test (preset laravel) ==
+    PASS   ......................................................... 146 files  
+
+== 3. PhpMetrics 2.11.0 - complejidad ciclomática (app/) ==
+Comando: php phpmetrics.phar --report-json=phpmetrics.json app
+Clase                                                           CCN  CCN max metodo  Metodos
+App\Actions\Nomina\CalculadoraNomina                             37              20       11
+App\Http\Requests\Nomina\StoreNovedadRequest                      6               6        3
+App\Actions\Nomina\LiquidarPeriodoNomina                          5               5        2
+App\Http\Controllers\Nomina\NovedadController                     4               4        7
+App\Actions\Nomina\ResultadoLiquidacion                           5               3        6
+App\Actions\Nomina\RegistrarContrato                              3               3        1
+App\Http\Middleware\HandleInertiaRequests                         3               3        2
+App\Http\Controllers\Nomina\EmpleadoController                    3               2        8
+App\Providers\AppServiceProvider                                  3               2        4
+App\Actions\Nomina\EnviarRecibosPeriodo                           2               2        4
+App\Concerns\ProfileValidationRules                               2               2        3
+App\Http\Controllers\Nomina\PeriodoNominaController               2               2        7
+App\Http\Controllers\Settings\ProfileController                   2               2        3
+App\Http\Middleware\HandleAppearance                              2               2        1
+App\Http\Requests\Nomina\StoreContratoRequest                     2               2        3
+App\Http\Requests\Nomina\UpdateConceptoNominaRequest              2               2        1
+App\Http\Requests\Nomina\UpdateNovedadRequest                     2               2        1
+App\Models\Novedad                                                2               2        5
+App\Actions\Fortify\CreateNewUser                                 1               1        1
+App\Actions\Fortify\ResetUserPassword                             1               1        1
+App\Actions\Nomina\LineaLiquidacion                               1               1        1
+App\Concerns\PasswordValidationRules                              1               1        2
+App\Http\Controllers\Nomina\AreaController                        1               1        3
+App\Http\Controllers\Nomina\AsignacionConceptoController          1               1        2
+App\Http\Controllers\Nomina\ConceptoNominaController              1               1        6
+App\Http\Controllers\Nomina\ContratoController                    1               1        2
+App\Http\Controllers\Nomina\ParametroNominaController             1               1        5
+App\Http\Controllers\Nomina\ReciboNominaController                1               1        2
+App\Http\Controllers\Settings\SecurityController                  1               1        2
+App\Http\Requests\Nomina\StoreAreaRequest                         1               1        3
+App\Http\Requests\Nomina\StoreAsignacionConceptoRequest           1               1        3
+App\Http\Requests\Nomina\StoreConceptoNominaRequest               1               1        3
+App\Http\Requests\Nomina\StoreEmpleadoRequest                     1               1        3
+App\Http\Requests\Nomina\StoreParametroNominaRequest              1               1        3
+App\Http\Requests\Nomina\StorePeriodoNominaRequest                1               1        3
+App\Http\Requests\Nomina\UpdateAreaRequest                        1               1        1
+App\Http\Requests\Nomina\UpdateEmpleadoRequest                    1               1        1
+App\Http\Requests\Settings\PasswordUpdateRequest                  1               1        1
+App\Http\Requests\Settings\ProfileDeleteRequest                   1               1        1
+App\Http\Requests\Settings\ProfileUpdateRequest                   1               1        1
+App\Http\Requests\Settings\TwoFactorAuthenticationRequest         1               1        1
+App\Mail\ReciboNominaMail                                         1               1        3
+App\Models\Area                                                   1               1        2
+App\Models\AsignacionConcepto                                     1               1        3
+App\Models\ConceptoNomina                                         1               1        1
+App\Models\Contrato                                               1               1        2
+App\Models\DetalleReciboNomina                                    1               1        2
+App\Models\Empleado                                               1               1        6
+App\Models\ParametroNomina                                        1               1        1
+App\Models\PeriodoNomina                                          1               1        5
+App\Models\ReciboNomina                                           1               1        4
+App\Models\User                                                   1               1        1
+App\Providers\FortifyServiceProvider                              1               1        5
+App\Http\Controllers\Controller                                   1               0        0
+App\Http\Requests\Nomina\UpdateParametroNominaRequest             1               0        0
+Clases: 55 | Metodos con CCN > 10: 1
+Hallazgo: App\Actions\Nomina\CalculadoraNomina::calcular() tiene CCN 20 (umbral <= 10) -> DEF-05
+
+== 4. Oxlint 1.79.0 (vía Vite+) - frontend Vue 3 / TypeScript (resources/js) ==
+Comando: npm run check (vp check: formato con oxfmt + lint con oxlint, reglas sensibles a tipos,
+advertencias tratadas como errores). Oxlint reemplaza a ESLint en el starter kit de Laravel con Vite+.
+pass: All 95 files are correctly formatted
+pass: Found no warnings or lint errors in 86 files
