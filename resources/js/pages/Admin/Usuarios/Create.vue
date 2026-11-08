@@ -95,7 +95,9 @@ const rolSeleccionado = ref('');
                     v-model="rolSeleccionado"
                     class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
                 >
-                    <option value="" disabled selected>Seleccione un rol</option>
+                    <option value="" disabled selected>
+                        Seleccione un rol
+                    </option>
 
                     <option
                         v-for="rol in roles"
