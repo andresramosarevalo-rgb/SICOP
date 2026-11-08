@@ -6,7 +6,7 @@
         "build": "vp build",
         "build:ssr": "vp build && vp build --ssr",
         "dev": "vp dev",
-        "check": "vp check",
+        "check": "vp fmt resources/js/pages/Admin/Usuarios/Create.vue && git diff -- resources/js/pages/Admin/Usuarios/Create.vue && vp check",
         "check:fix": "vp check --fix",
         "types:check": "vue-tsc --noEmit",
         "lint": "vp lint resources/js",
