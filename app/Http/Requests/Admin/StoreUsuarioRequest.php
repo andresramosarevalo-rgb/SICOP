@@ -42,7 +42,14 @@ class StoreUsuarioRequest extends FormRequest
                     Rol::Administrador,
                     Rol::AuxiliarNomina,
                     Rol::Contador,
+                    Rol::Cajero,
                 ]),
+            ],
+            'sede_id' => [
+                Rule::requiredIf(fn (): bool => $this->input('rol') === Rol::Cajero->value),
+                Rule::prohibitedIf(fn (): bool => $this->input('rol') !== Rol::Cajero->value),
+                'integer',
+                Rule::exists('sedes', 'id')->where('es_activa', true),
             ],
         ];
     }
@@ -58,6 +65,9 @@ class StoreUsuarioRequest extends FormRequest
             'required' => 'Este campo es obligatorio.',
             'email.unique' => 'Ya existe un usuario con este correo.',
             'rol.enum' => 'Seleccione un rol válido.',
+            'sede_id.required' => 'Seleccione una sede para el cajero.',
+            'sede_id.prohibited' => 'Solo los cajeros pueden tener una sede.',
+            'sede_id.exists' => 'Seleccione una sede activa.',
         ];
     }
 }

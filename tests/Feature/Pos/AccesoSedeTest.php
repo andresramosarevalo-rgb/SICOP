@@ -110,9 +110,6 @@ test('el usuario de la sede recibe 403 en otra sede', function () {
 test('el usuario de la sede no accede a la gestión de sedes ni a nómina', function () {
     $this->actingAs($this->usuarioSede)->get(route('pos.sedes.index'))->assertForbidden();
     $this->actingAs($this->usuarioSede)->get(route('pos.sedes.edit', $this->sede))->assertForbidden();
-    $this->actingAs($this->usuarioSede)
-        ->put(route('pos.sedes.acceso.update', $this->sede), ['email' => 'x@example.com', 'password' => 'Clave-segura-123', 'password_confirmation' => 'Clave-segura-123'])
-        ->assertForbidden();
     $this->actingAs($this->usuarioSede)->get(route('nomina.inicio.index'))->assertForbidden();
 });
 

@@ -11,7 +11,6 @@ use App\Http\Controllers\Pos\ExportarSoatsController;
 use App\Http\Controllers\Pos\GastoCajaController;
 use App\Http\Controllers\Pos\InicioController;
 use App\Http\Controllers\Pos\SaldoConsignacionController;
-use App\Http\Controllers\Pos\SedeAccesoController;
 use App\Http\Controllers\Pos\SedeController;
 use App\Http\Controllers\Pos\SoatConsolidadoController;
 use App\Http\Controllers\Pos\SoatController;
@@ -49,6 +48,5 @@ Route::middleware(['auth', 'verified'])
             Route::post('cierre/{cierre}/consignacion', [ConsignacionController::class, 'store'])->name('cierre.consignacion.store');
             Route::delete('consignaciones/{consignacion}', [ConsignacionController::class, 'destroy'])->name('consignaciones.destroy');
             Route::post('sedes/{sede}/cierre/reabrir', [CierreCajaController::class, 'reabrir'])->name('sedes.cierre.reabrir');
-            Route::put('sedes/{sede}/acceso', SedeAccesoController::class)->name('sedes.acceso.update');
         });
     });

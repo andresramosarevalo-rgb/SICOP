@@ -144,8 +144,8 @@ test('los usuarios no administradores no gestionan usuarios', function () {
     ]);
 });
 
-// Issue #146: no se permite crear cajeros desde Usuarios.
-test('el administrador no puede registrar cajeros', function () {
+// Issue #165, criterio 1: la sede es obligatoria para cajeros.
+test('el cajero necesita una sede', function () {
     $administrador = User::factory()
         ->conRol(Rol::Administrador)
         ->create();
@@ -159,7 +159,7 @@ test('el administrador no puede registrar cajeros', function () {
             'password_confirmation' => 'ClaveSegura123!',
             'rol' => Rol::Cajero->value,
         ],
-    )->assertSessionHasErrors('rol');
+    )->assertSessionHasErrors('sede_id');
 
     $this->assertDatabaseMissing('users', [
         'email' => 'cajero@example.com',
