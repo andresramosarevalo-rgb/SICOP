@@ -3,6 +3,7 @@
 use App\Enums\Rol;
 use App\Models\Sede;
 use App\Models\User;
+use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia as Assert;
 
 // Issue #165, criterio 1: la sede es obligatoria y debe estar activa.
@@ -63,7 +64,7 @@ test('dos cajeros comparten sede e inician sesion con cuentas propias', function
 
 // Issue #165, criterio 4: los accesos se administran en Usuarios.
 test('sedes no tienen ruta de acceso unico', function () {
-    expect(\Illuminate\Support\Facades\Route::has('pos.sedes.acceso.update'))->toBeFalse();
+    expect(Route::has('pos.sedes.acceso.update'))->toBeFalse();
     $admin = User::factory()->conRol(Rol::Administrador)->create();
     $sede = Sede::factory()->create();
     User::factory()->paraSede($sede)->count(2)->create();
