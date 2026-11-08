@@ -73,7 +73,7 @@ class UsuarioController extends Controller
         ]);
 
         $usuario->rol = Rol::from($datos['rol']);
-        $usuario->sede_id = $usuario->rol === Rol::Cajero ? (int) $datos['sede_id'] : null;
+        $usuario->sede_id = $usuario->rol === Rol::Cajero ? (int) ($datos['sede_id'] ?? 0) : null;
         $usuario->save();
         event(new Registered($usuario));
 
