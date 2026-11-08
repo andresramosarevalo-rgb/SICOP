@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\Rol;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUsuarioRequest;
+use App\Models\Sede;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -19,14 +20,10 @@ class UsuarioController extends Controller
     public function index(): Response
     {
         $usuarios = User::query()
-            ->whereNull('sede_id')
-            ->whereIn('rol', [
-                Rol::Administrador->value,
-                Rol::AuxiliarNomina->value,
-                Rol::Contador->value,
-            ])
+            ->whereIn('rol', array_map(fn (Rol $rol): string => $rol->value, Rol::cases()))
+            ->with('sede:id,nombre')
             ->orderBy('name')
-            ->get(['id', 'name', 'email', 'rol']);
+            ->get(['id', 'name', 'email', 'rol', 'sede_id']);
 
         return Inertia::render('Admin/Usuarios/Index', [
             'usuarios' => $usuarios,
@@ -52,7 +49,12 @@ class UsuarioController extends Controller
                     'valor' => Rol::Contador->value,
                     'etiqueta' => 'Contador',
                 ],
+                [
+                    'valor' => Rol::Cajero->value,
+                    'etiqueta' => 'Cajero',
+                ],
             ],
+            'sedes' => Sede::activas()->orderBy('nombre')->get(['id', 'nombre']),
         ]);
     }
 
@@ -61,7 +63,7 @@ class UsuarioController extends Controller
      */
     public function store(StoreUsuarioRequest $request): RedirectResponse
     {
-        /** @var array{name: string, email: string, password: string, rol: string} $datos */
+        /** @var array{name: string, email: string, password: string, rol: string, sede_id?: int|string|null} $datos */
         $datos = $request->validated();
 
         $usuario = new User([
@@ -71,6 +73,7 @@ class UsuarioController extends Controller
         ]);
 
         $usuario->rol = Rol::from($datos['rol']);
+        $usuario->sede_id = $usuario->rol === Rol::Cajero ? (int) $datos['sede_id'] : null;
         $usuario->save();
         event(new Registered($usuario));
 
