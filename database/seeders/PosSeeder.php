@@ -52,7 +52,7 @@ class PosSeeder extends Seeder
      */
     private function crearAccesoDeEjemplo(Sede $sede): void
     {
-        if ($sede->usuario()->exists()) {
+        if ($sede->usuarios()->exists()) {
             return;
         }
 
