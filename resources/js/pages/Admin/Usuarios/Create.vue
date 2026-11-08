@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Form, Head, Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import UsuarioController from '@/actions/App/Http/Controllers/Admin/UsuarioController';
 import Heading from '@/components/Heading.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
@@ -28,7 +29,10 @@ defineOptions({
 
 defineProps<{
     roles: OpcionRol[];
+    sedes: { id: number; nombre: string }[];
 }>();
+
+const rolSeleccionado = ref('');
 </script>
 
 <template>
@@ -88,9 +92,10 @@ defineProps<{
                     id="rol"
                     name="rol"
                     required
+                    v-model="rolSeleccionado"
                     class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
                 >
-                    <option value="" disabled selected>
+                    <option value="" disabled>
                         Seleccione un rol
                     </option>
 
@@ -104,6 +109,22 @@ defineProps<{
                 </select>
 
                 <InputError :message="errors.rol" />
+            </div>
+
+            <div v-if="rolSeleccionado === 'cajero'" class="grid gap-2">
+                <Label for="sede_id">Sede del cajero</Label>
+                <select
+                    id="sede_id"
+                    name="sede_id"
+                    required
+                    class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                >
+                    <option value="" disabled selected>Seleccione una sede</option>
+                    <option v-for="sede in sedes" :key="sede.id" :value="sede.id">
+                        {{ sede.nombre }}
+                    </option>
+                </select>
+                <InputError :message="errors.sede_id" />
             </div>
 
             <!-- Contraseña -->
