@@ -5,7 +5,7 @@ export type Sede = {
     direccion: string;
     valor_base_caja: string;
     es_activa: boolean;
-    usuario?: { id: number; email: string } | null;
+    usuarios_count?: number;
 };
 
 export type Curso = {
