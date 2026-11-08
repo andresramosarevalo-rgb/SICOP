@@ -30,3 +30,15 @@ export type FiltrosAuditoria = {
     desde?: string;
     hasta?: string;
 };
+
+export type UsuarioAdministrativo = {
+    id: number;
+    name: string;
+    email: string;
+    rol: 'administrador' | 'auxiliar_nomina' | 'contador';
+};
+
+export type OpcionRol = {
+    valor: UsuarioAdministrativo['rol'];
+    etiqueta: string;
+};

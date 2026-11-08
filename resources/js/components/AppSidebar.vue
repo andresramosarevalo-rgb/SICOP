@@ -6,6 +6,7 @@ import {
     LayoutGrid,
     ShieldCheck,
     Store,
+    Users,
     Wallet,
 } from '@lucide/vue';
 import { computed } from 'vue';
@@ -64,6 +65,15 @@ const mainNavItems = computed<NavItem[]>(() => [
                   title: 'Auditoría',
                   href: admin.auditoria.index(),
                   icon: ShieldCheck,
+              },
+          ]
+        : []),
+    ...(page.props.auth.permisos.gestionarUsuarios
+        ? [
+              {
+                  title: 'Usuarios',
+                  href: admin.usuarios.index(),
+                  icon: Users,
               },
           ]
         : []),
