@@ -113,17 +113,25 @@ const rolSeleccionado = ref('');
 
             <div v-if="rolSeleccionado === 'cajero'" class="grid gap-2">
                 <Label for="sede_id">Sede del cajero</Label>
+
                 <select
                     id="sede_id"
                     name="sede_id"
                     required
                     class="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
                 >
-                    <option value="" disabled selected>Seleccione una sede</option>
-                    <option v-for="sede in sedes" :key="sede.id" :value="sede.id">
+                    <option value="" disabled selected>
+                        Seleccione una sede
+                    </option>
+                    <option
+                        v-for="sede in sedes"
+                        :key="sede.id"
+                        :value="sede.id"
+                    >
                         {{ sede.nombre }}
                     </option>
                 </select>
+
                 <InputError :message="errors.sede_id" />
             </div>
 
