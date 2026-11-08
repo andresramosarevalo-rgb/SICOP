@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -50,13 +49,13 @@ class Sede extends Model
     }
 
     /**
-     * Usuario con el que la sede inicia sesión.
+     * Cajeros asociados a la sede.
      *
-     * @return HasOne<User, $this>
+     * @return HasMany<User, $this>
      */
-    public function usuario(): HasOne
+    public function usuarios(): HasMany
     {
-        return $this->hasOne(User::class);
+        return $this->hasMany(User::class);
     }
 
     /**
