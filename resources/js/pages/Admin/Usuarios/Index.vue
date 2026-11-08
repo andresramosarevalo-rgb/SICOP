@@ -22,6 +22,7 @@ const etiquetasRol: Record<UsuarioAdministrativo['rol'], string> = {
     administrador: 'Administrador',
     auxiliar_nomina: 'Auxiliar de nómina',
     contador: 'Contador',
+    cajero: 'Cajero',
 };
 </script>
 
@@ -49,6 +50,7 @@ const etiquetasRol: Record<UsuarioAdministrativo['rol'], string> = {
                         <th class="px-4 py-3 font-medium">Nombre</th>
                         <th class="px-4 py-3 font-medium">Correo</th>
                         <th class="px-4 py-3 font-medium">Rol</th>
+                        <th class="px-4 py-3 font-medium">Sede</th>
                     </tr>
                 </thead>
 
@@ -65,14 +67,17 @@ const etiquetasRol: Record<UsuarioAdministrativo['rol'], string> = {
                                 {{ etiquetasRol[usuario.rol] }}
                             </Badge>
                         </td>
+                        <td class="px-4 py-3">
+                            {{ usuario.sede?.nombre ?? '—' }}
+                        </td>
                     </tr>
 
                     <tr v-if="usuarios.length === 0">
                         <td
-                            colspan="3"
+                            colspan="4"
                             class="px-4 py-8 text-center text-muted-foreground"
                         >
-                            Todavía no hay usuarios administrativos registrados.
+                            Todavía no hay usuarios registrados.
                         </td>
                     </tr>
                 </tbody>
