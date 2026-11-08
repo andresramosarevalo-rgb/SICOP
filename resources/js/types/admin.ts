@@ -35,7 +35,8 @@ export type UsuarioAdministrativo = {
     id: number;
     name: string;
     email: string;
-    rol: 'administrador' | 'auxiliar_nomina' | 'contador';
+    rol: 'administrador' | 'auxiliar_nomina' | 'contador' | 'cajero';
+    sede: { id: number; nombre: string } | null;
 };
 
 export type OpcionRol = {
