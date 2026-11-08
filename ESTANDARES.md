@@ -220,7 +220,7 @@ El equipo tiene dos integrantes, así que cada PR lo revisa siempre el otro. El 
 - Todo PR hacia `develop` o `main` lo revisa y aprueba el integrante que no es el autor.
 - Nadie integra su propio PR sin la aprobación del otro.
 - El PR de `develop` hacia `main` se revisa entre los dos en una sesión sincrónica (clase, reunión o llamada), y lo aprueba en GitHub quien no lo abrió.
-- Un PR cambia como máximo 400 líneas, según el contador del PR en GitHub. No cuentan `composer.lock`, `package-lock.json` ni los archivos generados por `artisan` o el starter kit. Si una historia necesita más, se divide en varios PR.
+- Cada PR debe contener cambios relacionados con una funcionalidad, corrección o tarea específica, procurando mantener una estructura clara que facilite su revisión. Los cambios extensos se permiten siempre que estén justificados, documentados y cumplan los controles de calidad y las pruebas establecidos por el equipo. Solo se solicitará dividir un PR cuando contenga cambios funcionalmente independientes o su complejidad impida una revisión adecuada.
 
 ### 5.2 Plazo
 
@@ -242,7 +242,6 @@ Solo estas causales justifican bloquear un PR. Todo comentario bloqueante cita e
 | B5     | Hay una consulta SQL que concatena datos del usuario en lugar de usar Eloquent, el Query Builder o bindings (`DB::select('... ?', [$valor])`).     |
 | B6     | Se modifica una migración que ya está en `develop` en lugar de crear una migración nueva.                                                          |
 | B7     | Hay una ruta nueva sin middleware `auth`, salvo las de autenticación.                                                                              |
-| B8     | El PR supera las 400 líneas cambiadas definidas en 5.1.                                                                                            |
 
 ### 5.4 Qué no bloquea
 
