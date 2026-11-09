@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import logotipoHorizontal from '../../images/identidad/sicop-horizontal.png';
+import logotipoHorizontal from '../../images/logotypes/sicop-horizontal.png';
 </script>
 
 <template>

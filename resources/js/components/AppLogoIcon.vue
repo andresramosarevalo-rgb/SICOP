@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from 'vue';
-import logotipoCircular from '../../images/identidad/sicop-circular.png';
+import logotipoCircular from '../../images/logotypes/sicop-circular.png';
 
 defineOptions({ inheritAttrs: false });
 

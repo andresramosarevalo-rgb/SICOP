@@ -2,7 +2,7 @@
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { LayoutGrid, ShieldCheck, Store, Users, Wallet } from '@lucide/vue';
 import { computed, onMounted, onUnmounted } from 'vue';
-import isotipoSidebar from '../../images/identidad/sicop-isotipo-sidebar.svg';
+import isotipoSidebar from '../../images/logotypes/sicop-isotipo-sidebar.svg';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import {
