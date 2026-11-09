@@ -65,7 +65,13 @@ function cambiarDia(fecha: string | number): void {
     <Head :title="`Cierre de caja · ${sede.nombre}`" />
 
     <PaginaPos>
-        <BotonAtras :respaldo="pos.inicio.index()" />
+        <BotonAtras
+            :respaldo="
+                page.props.auth.permisos.gestionarPos
+                    ? pos.cierres.index({ query: { fecha } })
+                    : pos.sedes.cursos.index(sede.id)
+            "
+        />
 
         <div
             class="flex flex-wrap items-end justify-between gap-4 rounded-xl border border-brand-gold/30 bg-accent/50 p-5"
