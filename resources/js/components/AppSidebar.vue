@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import { LayoutGrid, ShieldCheck, Store, Users, Wallet } from '@lucide/vue';
-import { computed } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import isotipoSidebar from '../../images/identidad/sicop-isotipo-sidebar.svg';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -24,6 +24,18 @@ import type { NavItem } from '@/types';
 
 const page = usePage();
 const { isMobile, setOpenMobile } = useSidebar();
+
+let dejarDeEscucharNavegacion: (() => void) | undefined;
+
+onMounted(() => {
+    dejarDeEscucharNavegacion = router.on('navigate', () => {
+        setOpenMobile(false);
+    });
+});
+
+onUnmounted(() => {
+    dejarDeEscucharNavegacion?.();
+});
 
 const mainNavItems = computed<NavItem[]>(() => [
     ...(page.props.auth.sedeId === null
