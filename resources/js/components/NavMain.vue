@@ -6,6 +6,7 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    useSidebar,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import type { NavItem } from '@/types';
@@ -14,11 +15,12 @@ defineProps<{
     items: NavItem[];
 }>();
 
+const { isMobile, setOpenMobile } = useSidebar();
 const { isCurrentOrParentUrl } = useCurrentUrl();
 </script>
 
 <template>
-    <SidebarGroup class="px-2 py-0">
+    <SidebarGroup class="px-3 py-0 group-data-[collapsible=icon]:px-4">
         <SidebarGroupLabel
             class="mb-2 text-[11px] font-semibold tracking-wider text-sidebar-foreground/75 uppercase"
             >Navegación</SidebarGroupLabel
@@ -33,12 +35,16 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
                 >
                     <Link
                         :href="item.href"
+                        :aria-label="item.title"
+                        @click="isMobile && setOpenMobile(false)"
                         :aria-current="
                             isCurrentOrParentUrl(item.href) ? 'page' : undefined
                         "
                     >
-                        <component :is="item.icon" />
-                        <span>{{ item.title }}</span>
+                        <component :is="item.icon" aria-hidden="true" />
+                        <span class="group-data-[collapsible=icon]:hidden">{{
+                            item.title
+                        }}</span>
                     </Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>

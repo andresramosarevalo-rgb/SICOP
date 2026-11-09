@@ -2,7 +2,7 @@
 import { Link, usePage } from '@inertiajs/vue3';
 import { LayoutGrid, ShieldCheck, Store, Users, Wallet } from '@lucide/vue';
 import { computed } from 'vue';
-import AppLogo from '@/components/AppLogo.vue';
+import isotipoSidebar from '../../images/identidad/sicop-isotipo-sidebar.svg';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import {
@@ -13,6 +13,8 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarTrigger,
+    useSidebar,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import admin from '@/routes/admin';
@@ -21,6 +23,7 @@ import pos from '@/routes/pos';
 import type { NavItem } from '@/types';
 
 const page = usePage();
+const { isMobile, setOpenMobile } = useSidebar();
 
 const mainNavItems = computed<NavItem[]>(() => [
     ...(page.props.auth.sedeId === null
@@ -74,13 +77,13 @@ const mainNavItems = computed<NavItem[]>(() => [
 <template>
     <Sidebar collapsible="icon" variant="sidebar">
         <SidebarHeader
-            class="border-b border-sidebar-border px-4 py-5 group-data-[collapsible=icon]:px-2"
+            class="relative border-b border-sidebar-border px-4 py-5"
         >
-            <SidebarMenu>
+            <SidebarMenu :class="{ 'pr-12': isMobile }">
                 <SidebarMenuItem>
                     <SidebarMenuButton
                         size="lg"
-                        class="h-auto justify-center py-2"
+                        class="h-12 gap-3 p-0"
                         tooltip="Inicio"
                         as-child
                     >
@@ -91,26 +94,28 @@ const mainNavItems = computed<NavItem[]>(() => [
                                     : pos.inicio.index()
                             "
                             aria-label="SICOP — Inicio"
+                            @click="isMobile && setOpenMobile(false)"
                         >
-                            <AppLogo
-                                class="group-data-[collapsible=icon]:hidden"
+                            <img
+                                :src="isotipoSidebar"
+                                alt=""
+                                width="100"
+                                height="100"
+                                class="size-12 shrink-0"
                             />
-                            <!-- El logo requiere al menos 120 px; en modo compacto
-                                 este icono representa el enlace de navegación. -->
-                            <LayoutGrid
-                                v-if="page.props.auth.sedeId === null"
-                                aria-hidden="true"
-                                class="hidden group-data-[collapsible=icon]:block"
-                            />
-                            <Store
-                                v-else
-                                aria-hidden="true"
-                                class="hidden group-data-[collapsible=icon]:block"
-                            />
+                            <span
+                                class="font-heading text-2xl font-bold tracking-wide group-data-[collapsible=icon]:hidden"
+                            >
+                                SICOP
+                            </span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
+            <SidebarTrigger
+                v-if="isMobile"
+                class="absolute top-6 right-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            />
         </SidebarHeader>
 
         <SidebarContent class="py-5">
@@ -118,7 +123,7 @@ const mainNavItems = computed<NavItem[]>(() => [
         </SidebarContent>
 
         <SidebarFooter
-            class="border-t border-sidebar-border p-3 group-data-[collapsible=icon]:p-2"
+            class="border-t border-sidebar-border p-3 group-data-[collapsible=icon]:p-4"
         >
             <NavUser />
         </SidebarFooter>

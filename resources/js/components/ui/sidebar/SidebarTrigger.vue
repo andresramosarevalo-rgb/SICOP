@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue"
+import { computed, type HTMLAttributes } from "vue"
 import { PanelLeftClose, PanelLeftOpen } from "@lucide/vue"
 import { cn } from "@/lib/utils"
 import { Button } from '@/components/ui/button'
@@ -9,7 +9,11 @@ const props = defineProps<{
   class?: HTMLAttributes["class"]
 }>()
 
-const { isMobile, state, toggleSidebar } = useSidebar()
+const { isMobile, openMobile, state, toggleSidebar } = useSidebar()
+const esAbierto = computed(() => isMobile.value ? openMobile.value : state.value === "expanded")
+const etiqueta = computed(() => isMobile.value
+  ? (esAbierto.value ? "Cerrar menú" : "Abrir menú")
+  : (esAbierto.value ? "Contraer menú" : "Expandir menú"))
 </script>
 
 <template>
@@ -18,11 +22,14 @@ const { isMobile, state, toggleSidebar } = useSidebar()
     data-slot="sidebar-trigger"
     variant="ghost"
     size="icon"
-    :class="cn('h-7 w-7', props.class)"
+    :class="cn('size-10 shrink-0', props.class)"
+    :aria-expanded="esAbierto"
+    :aria-label="etiqueta"
+    :title="etiqueta"
     @click="toggleSidebar"
   >
-    <PanelLeftOpen v-if="isMobile || state === 'collapsed'" />
+    <PanelLeftOpen v-if="!esAbierto" />
     <PanelLeftClose v-else />
-    <span class="sr-only">Alternar navegación</span>
+    <span class="sr-only">{{ etiqueta }}</span>
   </Button>
 </template>

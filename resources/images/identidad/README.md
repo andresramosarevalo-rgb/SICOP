@@ -22,8 +22,8 @@ Los archivos son idénticos byte por byte a las partes del DOCX. No se recortaro
 Se revisaron las tres imágenes del manual, incluida `word/media/image3.png` (900 × 320), que fija un ancho mínimo recomendado de **120 px en digital / 2,5 cm en impresos**. La tercera imagen es una lámina de instrucciones, no otro logotipo.
 
 - Circular: login y demás layouts de autenticación, 120 px en móvil, 128 px en tableta, 144 px en escritorio.
-- Horizontal: navegación expandida, hasta 208 px de ancho y proporción 2,5:1.
-- En el sidebar colapsado no se renderiza una miniatura de marca: se conserva el enlace existente con un icono de navegación de Lucide.
+- Horizontal: encabezado alternativo, hasta 208 px de ancho y proporción 2,5:1.
+- Sidebar: variante compacta autorizada para este uso el 9 de noviembre de 2026, en `sicop-isotipo-sidebar.svg`. Copia íntegra del recurso suministrado, sin cambios de trazos ni colores; 48 px tanto expandido como contraído. Se acompaña con texto SICOP en Montserrat al expandir. No sustituye los originales ni autoriza un favicon.
 - Ambos originales tienen resolución suficiente incluso para estos tamaños a densidad 3×. No ampliar más allá de su resolución nativa.
 - No aplicar filtros CSS, tintes, recortes, deformaciones ni cambiar el fondo incorporado.
 - El manual no incluye una variante para favicon de 16/32 px; no crear una a partir de una reinterpretación.
