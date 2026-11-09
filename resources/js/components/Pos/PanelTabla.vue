@@ -44,7 +44,15 @@ defineProps<{ titulo: string; descripcion?: string }>();
 .tabla-pos :deep(tbody tr:hover) {
     background: color-mix(in srgb, var(--muted) 50%, transparent);
 }
-.tabla-pos :deep(td[colspan]) {
+.tabla-pos :deep(td[colspan].text-center) {
     padding: 2.5rem 1rem;
+}
+/* El mensaje vacío debe poder leerse sin desplazar una tabla sin registros. */
+.tabla-pos :deep(table:has(tbody > tr:only-child > td[colspan].text-center)) {
+    min-width: 0;
+}
+.tabla-pos
+    :deep(table:has(tbody > tr:only-child > td[colspan].text-center) thead) {
+    display: none;
 }
 </style>

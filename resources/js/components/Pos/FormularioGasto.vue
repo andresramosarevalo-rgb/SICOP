@@ -15,10 +15,11 @@ defineProps<{
 <template>
     <Form
         v-bind="GastoCajaController.store.form(sedeId)"
-        class="grid gap-4 sm:grid-cols-4"
+        class="grid gap-5 rounded-xl border bg-card p-5 shadow-sm sm:grid-cols-2 sm:p-6"
         :reset-on-success="true"
         v-slot="{ errors, processing }"
     >
+        <h3 class="text-base font-semibold sm:col-span-2">Registrar gasto</h3>
         <input type="hidden" name="fecha" :value="fecha" />
         <div class="grid gap-2 sm:col-span-2">
             <Label for="concepto">Concepto</Label>
@@ -48,7 +49,7 @@ defineProps<{
             />
             <InputError :message="errors.soporte" />
         </div>
-        <div class="sm:col-span-4">
+        <div class="flex justify-end border-t pt-4 sm:col-span-2">
             <Button :disabled="processing">Agregar gasto</Button>
         </div>
     </Form>

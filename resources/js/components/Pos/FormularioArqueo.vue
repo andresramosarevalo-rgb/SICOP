@@ -67,7 +67,7 @@ function describir(valor: number | null): string {
 <template>
     <Form
         v-bind="CierreCajaController.store.form(sedeId)"
-        class="grid gap-4 sm:grid-cols-3"
+        class="grid gap-5 lg:grid-cols-3"
         v-slot="{ errors, processing }"
     >
         <input type="hidden" name="fecha" :value="fecha" />
@@ -124,7 +124,7 @@ function describir(valor: number | null): string {
             <InputError :message="errors.valor_reportado_qr" />
         </div>
 
-        <div class="grid gap-2 sm:col-span-3">
+        <div class="grid gap-2 lg:col-span-3">
             <Label for="justificacion">
                 Justificación{{ hayDiferencias ? ' (obligatoria)' : '' }}
             </Label>
@@ -139,7 +139,9 @@ function describir(valor: number | null): string {
             <InputError :message="errors.justificacion" />
         </div>
 
-        <div class="flex flex-wrap items-center gap-4 sm:col-span-3">
+        <div
+            class="flex flex-wrap items-center gap-4 border-t pt-5 lg:col-span-3"
+        >
             <Button :disabled="processing">Cerrar día</Button>
             <p v-if="valorAConsignar !== null" class="text-sm">
                 A consignar:

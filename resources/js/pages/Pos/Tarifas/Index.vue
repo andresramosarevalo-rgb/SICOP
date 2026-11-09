@@ -2,6 +2,8 @@
 import { Form, Head, router } from '@inertiajs/vue3';
 import TarifaGestorController from '@/actions/App/Http/Controllers/Pos/TarifaGestorController';
 import Heading from '@/components/Heading.vue';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
+import PanelTabla from '@/components/Pos/PanelTabla.vue';
 import InputError from '@/components/InputError.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Button } from '@/components/ui/button';
@@ -41,7 +43,7 @@ function elegirSede(evento: Event): void {
 <template>
     <Head title="Tarifas del gestor" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-4">
+    <PaginaPos>
         <BotonAtras :respaldo="pos.inicio.index()" />
 
         <div class="flex flex-wrap items-end justify-between gap-4">
@@ -49,7 +51,7 @@ function elegirSede(evento: Event): void {
                 title="Tarifas del gestor"
                 description="Lo que se paga al gestor por curso según el tipo de comparendo. Una sede sin ajuste usa la tarifa base."
             />
-            <div class="grid gap-2">
+            <div class="grid w-full gap-2 sm:w-auto sm:min-w-64">
                 <Label for="sede">Tarifas de</Label>
                 <select
                     id="sede"
@@ -69,12 +71,15 @@ function elegirSede(evento: Event): void {
             </div>
         </div>
 
-        <div class="overflow-x-auto rounded-xl border">
+        <PanelTabla titulo="Tarifas por tipo de comparendo">
             <table class="w-full text-left text-sm">
                 <thead class="border-b bg-muted/50 text-muted-foreground">
                     <tr>
                         <th class="px-4 py-2 font-medium">Tipo</th>
-                        <th v-if="sedeId" class="px-4 py-2 font-medium">
+                        <th
+                            v-if="sedeId"
+                            class="px-4 py-2 text-right font-medium"
+                        >
                             Tarifa base
                         </th>
                         <th class="px-4 py-2 font-medium">
@@ -90,7 +95,10 @@ function elegirSede(evento: Event): void {
                         <td class="px-4 py-2 font-medium">
                             Tipo {{ fila.codigo }}
                         </td>
-                        <td v-if="sedeId" class="px-4 py-2">
+                        <td
+                            v-if="sedeId"
+                            class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
+                        >
                             {{ formatearPesos(fila.valor_base) }}
                         </td>
                         <td class="px-4 py-2">
@@ -163,14 +171,23 @@ function elegirSede(evento: Event): void {
                                 <Button
                                     size="sm"
                                     variant="ghost"
+                                    class="text-destructive hover:text-destructive"
                                     :disabled="processing"
                                     >Quitar ajuste</Button
                                 >
                             </Form>
                         </td>
                     </tr>
+                    <tr v-if="filas.length === 0">
+                        <td
+                            :colspan="sedeId ? 4 : 3"
+                            class="text-center text-muted-foreground"
+                        >
+                            No hay tarifas disponibles.
+                        </td>
+                    </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
+        </PanelTabla>
+    </PaginaPos>
 </template>

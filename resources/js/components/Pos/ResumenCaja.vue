@@ -10,16 +10,16 @@ defineProps<{
 </script>
 
 <template>
-    <dl class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div class="rounded-xl border p-4">
+    <dl class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="rounded-xl border bg-card p-5 shadow-sm">
             <dt class="text-sm text-muted-foreground">Base de caja</dt>
-            <dd class="text-lg font-semibold">
+            <dd class="mt-2 text-xl font-semibold tabular-nums">
                 {{ formatearPesos(resumen.valor_base_caja) }}
             </dd>
         </div>
-        <div class="rounded-xl border p-4">
+        <div class="rounded-xl border bg-card p-5 shadow-sm">
             <dt class="text-sm text-muted-foreground">Ventas en efectivo</dt>
-            <dd class="text-lg font-semibold">
+            <dd class="mt-2 text-xl font-semibold tabular-nums">
                 {{ formatearPesos(resumen.valor_efectivo_ventas) }}
             </dd>
             <dd class="text-xs text-muted-foreground">
@@ -27,35 +27,37 @@ defineProps<{
                 {{ resumen.cantidad_soats }} SOAT
             </dd>
         </div>
-        <div class="rounded-xl border p-4">
+        <div class="rounded-xl border bg-card p-5 shadow-sm">
             <dt class="text-sm text-muted-foreground">Ventas en datáfono</dt>
-            <dd class="text-lg font-semibold">
+            <dd class="mt-2 text-xl font-semibold tabular-nums">
                 {{ formatearPesos(resumen.valor_ventas_datafono) }}
             </dd>
         </div>
-        <div class="rounded-xl border p-4">
+        <div class="rounded-xl border bg-card p-5 shadow-sm">
             <dt class="text-sm text-muted-foreground">Ventas en QR</dt>
-            <dd class="text-lg font-semibold">
+            <dd class="mt-2 text-xl font-semibold tabular-nums">
                 {{ formatearPesos(resumen.valor_ventas_qr) }}
             </dd>
         </div>
-        <div class="rounded-xl border p-4">
+        <div class="rounded-xl border bg-card p-5 shadow-sm">
             <dt class="text-sm text-muted-foreground">Pago a gestores</dt>
-            <dd class="text-lg font-semibold">
+            <dd class="mt-2 text-xl font-semibold tabular-nums">
                 − {{ formatearPesos(resumen.valor_pago_gestores) }}
             </dd>
         </div>
-        <div class="rounded-xl border p-4">
+        <div class="rounded-xl border bg-card p-5 shadow-sm">
             <dt class="text-sm text-muted-foreground">Gastos</dt>
-            <dd class="text-lg font-semibold">
+            <dd class="mt-2 text-xl font-semibold tabular-nums">
                 − {{ formatearPesos(valorGastos) }}
             </dd>
         </div>
-        <div class="rounded-xl border bg-muted/50 p-4 sm:col-span-2">
+        <div
+            class="rounded-xl border border-brand-gold/40 bg-accent/50 p-5 sm:col-span-2"
+        >
             <dt class="text-sm text-muted-foreground">
                 Efectivo que debe haber en caja
             </dt>
-            <dd class="text-xl font-semibold">
+            <dd class="mt-2 text-2xl font-semibold tabular-nums">
                 {{ formatearPesos(valorEfectivoEsperado) }}
             </dd>
         </div>

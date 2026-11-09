@@ -17,7 +17,7 @@ const hoy = new Date().toLocaleDateString('en-CA');
 <template>
     <Form
         v-bind="ConsignacionController.store.form(cierreId)"
-        class="grid gap-4 sm:grid-cols-4"
+        class="grid gap-5 sm:grid-cols-2"
         v-slot="{ errors, processing }"
     >
         <div class="grid gap-2">
@@ -61,7 +61,7 @@ const hoy = new Date().toLocaleDateString('en-CA');
             />
             <InputError :message="errors.soporte" />
         </div>
-        <div class="sm:col-span-4">
+        <div class="flex justify-end border-t pt-4 sm:col-span-2">
             <Button :disabled="processing">Registrar consignación</Button>
         </div>
     </Form>

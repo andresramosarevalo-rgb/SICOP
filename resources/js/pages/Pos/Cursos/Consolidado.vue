@@ -105,7 +105,9 @@ function filtrarPorDia(fecha: string | number): void {
                         <td class="px-4 py-2">
                             {{ etiquetaFormaPago(curso.forma_pago) }}
                         </td>
-                        <td class="px-4 py-2">
+                        <td
+                            class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
+                        >
                             {{
                                 Number(curso.valor_pago_gestor) > 0
                                     ? formatearPesos(
