@@ -45,10 +45,11 @@ defineProps<{
 
         <Form
             v-bind="EmpleadoController.index.form()"
-            class="flex max-w-xl gap-2"
+            class="flex max-w-xl flex-wrap gap-2"
         >
             <Input
                 name="buscar"
+                class="w-full sm:min-w-40 sm:flex-1"
                 type="search"
                 :default-value="buscar"
                 placeholder="Buscar por documento o nombre"
@@ -70,8 +71,8 @@ defineProps<{
         <TablaEmpleados v-if="empleados.length" :empleados="empleados" />
         <p v-else class="text-sm text-muted-foreground">
             {{
-                buscar
-                    ? 'Ningún empleado coincide con la búsqueda.'
+                buscar || estado
+                    ? 'Ningún empleado coincide con los filtros seleccionados.'
                     : 'Todavía no hay empleados registrados.'
             }}
         </p>

@@ -33,11 +33,20 @@ const claseSelect =
 
 <template>
     <div class="grid gap-4 sm:grid-cols-2">
-        <div class="grid gap-2">
+        <p class="text-sm text-muted-foreground sm:col-span-2">
+            En contratos a término fijo, la fecha de fin es obligatoria.
+        </p>
+        <div class="flex min-w-0 flex-col gap-2">
             <Label :for="id('tipo_contrato')">Tipo de contrato</Label>
             <select
                 :id="id('tipo_contrato')"
                 :name="nombre('tipo_contrato')"
+                :aria-invalid="!!error('tipo_contrato')"
+                :aria-describedby="
+                    error('tipo_contrato')
+                        ? id('tipo_contrato_error')
+                        : undefined
+                "
                 :class="claseSelect"
                 required
             >
@@ -49,13 +58,23 @@ const claseSelect =
                     {{ tipo.etiqueta }}
                 </option>
             </select>
-            <InputError :message="error('tipo_contrato')" />
+            <InputError
+                reservar-espacio
+                :id="id('tipo_contrato_error')"
+                :message="error('tipo_contrato')"
+            />
         </div>
-        <div class="grid gap-2">
+        <div class="flex min-w-0 flex-col gap-2">
             <Label :for="id('periodicidad_pago')">Periodicidad de pago</Label>
             <select
                 :id="id('periodicidad_pago')"
                 :name="nombre('periodicidad_pago')"
+                :aria-invalid="!!error('periodicidad_pago')"
+                :aria-describedby="
+                    error('periodicidad_pago')
+                        ? id('periodicidad_pago_error')
+                        : undefined
+                "
                 :class="claseSelect"
                 required
             >
@@ -67,40 +86,68 @@ const claseSelect =
                     {{ periodicidad.etiqueta }}
                 </option>
             </select>
-            <InputError :message="error('periodicidad_pago')" />
+            <InputError
+                reservar-espacio
+                :id="id('periodicidad_pago_error')"
+                :message="error('periodicidad_pago')"
+            />
         </div>
-        <div class="grid gap-2">
+        <div class="flex min-w-0 flex-col gap-2">
             <Label :for="id('fecha_inicio')">Fecha de inicio</Label>
             <Input
                 :id="id('fecha_inicio')"
                 :name="nombre('fecha_inicio')"
+                :aria-invalid="!!error('fecha_inicio')"
+                :aria-describedby="
+                    error('fecha_inicio') ? id('fecha_inicio_error') : undefined
+                "
                 type="date"
                 required
             />
-            <InputError :message="error('fecha_inicio')" />
+            <InputError
+                reservar-espacio
+                :id="id('fecha_inicio_error')"
+                :message="error('fecha_inicio')"
+            />
         </div>
-        <div class="grid gap-2">
-            <Label :for="id('fecha_fin')"
-                >Fecha de fin (obligatoria si es a término fijo)</Label
-            >
+        <div class="flex min-w-0 flex-col gap-2">
+            <Label :for="id('fecha_fin')">Fecha de fin</Label>
             <Input
                 :id="id('fecha_fin')"
                 :name="nombre('fecha_fin')"
+                :aria-invalid="!!error('fecha_fin')"
+                :aria-describedby="
+                    error('fecha_fin') ? id('fecha_fin_error') : undefined
+                "
                 type="date"
             />
-            <InputError :message="error('fecha_fin')" />
+            <InputError
+                reservar-espacio
+                :id="id('fecha_fin_error')"
+                :message="error('fecha_fin')"
+            />
         </div>
-        <div class="grid gap-2">
+        <div class="flex min-w-0 flex-col gap-2">
             <Label :for="id('valor_salario_base')">Salario base mensual</Label>
             <Input
                 :id="id('valor_salario_base')"
                 :name="nombre('valor_salario_base')"
+                :aria-invalid="!!error('valor_salario_base')"
+                :aria-describedby="
+                    error('valor_salario_base')
+                        ? id('valor_salario_base_error')
+                        : undefined
+                "
                 type="number"
                 min="0"
                 step="0.01"
                 required
             />
-            <InputError :message="error('valor_salario_base')" />
+            <InputError
+                reservar-espacio
+                :id="id('valor_salario_base_error')"
+                :message="error('valor_salario_base')"
+            />
         </div>
     </div>
 </template>

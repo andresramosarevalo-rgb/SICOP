@@ -38,6 +38,7 @@ defineProps<{
 
         <Form
             v-bind="EmpleadoController.update.form(empleado.id)"
+            :options="{ preserveScroll: 'errors' }"
             class="flex flex-col gap-6"
             v-slot="{ errors, processing }"
         >

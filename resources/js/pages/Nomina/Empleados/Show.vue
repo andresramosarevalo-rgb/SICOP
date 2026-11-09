@@ -52,10 +52,12 @@ const datos = computed(() => [
 <template>
     <Head :title="`${empleado.nombres} ${empleado.apellidos}`" />
 
-    <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
+    <div class="flex h-full max-w-3xl min-w-0 flex-1 flex-col gap-6 p-4">
         <BotonAtras :respaldo="nomina.empleados.index()" />
 
-        <div class="flex flex-wrap items-start justify-between gap-4">
+        <div
+            class="flex flex-wrap items-start justify-between gap-4 wrap-anywhere"
+        >
             <Heading
                 :title="`${empleado.nombres} ${empleado.apellidos}`"
                 description="Expediente del empleado."
@@ -85,7 +87,9 @@ const datos = computed(() => [
                 <dt class="text-sm text-muted-foreground">
                     {{ dato.etiqueta }}
                 </dt>
-                <dd class="font-medium">{{ dato.valor || '—' }}</dd>
+                <dd class="font-medium wrap-anywhere">
+                    {{ dato.valor || '—' }}
+                </dd>
             </div>
         </dl>
 
@@ -95,6 +99,7 @@ const datos = computed(() => [
             </Button>
             <Form
                 v-bind="EmpleadoController.cambiarEstado.form(empleado.id)"
+                :options="{ preserveScroll: true }"
                 v-slot="{ processing }"
             >
                 <input
