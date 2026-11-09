@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import { ShieldCheck, Store, Wallet } from '@lucide/vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { home } from '@/routes';
 
@@ -14,40 +15,65 @@ defineProps<{
         class="sicop-auth grid min-h-svh bg-background lg:grid-cols-[0.48fr_0.52fr]"
     >
         <aside
-            class="relative isolate flex overflow-hidden bg-brand-navy px-6 py-8 text-white sm:px-10 lg:items-start lg:px-16 lg:pt-[16vh] lg:pb-20"
+            class="relative isolate flex overflow-hidden bg-brand-navy px-6 py-8 text-white sm:px-10 lg:items-center lg:px-12 lg:py-16 xl:px-16"
         >
-            <div class="relative z-10 mx-auto w-full max-w-sm">
+            <div class="relative z-10 mx-auto w-full max-w-md">
                 <Link
                     :href="home()"
                     aria-label="SICOP — Inicio"
                     class="inline-flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-brand-gold"
                 >
-                    <AppLogoIcon class="sm:w-32 lg:w-36" />
+                    <AppLogoIcon class="sm:w-36 lg:w-40" />
                 </Link>
 
-                <div class="mt-5 space-y-3 lg:mt-8 lg:space-y-5">
+                <div class="mt-5 lg:mt-7">
                     <p
-                        class="font-heading text-sm font-semibold tracking-wide text-brand-cream"
+                        class="font-heading text-3xl leading-tight font-bold tracking-wide text-brand-cream lg:text-4xl"
                     >
                         SICOP
                     </p>
                     <p
-                        class="font-heading text-2xl leading-tight font-semibold text-brand-gold sm:text-3xl lg:text-4xl"
+                        class="mt-2 font-heading text-2xl leading-tight font-semibold text-brand-gold sm:text-3xl xl:text-4xl"
                     >
                         Operaciones conectadas.
                     </p>
                     <p
-                        class="max-w-xs text-sm leading-relaxed text-white/85 lg:text-base"
+                        class="mt-5 max-w-sm text-base leading-relaxed text-white/90 sm:text-lg"
                     >
                         Sistema Integral COVIACOL de Operaciones
                     </p>
                     <p
-                        class="hidden max-w-xs text-sm leading-relaxed text-white/75 lg:block"
+                        class="mt-3 hidden max-w-sm text-base leading-relaxed text-white/75 lg:block"
                     >
                         Punto de venta, nómina y auditoría en una sola
                         plataforma.
                     </p>
                 </div>
+
+                <ul
+                    aria-label="Módulos de SICOP"
+                    class="mt-6 grid grid-cols-3 gap-3 lg:mt-8"
+                >
+                    <li
+                        v-for="modulo in [
+                            { nombre: 'POS', icono: Store },
+                            { nombre: 'Nómina', icono: Wallet },
+                            { nombre: 'Auditoría', icono: ShieldCheck },
+                        ]"
+                        :key="modulo.nombre"
+                        class="flex min-w-0 flex-col items-center justify-center gap-2 rounded-xl bg-brand-cream px-3 py-3 text-brand-navy sm:flex-row lg:flex-col xl:flex-row"
+                    >
+                        <component
+                            :is="modulo.icono"
+                            aria-hidden="true"
+                            class="size-5 shrink-0"
+                            :stroke-width="1.75"
+                        />
+                        <span class="text-sm font-semibold">
+                            {{ modulo.nombre }}
+                        </span>
+                    </li>
+                </ul>
             </div>
             <div
                 aria-hidden="true"
