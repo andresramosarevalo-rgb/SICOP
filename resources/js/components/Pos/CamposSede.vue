@@ -11,7 +11,7 @@ defineProps<{
 </script>
 
 <template>
-    <div class="grid gap-4 sm:grid-cols-2">
+    <div class="grid gap-5 sm:grid-cols-2">
         <div class="grid gap-2">
             <Label for="nombre">Nombre</Label>
             <Input
