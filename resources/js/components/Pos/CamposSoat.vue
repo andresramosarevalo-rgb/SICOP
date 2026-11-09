@@ -19,7 +19,10 @@ const claseSelect =
 </script>
 
 <template>
-    <div class="grid gap-4 sm:grid-cols-2">
+    <div class="grid gap-5 sm:grid-cols-2">
+        <h2 class="border-b pb-3 text-base font-semibold sm:col-span-2">
+            Identificación del cliente
+        </h2>
         <div class="grid gap-2">
             <Label for="tipo_documento">Tipo de documento</Label>
             <select
@@ -59,6 +62,9 @@ const claseSelect =
             />
             <InputError :message="errors.nombre_cliente" />
         </div>
+        <h2 class="mt-2 border-b pb-3 text-base font-semibold sm:col-span-2">
+            SOAT y datos de contacto
+        </h2>
         <div class="grid gap-2">
             <Label for="fecha">Fecha</Label>
             <Input
@@ -118,12 +124,21 @@ const claseSelect =
             />
             <InputError :message="errors.placa" />
         </div>
-        <CamposPago
-            :errors="errors"
-            :formas-pago="formasPago"
-            :forma-pago="soat?.forma_pago"
-            :valor-efectivo="soat?.valor_efectivo"
-            :valor-qr="soat?.valor_qr"
-        />
+        <fieldset
+            class="mt-2 min-w-0 rounded-lg border bg-muted/30 p-4 sm:col-span-2"
+        >
+            <legend class="px-2 font-heading text-sm font-semibold">
+                Información de pago
+            </legend>
+            <div class="grid gap-5 sm:grid-cols-2">
+                <CamposPago
+                    :errors="errors"
+                    :formas-pago="formasPago"
+                    :forma-pago="soat?.forma_pago"
+                    :valor-efectivo="soat?.valor_efectivo"
+                    :valor-qr="soat?.valor_qr"
+                />
+            </div>
+        </fieldset>
     </div>
 </template>

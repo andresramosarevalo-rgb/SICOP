@@ -2,6 +2,8 @@
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import Heading from '@/components/Heading.vue';
+import PanelTabla from '@/components/Pos/PanelTabla.vue';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Button } from '@/components/ui/button';
 import { etiquetaFormaPago, formatearPesos } from '@/lib/formato';
@@ -29,10 +31,12 @@ defineOptions({
 <template>
     <Head :title="`Cursos · ${props.sede.nombre}`" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-4">
+    <PaginaPos>
         <BotonAtras v-if="!esDeSede" :respaldo="pos.sedes.index()" />
 
-        <div class="flex flex-wrap items-start justify-between gap-4">
+        <div
+            class="flex flex-wrap items-start justify-between gap-4 rounded-xl border border-brand-gold/30 bg-accent/50 p-5"
+        >
             <Heading
                 title="Cursos"
                 :description="`${props.sede.nombre} · ${props.sede.ciudad}`"
@@ -56,7 +60,7 @@ defineOptions({
             </div>
         </div>
 
-        <div class="overflow-x-auto rounded-xl border">
+        <PanelTabla titulo="Cursos registrados">
             <table class="w-full text-left text-sm">
                 <thead class="border-b bg-muted/50 text-muted-foreground">
                     <tr>
@@ -66,7 +70,7 @@ defineOptions({
                         <th class="px-4 py-2 font-medium">Tipo</th>
                         <th class="px-4 py-2 font-medium">N.º comparendo</th>
                         <th class="px-4 py-2 font-medium">Pago</th>
-                        <th class="px-4 py-2 font-medium">Valor</th>
+                        <th class="px-4 py-2 text-right font-medium">Valor</th>
                         <th class="px-4 py-2 font-medium">Descuento</th>
                         <th class="px-4 py-2">
                             <span class="sr-only">Acciones</span>
@@ -94,7 +98,9 @@ defineOptions({
                         <td class="px-4 py-2">
                             {{ etiquetaFormaPago(registro.forma_pago) }}
                         </td>
-                        <td class="px-4 py-2">
+                        <td
+                            class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
+                        >
                             {{ formatearPesos(registro.valor_curso) }}
                         </td>
                         <td class="px-4 py-2">
@@ -120,6 +126,6 @@ defineOptions({
                     </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
+        </PanelTabla>
+    </PaginaPos>
 </template>

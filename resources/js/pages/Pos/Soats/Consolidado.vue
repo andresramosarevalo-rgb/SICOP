@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
+import PanelTabla from '@/components/Pos/PanelTabla.vue';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,7 +36,7 @@ function filtrarPorDia(fecha: string | number): void {
 <template>
     <Head title="SOAT de todas las sedes" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-4">
+    <PaginaPos>
         <BotonAtras :respaldo="pos.inicio.index()" />
 
         <div class="flex flex-wrap items-end justify-between gap-4">
@@ -60,12 +62,14 @@ function filtrarPorDia(fecha: string | number): void {
             </div>
         </div>
 
-        <p class="text-sm text-muted-foreground">
+        <p
+            class="rounded-xl border border-brand-gold/30 bg-accent/50 px-5 py-4 text-sm font-semibold tabular-nums"
+        >
             {{ soats.length }} SOAT ·
             {{ formatearPesos(valorTotal) }}
         </p>
 
-        <div class="overflow-x-auto rounded-xl border">
+        <PanelTabla titulo="Registros del día">
             <table class="w-full text-left text-sm">
                 <thead class="border-b bg-muted/50 text-muted-foreground">
                     <tr>
@@ -74,7 +78,7 @@ function filtrarPorDia(fecha: string | number): void {
                         <th class="px-4 py-2 font-medium">Cliente</th>
                         <th class="px-4 py-2 font-medium">Placa</th>
                         <th class="px-4 py-2 font-medium">Pago</th>
-                        <th class="px-4 py-2 font-medium">Valor</th>
+                        <th class="px-4 py-2 text-right font-medium">Valor</th>
                         <th class="px-4 py-2">
                             <span class="sr-only">Acciones</span>
                         </th>
@@ -94,7 +98,9 @@ function filtrarPorDia(fecha: string | number): void {
                         <td class="px-4 py-2">
                             {{ etiquetaFormaPago(soat.forma_pago) }}
                         </td>
-                        <td class="px-4 py-2">
+                        <td
+                            class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
+                        >
                             {{ formatearPesos(soat.valor_soat) }}
                         </td>
                         <td class="px-4 py-2">
@@ -117,6 +123,6 @@ function filtrarPorDia(fecha: string | number): void {
                     </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
+        </PanelTabla>
+    </PaginaPos>
 </template>

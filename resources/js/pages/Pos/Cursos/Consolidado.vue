@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
+import PanelTabla from '@/components/Pos/PanelTabla.vue';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,7 +36,7 @@ function filtrarPorDia(fecha: string | number): void {
 <template>
     <Head title="Cursos de todas las sedes" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-4">
+    <PaginaPos>
         <BotonAtras :respaldo="pos.inicio.index()" />
 
         <div class="flex flex-wrap items-end justify-between gap-4">
@@ -60,13 +62,15 @@ function filtrarPorDia(fecha: string | number): void {
             </div>
         </div>
 
-        <p class="text-sm text-muted-foreground">
+        <p
+            class="rounded-xl border border-brand-gold/30 bg-accent/50 px-5 py-4 text-sm font-semibold tabular-nums"
+        >
             {{ cursos.length }}
             {{ cursos.length === 1 ? 'curso' : 'cursos' }} ·
             {{ formatearPesos(valorTotal) }}
         </p>
 
-        <div class="overflow-x-auto rounded-xl border">
+        <PanelTabla titulo="Registros del día">
             <table class="w-full text-left text-sm">
                 <thead class="border-b bg-muted/50 text-muted-foreground">
                     <tr>
@@ -76,8 +80,10 @@ function filtrarPorDia(fecha: string | number): void {
                         <th class="px-4 py-2 font-medium">Tipo</th>
                         <th class="px-4 py-2 font-medium">N.º comparendo</th>
                         <th class="px-4 py-2 font-medium">Pago</th>
-                        <th class="px-4 py-2 font-medium">Pago gestor</th>
-                        <th class="px-4 py-2 font-medium">Valor</th>
+                        <th class="px-4 py-2 text-right font-medium">
+                            Pago gestor
+                        </th>
+                        <th class="px-4 py-2 text-right font-medium">Valor</th>
                         <th class="px-4 py-2 font-medium">Descuento</th>
                         <th class="px-4 py-2">
                             <span class="sr-only">Acciones</span>
@@ -108,7 +114,9 @@ function filtrarPorDia(fecha: string | number): void {
                                     : '—'
                             }}
                         </td>
-                        <td class="px-4 py-2">
+                        <td
+                            class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
+                        >
                             {{ formatearPesos(curso.valor_curso) }}
                         </td>
                         <td class="px-4 py-2">
@@ -134,6 +142,6 @@ function filtrarPorDia(fecha: string | number): void {
                     </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
+        </PanelTabla>
+    </PaginaPos>
 </template>

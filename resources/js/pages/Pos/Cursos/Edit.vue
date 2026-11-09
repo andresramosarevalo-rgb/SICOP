@@ -2,6 +2,7 @@
 import { Form, Head } from '@inertiajs/vue3';
 import CursoController from '@/actions/App/Http/Controllers/Pos/CursoController';
 import Heading from '@/components/Heading.vue';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import CamposCurso from '@/components/Pos/CamposCurso.vue';
 import { Button } from '@/components/ui/button';
@@ -32,14 +33,14 @@ defineOptions({
 <template>
     <Head title="Editar curso" />
 
-    <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
+    <PaginaPos formulario>
         <BotonAtras :respaldo="pos.sedes.cursos.index(props.sede.id)" />
 
         <Heading title="Editar curso" :description="props.sede.nombre" />
 
         <Form
             v-bind="CursoController.update.form(props.curso.id)"
-            class="flex flex-col gap-6"
+            class="flex flex-col gap-6 rounded-xl border bg-card p-5 shadow-sm sm:p-6"
             v-slot="{ errors, processing }"
         >
             <CamposCurso
@@ -51,9 +52,9 @@ defineOptions({
                 :porcentajes-descuento="props.porcentajesDescuento"
                 :curso="props.curso"
             />
-            <div>
+            <div class="flex justify-end border-t pt-5">
                 <Button :disabled="processing">Guardar</Button>
             </div>
         </Form>
-    </div>
+    </PaginaPos>
 </template>
