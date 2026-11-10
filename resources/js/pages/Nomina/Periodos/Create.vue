@@ -22,6 +22,8 @@ defineOptions({
 
 defineProps<{
     periodicidades: Opcion[];
+    sedes: { id: number; nombre: string }[];
+    puedeElegirSede: boolean;
 }>();
 </script>
 
@@ -41,6 +43,33 @@ defineProps<{
             class="grid gap-4 sm:grid-cols-3"
             v-slot="{ errors, processing }"
         >
+            <div v-if="puedeElegirSede" class="grid gap-2 sm:col-span-3">
+                <Label for="sede_id">Sede</Label>
+                <select
+                    id="sede_id"
+                    name="sede_id"
+                    class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs md:text-sm dark:bg-input/30"
+                >
+                    <option value="">Todas las sedes</option>
+                    <option
+                        v-for="sede in sedes"
+                        :key="sede.id"
+                        :value="sede.id"
+                    >
+                        {{ sede.nombre }}
+                    </option>
+                </select>
+                <InputError :message="errors.sede_id" />
+            </div>
+            <p
+                v-else-if="sedes.length > 0"
+                class="text-sm text-muted-foreground sm:col-span-3"
+            >
+                Periodo de la sede:
+                <span class="font-medium text-foreground">{{
+                    sedes[0].nombre
+                }}</span>
+            </p>
             <div class="grid gap-2">
                 <Label for="periodicidad_pago">Periodicidad</Label>
                 <select

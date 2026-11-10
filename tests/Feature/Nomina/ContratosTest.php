@@ -1,14 +1,13 @@
 <?php
 
 use App\Enums\PeriodicidadPago;
-use App\Enums\Rol;
 use App\Enums\TipoContrato;
 use App\Models\Contrato;
 use App\Models\Empleado;
 use App\Models\User;
 
 beforeEach(function () {
-    $this->auxiliar = User::factory()->conRol(Rol::AuxiliarNomina)->create();
+    $this->auxiliar = User::factory()->superAdmin()->create();
     $this->empleado = Empleado::factory()->create();
 });
 

@@ -17,8 +17,12 @@ trait FiltraPorSede
     #[Scope]
     protected function visiblesPara(Builder $query, User $usuario): void
     {
-        if (! $usuario->esSuperAdmin()) {
-            $query->where($query->qualifyColumn('sede_id'), $usuario->sede_id);
+        if ($usuario->esSuperAdmin()) {
+            return;
         }
+
+        $usuario->sede_id === null
+            ? $query->whereRaw('1 = 0')
+            : $query->where($query->qualifyColumn('sede_id'), $usuario->sede_id);
     }
 }

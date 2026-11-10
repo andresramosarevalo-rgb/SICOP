@@ -47,7 +47,7 @@ const totalNeto = computed(() =>
         <div class="flex flex-wrap items-start justify-between gap-4">
             <Heading
                 :title="`Periodo ${periodo.fecha_inicio} — ${periodo.fecha_fin}`"
-                :description="`Nómina ${periodo.periodicidad_pago}${periodo.liquidador ? ` · liquidada por ${periodo.liquidador.name}` : ''}`"
+                :description="`Nómina ${periodo.periodicidad_pago} · ${periodo.sede?.nombre ?? 'todas las sedes'}${periodo.liquidador ? ` · liquidada por ${periodo.liquidador.name}` : ''}`"
             />
             <EstadoPeriodo :estado="periodo.estado" />
         </div>

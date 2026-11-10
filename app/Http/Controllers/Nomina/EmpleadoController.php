@@ -13,6 +13,8 @@ use App\Models\Area;
 use App\Models\ConceptoNomina;
 use App\Models\Contrato;
 use App\Models\Empleado;
+use App\Models\Sede;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
@@ -35,7 +37,8 @@ class EmpleadoController extends Controller
         $estado = in_array($request->query('estado'), ['activos', 'inactivos'], true) ? $request->query('estado') : '';
 
         $empleados = Empleado::query()
-            ->with(['area:id,nombre', 'contratoVigente:id,empleado_id,periodicidad_pago'])
+            ->visiblesPara($request->user())
+            ->with(['area:id,nombre', 'sede:id,nombre', 'contratoVigente:id,empleado_id,periodicidad_pago'])
             ->when($busqueda !== '', fn (Builder $query) => $query->where(fn (Builder $query) => $query
                 ->whereRaw("lower(numero_documento) like ? escape '!'", [$patron])
                 ->orWhereRaw("lower(nombres) like ? escape '!'", [$patron])
@@ -55,10 +58,10 @@ class EmpleadoController extends Controller
     /**
      * Muestra el formulario de registro del empleado y su contrato. Solo se ofrecen las áreas activas.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
         return Inertia::render('Nomina/Empleados/Create', [
-            ...$this->opcionesFormulario(),
+            ...$this->opcionesFormulario($request->user()),
             'tiposContrato' => collect(TipoContrato::cases())
                 ->map(fn (TipoContrato $tipo) => ['valor' => $tipo->value, 'etiqueta' => $tipo->etiqueta()]),
             'periodicidades' => collect(PeriodicidadPago::cases())
@@ -92,7 +95,7 @@ class EmpleadoController extends Controller
     public function show(Empleado $empleado): Response
     {
         return Inertia::render('Nomina/Empleados/Show', [
-            'empleado' => $empleado->load('area:id,nombre'),
+            'empleado' => $empleado->load(['area:id,nombre', 'sede:id,nombre']),
             'tipoDocumento' => $empleado->tipo_documento->etiqueta(),
             'contratoVigente' => $empleado->contratoVigente,
             'contratos' => $empleado->contratos->map(fn (Contrato $contrato) => [
@@ -110,11 +113,11 @@ class EmpleadoController extends Controller
     /**
      * Muestra el formulario de edición. Además de las áreas activas se ofrece el área actual del empleado.
      */
-    public function edit(Empleado $empleado): Response
+    public function edit(Request $request, Empleado $empleado): Response
     {
         return Inertia::render('Nomina/Empleados/Edit', [
             'empleado' => $empleado,
-            ...$this->opcionesFormulario($empleado->area_id),
+            ...$this->opcionesFormulario($request->user(), $empleado->area_id),
         ]);
     }
 
@@ -146,11 +149,13 @@ class EmpleadoController extends Controller
     /**
      * Opciones de los selectores del formulario de empleado.
      *
-     * @return array{areas: Collection<int, Area>, tiposDocumento: SupportCollection<int, array{valor: string, etiqueta: string}>}
+     * @return array{sedes: Collection<int, Sede>, puedeElegirSede: bool, areas: Collection<int, Area>, tiposDocumento: SupportCollection<int, array{valor: string, etiqueta: string}>}
      */
-    private function opcionesFormulario(?int $areaActualId = null): array
+    private function opcionesFormulario(User $usuario, ?int $areaActualId = null): array
     {
         return [
+            'sedes' => Sede::activas()->visiblesPara($usuario)->orderBy('nombre')->get(['id', 'nombre']),
+            'puedeElegirSede' => $usuario->esSuperAdmin(),
             'areas' => Area::query()
                 ->where(fn (Builder $query) => $query->where('es_activa', true)->orWhere('id', $areaActualId))
                 ->orderBy('nombre')

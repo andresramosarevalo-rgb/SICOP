@@ -22,7 +22,7 @@ class UsuarioController extends Controller
     {
         $usuarios = User::query()
             ->whereIn('rol', array_map(fn (Rol $rol): string => $rol->value, Rol::cases()))
-            ->when(! $request->user()->esSuperAdmin(), fn ($query) => $query->where('sede_id', $request->user()->sede_id))
+            ->when(! $request->user()->esSuperAdmin(), fn ($query) => $query->where('sede_id', $request->user()->sede_id ?? 0))
             ->with('sede:id,nombre')
             ->orderBy('name')
             ->get(['id', 'name', 'email', 'rol', 'sede_id']);

@@ -1,13 +1,12 @@
 <?php
 
 use App\Enums\EstadoPeriodo;
-use App\Enums\Rol;
 use App\Models\PeriodoNomina;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
-    $this->auxiliar = User::factory()->conRol(Rol::AuxiliarNomina)->create();
+    $this->auxiliar = User::factory()->superAdmin()->create();
 });
 
 // Issue #22, criterio 3

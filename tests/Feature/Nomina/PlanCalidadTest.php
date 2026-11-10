@@ -27,7 +27,7 @@ use Inertia\Testing\AssertableInertia as Assert;
  */
 
 beforeEach(function () {
-    $this->auxiliar = User::factory()->conRol(Rol::AuxiliarNomina)->create();
+    $this->auxiliar = User::factory()->superAdmin()->create();
 });
 
 /**

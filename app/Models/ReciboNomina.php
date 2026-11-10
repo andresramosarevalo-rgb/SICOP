@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\FiltraPorSedeDelEmpleado;
 use Database\Factories\ReciboNominaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -33,7 +34,7 @@ use Illuminate\Support\Carbon;
 class ReciboNomina extends Model
 {
     /** @use HasFactory<ReciboNominaFactory> */
-    use HasFactory;
+    use FiltraPorSedeDelEmpleado, HasFactory;
 
     /**
      * La tabla asociada al modelo.

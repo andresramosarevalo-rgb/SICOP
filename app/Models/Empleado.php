@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\Auditable;
+use App\Concerns\FiltraPorSede;
 use App\Enums\TipoDocumento;
 use Database\Factories\EmpleadoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -26,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $direccion
  * @property Carbon|null $fecha_nacimiento
  * @property int $area_id
+ * @property int|null $sede_id
  * @property string $cargo
  * @property bool $es_activo
  * @property Carbon|null $created_at
@@ -33,12 +35,12 @@ use Illuminate\Support\Carbon;
  */
 #[Fillable([
     'tipo_documento', 'numero_documento', 'nombres', 'apellidos', 'email',
-    'telefono', 'direccion', 'fecha_nacimiento', 'area_id', 'cargo', 'es_activo',
+    'telefono', 'direccion', 'fecha_nacimiento', 'area_id', 'sede_id', 'cargo', 'es_activo',
 ])]
 class Empleado extends Model
 {
     /** @use HasFactory<EmpleadoFactory> */
-    use Auditable, HasFactory;
+    use Auditable, FiltraPorSede, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -46,6 +48,16 @@ class Empleado extends Model
      * @var string
      */
     protected $table = 'empleados';
+
+    /**
+     * Sede en la que trabaja el empleado.
+     *
+     * @return BelongsTo<Sede, $this>
+     */
+    public function sede(): BelongsTo
+    {
+        return $this->belongsTo(Sede::class);
+    }
 
     /**
      * Área a la que pertenece el empleado.
@@ -108,6 +120,7 @@ class Empleado extends Model
             'modulo' => 'nomina',
             'etiqueta' => 'Empleado',
             'descripcion' => "{$this->nombres} {$this->apellidos}",
+            'sede_id' => $this->sede_id,
         ];
     }
 

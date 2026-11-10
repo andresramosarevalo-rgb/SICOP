@@ -39,7 +39,7 @@ class AuditoriaController extends Controller
             'auditorias' => $auditorias,
             'filtros' => $filtros,
             'sedes' => Sede::query()->visiblesPara($usuario)->orderBy('nombre')->get(['id', 'nombre']),
-            'usuarios' => User::query()->when(! $usuario->esSuperAdmin(), fn ($query) => $query->where('sede_id', $usuario->sede_id))->orderBy('name')->get(['id', 'name']),
+            'usuarios' => User::query()->when(! $usuario->esSuperAdmin(), fn ($query) => $query->where('sede_id', $usuario->sede_id ?? 0))->orderBy('name')->get(['id', 'name']),
             'etiquetas' => Auditoria::query()->visiblesPara($usuario)->distinct()->orderBy('etiqueta')->pluck('etiqueta'),
         ]);
     }

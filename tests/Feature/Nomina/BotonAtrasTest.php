@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\Rol;
 use App\Models\Contrato;
 use App\Models\ReciboNomina;
 use App\Models\User;
@@ -13,7 +12,7 @@ use Inertia\Testing\AssertableInertia as Assert;
  */
 
 beforeEach(function () {
-    $this->auxiliar = User::factory()->conRol(Rol::AuxiliarNomina)->create();
+    $this->auxiliar = User::factory()->superAdmin()->create();
 });
 
 // Issue #19, criterios 1 y 2

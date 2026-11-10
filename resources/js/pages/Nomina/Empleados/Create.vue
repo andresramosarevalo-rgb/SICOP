@@ -22,6 +22,8 @@ defineOptions({
 defineProps<{
     areas: Pick<Area, 'id' | 'nombre'>[];
     tiposDocumento: OpcionTipoDocumento[];
+    sedes: { id: number; nombre: string }[];
+    puedeElegirSede: boolean;
     tiposContrato: Opcion[];
     periodicidades: Opcion[];
 }>();
@@ -49,6 +51,8 @@ defineProps<{
                 <CamposEmpleado
                     :areas="areas"
                     :tipos-documento="tiposDocumento"
+                    :sedes="sedes"
+                    :puede-elegir-sede="puedeElegirSede"
                     :errors="errors"
                 />
             </section>
