@@ -30,9 +30,13 @@ const { isMobile, state } = useSidebar();
                         size="lg"
                         class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         data-test="sidebar-menu-button"
+                        :aria-label="'Menú de ' + user.name"
+                        :tooltip="user.name"
                     >
                         <UserInfo :user="user" />
-                        <ChevronsUpDown class="ml-auto size-4" />
+                        <ChevronsUpDown
+                            class="ml-auto size-4 group-data-[collapsible=icon]:hidden"
+                        />
                     </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
@@ -41,7 +45,7 @@ const { isMobile, state } = useSidebar();
                         isMobile
                             ? 'bottom'
                             : state === 'collapsed'
-                              ? 'left'
+                              ? 'right'
                               : 'bottom'
                     "
                     align="end"

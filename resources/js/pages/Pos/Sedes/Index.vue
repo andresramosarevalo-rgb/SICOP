@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
+import PanelTabla from '@/components/Pos/PanelTabla.vue';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,7 +26,7 @@ defineProps<{
 <template>
     <Head title="Sedes" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-4">
+    <PaginaPos>
         <BotonAtras :respaldo="pos.inicio.index()" />
 
         <div class="flex flex-wrap items-start justify-between gap-4">
@@ -37,7 +39,10 @@ defineProps<{
             </Button>
         </div>
 
-        <div class="overflow-x-auto rounded-xl border">
+        <PanelTabla
+            titulo="Sedes registradas"
+            descripcion="Ubicación, estado y cajeros asignados a cada sede."
+        >
             <table class="w-full text-left text-sm">
                 <thead class="border-b bg-muted/50 text-muted-foreground">
                     <tr>
@@ -58,6 +63,11 @@ defineProps<{
                         <td class="px-4 py-2">{{ sede.direccion }}</td>
                         <td class="px-4 py-2">
                             <Badge
+                                :class="
+                                    sede.es_activa
+                                        ? 'border-success/20 bg-success/10 text-success'
+                                        : 'bg-muted text-muted-foreground'
+                                "
                                 :variant="
                                     sede.es_activa ? 'default' : 'outline'
                                 "
@@ -100,6 +110,6 @@ defineProps<{
                     </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
+        </PanelTabla>
+    </PaginaPos>
 </template>

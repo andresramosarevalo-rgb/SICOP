@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
+import PanelTabla from '@/components/Pos/PanelTabla.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -45,7 +47,7 @@ function describir(valor: string): string {
 <template>
     <Head title="Cierres de caja" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-4">
+    <PaginaPos>
         <BotonAtras :respaldo="pos.inicio.index()" />
 
         <div class="flex flex-wrap items-end justify-between gap-4">
@@ -71,24 +73,30 @@ function describir(valor: string): string {
             </div>
         </div>
 
-        <p class="text-sm text-muted-foreground">
+        <p
+            class="rounded-xl border border-brand-gold/30 bg-accent/50 px-5 py-4 text-sm"
+        >
             Total a consignar de las sedes cerradas:
             <span class="font-semibold text-foreground">{{
                 formatearPesos(valorTotalAConsignar)
             }}</span>
         </p>
 
-        <div class="overflow-x-auto rounded-xl border">
+        <PanelTabla titulo="Arqueos por sede">
             <table class="w-full text-left text-sm">
                 <thead class="border-b bg-muted/50 text-muted-foreground">
                     <tr>
                         <th class="px-4 py-2 font-medium">Sede</th>
                         <th class="px-4 py-2 font-medium">Estado</th>
-                        <th class="px-4 py-2 font-medium">Efectivo contado</th>
+                        <th class="px-4 py-2 text-right font-medium">
+                            Efectivo contado
+                        </th>
                         <th class="px-4 py-2 font-medium">Arqueo efectivo</th>
                         <th class="px-4 py-2 font-medium">Arqueo datáfono</th>
                         <th class="px-4 py-2 font-medium">Arqueo QR</th>
-                        <th class="px-4 py-2 font-medium">A consignar</th>
+                        <th class="px-4 py-2 text-right font-medium">
+                            A consignar
+                        </th>
                         <th class="px-4 py-2">
                             <span class="sr-only">Acciones</span>
                         </th>
@@ -99,6 +107,11 @@ function describir(valor: string): string {
                         <td class="px-4 py-2">{{ fila.sede.nombre }}</td>
                         <td class="px-4 py-2">
                             <Badge
+                                :class="
+                                    fila.cierre
+                                        ? 'border-success/20 bg-success/10 text-success'
+                                        : 'border-warning/20 bg-warning/10 text-warning'
+                                "
                                 :variant="fila.cierre ? 'default' : 'outline'"
                                 >{{
                                     fila.cierre ? 'Cerrado' : 'Sin cerrar'
@@ -106,31 +119,75 @@ function describir(valor: string): string {
                             >
                         </td>
                         <template v-if="fila.cierre">
-                            <td class="px-4 py-2">
+                            <td
+                                class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
+                            >
                                 {{
                                     formatearPesos(
                                         fila.cierre.valor_efectivo_contado,
                                     )
                                 }}
                             </td>
-                            <td class="px-4 py-2">
+                            <td
+                                class="px-4 py-2"
+                                :class="
+                                    Number(
+                                        fila.cierre.valor_diferencia_efectivo,
+                                    ) === 0
+                                        ? 'text-success'
+                                        : Number(
+                                                fila.cierre
+                                                    .valor_diferencia_efectivo,
+                                            ) < 0
+                                          ? 'text-destructive'
+                                          : 'text-warning'
+                                "
+                            >
                                 {{
                                     describir(
                                         fila.cierre.valor_diferencia_efectivo,
                                     )
                                 }}
                             </td>
-                            <td class="px-4 py-2">
+                            <td
+                                class="px-4 py-2"
+                                :class="
+                                    Number(
+                                        fila.cierre.valor_diferencia_datafono,
+                                    ) === 0
+                                        ? 'text-success'
+                                        : Number(
+                                                fila.cierre
+                                                    .valor_diferencia_datafono,
+                                            ) < 0
+                                          ? 'text-destructive'
+                                          : 'text-warning'
+                                "
+                            >
                                 {{
                                     describir(
                                         fila.cierre.valor_diferencia_datafono,
                                     )
                                 }}
                             </td>
-                            <td class="px-4 py-2">
+                            <td
+                                class="px-4 py-2"
+                                :class="
+                                    Number(fila.cierre.valor_diferencia_qr) ===
+                                    0
+                                        ? 'text-success'
+                                        : Number(
+                                                fila.cierre.valor_diferencia_qr,
+                                            ) < 0
+                                          ? 'text-destructive'
+                                          : 'text-warning'
+                                "
+                            >
                                 {{ describir(fila.cierre.valor_diferencia_qr) }}
                             </td>
-                            <td class="px-4 py-2 font-semibold">
+                            <td
+                                class="px-4 py-2 text-right font-semibold whitespace-nowrap tabular-nums"
+                            >
                                 {{
                                     formatearPesos(
                                         fila.cierre.valor_a_consignar,
@@ -173,6 +230,6 @@ function describir(valor: string): string {
                     </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
+        </PanelTabla>
+    </PaginaPos>
 </template>

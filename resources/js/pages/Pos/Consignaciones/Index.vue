@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import Heading from '@/components/Heading.vue';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
+import PanelTabla from '@/components/Pos/PanelTabla.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,7 +33,7 @@ function pendiente(fila: FilaSaldoConsignacion): number {
 <template>
     <Head title="Consignaciones" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-4">
+    <PaginaPos>
         <BotonAtras :respaldo="pos.inicio.index()" />
 
         <Heading
@@ -39,14 +41,20 @@ function pendiente(fila: FilaSaldoConsignacion): number {
             description="Lo que cada sede debe consignar según sus cierres de caja y lo que ya consignó."
         />
 
-        <div class="overflow-x-auto rounded-xl border">
+        <PanelTabla titulo="Saldos por sede">
             <table class="w-full text-left text-sm">
                 <thead class="border-b bg-muted/50 text-muted-foreground">
                     <tr>
                         <th class="px-4 py-2 font-medium">Sede</th>
-                        <th class="px-4 py-2 font-medium">Por consignar</th>
-                        <th class="px-4 py-2 font-medium">Consignado</th>
-                        <th class="px-4 py-2 font-medium">Saldo pendiente</th>
+                        <th class="px-4 py-2 text-right font-medium">
+                            Por consignar
+                        </th>
+                        <th class="px-4 py-2 text-right font-medium">
+                            Consignado
+                        </th>
+                        <th class="px-4 py-2 text-right font-medium">
+                            Saldo pendiente
+                        </th>
                         <th class="px-4 py-2 font-medium">
                             Días sin consignar
                         </th>
@@ -62,13 +70,19 @@ function pendiente(fila: FilaSaldoConsignacion): number {
                         :class="{ 'bg-muted/50': fila.sede.id === sedeId }"
                     >
                         <td class="px-4 py-2">{{ fila.sede.nombre }}</td>
-                        <td class="px-4 py-2">
+                        <td
+                            class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
+                        >
                             {{ formatearPesos(fila.valor_a_consignar) }}
                         </td>
-                        <td class="px-4 py-2">
+                        <td
+                            class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
+                        >
                             {{ formatearPesos(fila.valor_consignado) }}
                         </td>
-                        <td class="px-4 py-2 font-semibold">
+                        <td
+                            class="px-4 py-2 text-right font-semibold whitespace-nowrap tabular-nums"
+                        >
                             {{ formatearPesos(pendiente(fila)) }}
                         </td>
                         <td class="px-4 py-2">{{ fila.dias_sin_consignar }}</td>
@@ -99,16 +113,17 @@ function pendiente(fila: FilaSaldoConsignacion): number {
                     </tr>
                 </tbody>
             </table>
-        </div>
+        </PanelTabla>
 
         <section v-if="sedeId" class="flex flex-col gap-3">
-            <h2 class="font-medium">Días cerrados de la sede</h2>
-            <div class="overflow-x-auto rounded-xl border">
+            <PanelTabla titulo="Días cerrados de la sede">
                 <table class="w-full text-left text-sm">
                     <thead class="border-b bg-muted/50 text-muted-foreground">
                         <tr>
                             <th class="px-4 py-2 font-medium">Día</th>
-                            <th class="px-4 py-2 font-medium">Por consignar</th>
+                            <th class="px-4 py-2 text-right font-medium">
+                                Por consignar
+                            </th>
                             <th class="px-4 py-2 font-medium">Estado</th>
                             <th class="px-4 py-2 font-medium">Referencia</th>
                             <th class="px-4 py-2">
@@ -121,11 +136,19 @@ function pendiente(fila: FilaSaldoConsignacion): number {
                             <td class="px-4 py-2 whitespace-nowrap">
                                 {{ dia.fecha }}
                             </td>
-                            <td class="px-4 py-2">
+                            <td
+                                class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
+                            >
                                 {{ formatearPesos(dia.valor_a_consignar) }}
                             </td>
                             <td class="px-4 py-2">
                                 <Badge
+                                    :class="
+                                        dia.consignacion ||
+                                        Number(dia.valor_a_consignar) <= 0
+                                            ? 'border-success/20 bg-success/10 text-success'
+                                            : 'border-warning/20 bg-warning/10 text-warning'
+                                    "
                                     :variant="
                                         dia.consignacion ||
                                         Number(dia.valor_a_consignar) <= 0
@@ -179,7 +202,7 @@ function pendiente(fila: FilaSaldoConsignacion): number {
                         </tr>
                     </tbody>
                 </table>
-            </div>
+            </PanelTabla>
         </section>
-    </div>
+    </PaginaPos>
 </template>

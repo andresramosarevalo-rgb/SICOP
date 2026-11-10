@@ -4,6 +4,8 @@ import CierreCajaController from '@/actions/App/Http/Controllers/Pos/CierreCajaC
 import ConsignacionController from '@/actions/App/Http/Controllers/Pos/ConsignacionController';
 import GastoCajaController from '@/actions/App/Http/Controllers/Pos/GastoCajaController';
 import Heading from '@/components/Heading.vue';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
+import PanelTabla from '@/components/Pos/PanelTabla.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import FormularioConsignacion from '@/components/Pos/FormularioConsignacion.vue';
 import FormularioArqueo from '@/components/Pos/FormularioArqueo.vue';
@@ -62,16 +64,35 @@ function cambiarDia(fecha: string | number): void {
 <template>
     <Head :title="`Cierre de caja · ${sede.nombre}`" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-4">
-        <BotonAtras :respaldo="pos.inicio.index()" />
+    <PaginaPos>
+        <BotonAtras
+            :respaldo="
+                page.props.auth.permisos.gestionarPos
+                    ? pos.cierres.index({ query: { fecha } })
+                    : pos.sedes.cursos.index(sede.id)
+            "
+        />
 
-        <div class="flex flex-wrap items-end justify-between gap-4">
+        <div
+            class="flex flex-wrap items-end justify-between gap-4 rounded-xl border border-brand-gold/30 bg-accent/50 p-5"
+        >
             <Heading
                 title="Cierre de caja"
                 :description="`${sede.nombre} · ${sede.ciudad}`"
             />
-            <div class="flex items-end gap-3">
-                <Badge v-if="estaCerrado" variant="outline">Día cerrado</Badge>
+            <div class="flex flex-wrap items-end gap-3">
+                <Badge
+                    v-if="estaCerrado"
+                    variant="outline"
+                    class="border-success/20 bg-success/10 text-success"
+                    >Día cerrado</Badge
+                >
+                <Badge
+                    v-else
+                    variant="outline"
+                    class="border-warning/20 bg-warning/10 text-warning"
+                    >Día abierto</Badge
+                >
                 <div class="grid gap-2">
                     <Label for="fecha">Día</Label>
                     <Input
@@ -92,14 +113,14 @@ function cambiarDia(fecha: string | number): void {
         />
 
         <section class="flex flex-col gap-4">
-            <h2 class="font-medium">Gastos del día</h2>
-
-            <div class="overflow-x-auto rounded-xl border">
+            <PanelTabla titulo="Gastos del día">
                 <table class="w-full text-left text-sm">
                     <thead class="border-b bg-muted/50 text-muted-foreground">
                         <tr>
                             <th class="px-4 py-2 font-medium">Concepto</th>
-                            <th class="px-4 py-2 font-medium">Valor</th>
+                            <th class="px-4 py-2 text-right font-medium">
+                                Valor
+                            </th>
                             <th class="px-4 py-2 font-medium">Soporte</th>
                             <th class="px-4 py-2">
                                 <span class="sr-only">Acciones</span>
@@ -109,7 +130,9 @@ function cambiarDia(fecha: string | number): void {
                     <tbody class="divide-y">
                         <tr v-for="gasto in gastos" :key="gasto.id">
                             <td class="px-4 py-2">{{ gasto.concepto }}</td>
-                            <td class="px-4 py-2">
+                            <td
+                                class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
+                            >
                                 {{ formatearPesos(gasto.valor_gasto) }}
                             </td>
                             <td class="px-4 py-2">
@@ -117,7 +140,7 @@ function cambiarDia(fecha: string | number): void {
                                     :href="
                                         pos.cierre.gastos.soporte.url(gasto.id)
                                     "
-                                    class="underline-offset-4 hover:underline"
+                                    class="rounded-sm font-medium text-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
                                     >{{ gasto.nombre_soporte }}</a
                                 >
                             </td>
@@ -134,6 +157,7 @@ function cambiarDia(fecha: string | number): void {
                                 >
                                     <Button
                                         variant="ghost"
+                                        class="text-destructive hover:text-destructive"
                                         size="sm"
                                         :disabled="processing"
                                         >Eliminar</Button
@@ -151,7 +175,7 @@ function cambiarDia(fecha: string | number): void {
                         </tr>
                     </tbody>
                 </table>
-            </div>
+            </PanelTabla>
 
             <FormularioGasto
                 v-if="!estaCerrado && sede.es_activa"
@@ -164,9 +188,9 @@ function cambiarDia(fecha: string | number): void {
 
         <section
             v-if="cierre"
-            class="flex flex-col gap-4 rounded-xl border p-4"
+            class="flex flex-col gap-5 rounded-xl border bg-card p-5 shadow-sm sm:p-6"
         >
-            <h2 class="font-medium">Consignación</h2>
+            <h2 class="text-base font-semibold">Consignación</h2>
 
             <div v-if="consignacion" class="flex flex-col gap-2 text-sm">
                 <p>
@@ -177,7 +201,7 @@ function cambiarDia(fecha: string | number): void {
                 <p>
                     <a
                         :href="pos.consignaciones.soporte.url(consignacion.id)"
-                        class="underline-offset-4 hover:underline"
+                        class="rounded-sm font-medium text-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
                         >{{ consignacion.nombre_soporte }}</a
                     >
                 </p>
@@ -203,7 +227,11 @@ function cambiarDia(fecha: string | number): void {
                     "
                     v-slot="{ processing }"
                 >
-                    <Button variant="ghost" size="sm" :disabled="processing"
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        class="self-start text-destructive hover:text-destructive"
+                        :disabled="processing"
                         >Eliminar consignación</Button
                     >
                 </Form>
@@ -237,7 +265,7 @@ function cambiarDia(fecha: string | number): void {
                 cierre && !consignacion && page.props.auth.permisos.gestionarPos
             "
             v-bind="CierreCajaController.reabrir.form(sede.id)"
-            class="flex items-center gap-3"
+            class="flex flex-wrap items-center gap-3 rounded-xl border bg-card p-5"
             v-slot="{ processing }"
         >
             <input type="hidden" name="fecha" :value="fecha" />
@@ -249,8 +277,11 @@ function cambiarDia(fecha: string | number): void {
             </p>
         </Form>
 
-        <section v-else-if="sede.es_activa" class="flex flex-col gap-4">
-            <h2 class="font-medium">Cerrar el día</h2>
+        <section
+            v-else-if="!estaCerrado && sede.es_activa"
+            class="flex flex-col gap-5 rounded-xl border bg-card p-5 shadow-sm sm:p-6"
+        >
+            <h2 class="text-base font-semibold">Cerrar el día</h2>
             <FormularioArqueo
                 :sede-id="sede.id"
                 :fecha="fecha"
@@ -258,5 +289,5 @@ function cambiarDia(fecha: string | number): void {
                 :valor-efectivo-esperado="valorEfectivoEsperado"
             />
         </section>
-    </div>
+    </PaginaPos>
 </template>

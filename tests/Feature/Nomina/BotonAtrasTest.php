@@ -7,7 +7,7 @@ use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
 /*
- * El botón "Atrás" vuelve con el historial del navegador; sin historial, va a la página padre.
+ * El botón "Atrás" va siempre a la página padre, sin recorrer el historial de interacciones.
  * Estos tests comprueban que cada página de detalle recibe el dato de su página padre.
  * El criterio 3 (no aparece al imprimir) se verifica en el guion manual del plan de calidad.
  */

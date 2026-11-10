@@ -49,6 +49,7 @@ defineProps<{
 
         <Form
             v-bind="ContratoController.store.form(empleado.id)"
+            :options="{ preserveScroll: 'errors' }"
             class="flex flex-col gap-6"
             v-slot="{ errors, processing }"
         >

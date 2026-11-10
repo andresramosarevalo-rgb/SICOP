@@ -1,17 +1,8 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
-import {
-    BookOpen,
-    FolderGit2,
-    LayoutGrid,
-    ShieldCheck,
-    Store,
-    Users,
-    Wallet,
-} from '@lucide/vue';
-import { computed } from 'vue';
-import AppLogo from '@/components/AppLogo.vue';
-import NavFooter from '@/components/NavFooter.vue';
+import { Link, router, usePage } from '@inertiajs/vue3';
+import { LayoutGrid, ShieldCheck, Store, Users, Wallet } from '@lucide/vue';
+import { computed, onMounted, onUnmounted } from 'vue';
+import isotipoSidebar from '../../images/logotypes/sicop-isotipo-sidebar.svg';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import {
@@ -22,6 +13,8 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarTrigger,
+    useSidebar,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import admin from '@/routes/admin';
@@ -30,12 +23,25 @@ import pos from '@/routes/pos';
 import type { NavItem } from '@/types';
 
 const page = usePage();
+const { isMobile, setOpenMobile } = useSidebar();
+
+let dejarDeEscucharNavegacion: (() => void) | undefined;
+
+onMounted(() => {
+    dejarDeEscucharNavegacion = router.on('navigate', () => {
+        setOpenMobile(false);
+    });
+});
+
+onUnmounted(() => {
+    dejarDeEscucharNavegacion?.();
+});
 
 const mainNavItems = computed<NavItem[]>(() => [
     ...(page.props.auth.sedeId === null
         ? [
               {
-                  title: 'Dashboard',
+                  title: 'Inicio',
                   href: dashboard(),
                   icon: LayoutGrid,
               },
@@ -78,41 +84,59 @@ const mainNavItems = computed<NavItem[]>(() => [
           ]
         : []),
 ]);
-
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
-    },
-];
 </script>
 
 <template>
-    <Sidebar collapsible="icon" variant="inset">
-        <SidebarHeader>
-            <SidebarMenu>
+    <Sidebar collapsible="icon" variant="sidebar">
+        <SidebarHeader
+            class="relative border-b border-sidebar-border px-4 py-5"
+        >
+            <SidebarMenu :class="{ 'pr-12': isMobile }">
                 <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" as-child>
-                        <Link :href="dashboard()">
-                            <AppLogo />
+                    <SidebarMenuButton
+                        size="lg"
+                        class="h-12 gap-3 p-0"
+                        tooltip="Inicio"
+                        as-child
+                    >
+                        <Link
+                            :href="
+                                page.props.auth.sedeId === null
+                                    ? dashboard()
+                                    : pos.inicio.index()
+                            "
+                            aria-label="SICOP — Inicio"
+                            @click="isMobile && setOpenMobile(false)"
+                        >
+                            <img
+                                :src="isotipoSidebar"
+                                alt=""
+                                width="100"
+                                height="100"
+                                class="size-12 shrink-0"
+                            />
+                            <span
+                                class="font-heading text-2xl font-bold tracking-wide group-data-[collapsible=icon]:hidden"
+                            >
+                                SICOP
+                            </span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
+            <SidebarTrigger
+                v-if="isMobile"
+                class="absolute top-6 right-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            />
         </SidebarHeader>
 
-        <SidebarContent>
+        <SidebarContent class="py-5">
             <NavMain :items="mainNavItems" />
         </SidebarContent>
 
-        <SidebarFooter>
-            <NavFooter :items="footerNavItems" />
+        <SidebarFooter
+            class="border-t border-sidebar-border p-3 group-data-[collapsible=icon]:p-4"
+        >
             <NavUser />
         </SidebarFooter>
     </Sidebar>
