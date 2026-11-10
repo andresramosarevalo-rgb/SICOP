@@ -54,6 +54,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Indica si el usuario es super administrador y ve todas las sedes.
+     */
+    public function esSuperAdmin(): bool
+    {
+        return $this->rol?->esSuperAdmin() ?? false;
+    }
+
+    /**
      * Cómo se presenta el registro en el historial de auditoría.
      *
      * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}
@@ -61,7 +69,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function configuracionAuditoria(): array
     {
         return [
-            'modulo' => $this->sede_id === null ? 'admin' : 'pos',
+            'modulo' => $this->rol === Rol::Cajero ? 'pos' : 'admin',
             'etiqueta' => 'Usuario',
             'descripcion' => "{$this->name} · {$this->email}",
             'sede_id' => $this->sede_id,

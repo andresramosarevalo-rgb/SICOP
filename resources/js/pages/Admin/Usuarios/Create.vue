@@ -30,6 +30,7 @@ defineOptions({
 defineProps<{
     roles: OpcionRol[];
     sedes: { id: number; nombre: string }[];
+    puedeElegirSede: boolean;
 }>();
 
 const rolSeleccionado = ref('');
@@ -111,8 +112,11 @@ const rolSeleccionado = ref('');
                 <InputError :message="errors.rol" />
             </div>
 
-            <div v-if="rolSeleccionado === 'cajero'" class="grid gap-2">
-                <Label for="sede_id">Sede del cajero</Label>
+            <div
+                v-if="puedeElegirSede && rolSeleccionado !== 'super_admin'"
+                class="grid gap-2"
+            >
+                <Label for="sede_id">Sede del usuario</Label>
 
                 <select
                     id="sede_id"
@@ -134,6 +138,16 @@ const rolSeleccionado = ref('');
 
                 <InputError :message="errors.sede_id" />
             </div>
+
+            <p
+                v-else-if="!puedeElegirSede && sedes.length > 0"
+                class="text-sm text-muted-foreground"
+            >
+                El usuario se registra en su sede:
+                <span class="font-medium text-foreground">{{
+                    sedes[0].nombre
+                }}</span>
+            </p>
 
             <!-- Contraseña -->
             <div class="grid gap-2">

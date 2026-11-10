@@ -35,8 +35,11 @@ Route::middleware(['auth', 'verified'])
             Route::get('cierre/gastos/{gasto}/soporte', [GastoCajaController::class, 'soporte'])->name('cierre.gastos.soporte');
         });
 
-        Route::middleware('can:gestionar-pos')->group(function () {
+        Route::middleware('can:gestionar-sedes')->group(function () {
             Route::resource('sedes', SedeController::class)->except(['show', 'destroy']);
+        });
+
+        Route::middleware('can:gestionar-pos')->group(function () {
             Route::resource('tarifas', TarifaGestorController::class)->only(['index', 'store', 'destroy']);
             Route::get('cursos', CursoConsolidadoController::class)->name('cursos.index');
             Route::get('cursos/exportar', ExportarCursosController::class)->name('cursos.exportar');

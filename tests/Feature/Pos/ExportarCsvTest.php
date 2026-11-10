@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 beforeEach(function () {
-    $this->gerente = User::factory()->conRol(Rol::Administrador)->create();
+    $this->gerente = User::factory()->conRol(Rol::SuperAdmin)->create();
     $this->sede = Sede::factory()->create(['nombre' => 'Sede Villavicencio', 'ciudad' => 'Villavicencio']);
 });
 

@@ -39,9 +39,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('gestionar-nomina', fn (User $user): bool => $user->rol?->puedeGestionarNomina() ?? false);
         Gate::define('gestionar-pos', fn (User $user): bool => $user->rol?->puedeGestionarPos() ?? false);
         Gate::define('ver-auditoria', fn (User $user): bool => $user->rol?->puedeVerAuditoria() ?? false);
-        Gate::define('usar-pos', fn (User $user): bool => $user->rol?->puedeGestionarPos() || ($user->rol === Rol::Cajero && $user->sede?->es_activa === true));
-        Gate::define('operar-sede', fn (User $user, Sede $sede): bool => $user->rol?->puedeGestionarPos() || ($user->rol === Rol::Cajero && $user->sede_id === $sede->id && $sede->es_activa));
-        Gate::define('gestionar-usuarios', fn (User $user): bool => $user->rol === Rol::Administrador);
+        Gate::define('usar-pos', fn (User $user): bool => $user->esSuperAdmin() || (in_array($user->rol, [Rol::Administrador, Rol::Cajero], true) && $user->sede?->es_activa === true));
+        Gate::define('operar-sede', fn (User $user, Sede $sede): bool => $user->esSuperAdmin() || (in_array($user->rol, [Rol::Administrador, Rol::Cajero], true) && $user->sede_id === $sede->id && $sede->es_activa));
+        Gate::define('gestionar-sedes', fn (User $user): bool => $user->esSuperAdmin());
+        Gate::define('gestionar-usuarios', fn (User $user): bool => $user->rol?->puedeGestionarUsuarios() ?? false);
     }
 
     /**
