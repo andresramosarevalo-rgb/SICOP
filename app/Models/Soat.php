@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\Auditable;
+use App\Concerns\FiltraPorSede;
 use App\Enums\FormaPago;
 use App\Enums\TipoDocumento;
 use Database\Factories\SoatFactory;
@@ -38,7 +39,7 @@ use Illuminate\Support\Carbon;
 class Soat extends Model
 {
     /** @use HasFactory<SoatFactory> */
-    use Auditable, HasFactory;
+    use Auditable, FiltraPorSede, HasFactory;
 
     /**
      * La tabla asociada al modelo.

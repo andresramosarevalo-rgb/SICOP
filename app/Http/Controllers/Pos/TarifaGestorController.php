@@ -19,14 +19,17 @@ class TarifaGestorController extends Controller
      */
     public function index(Request $request): Response
     {
-        $sede = Sede::find($request->integer('sede_id'));
+        $usuario = $request->user();
+        $sede = Sede::query()->visiblesPara($usuario)->find($request->integer('sede_id'))
+            ?? ($usuario->esSuperAdmin() ? null : Sede::query()->visiblesPara($usuario)->first());
         $tarifas = TarifaGestor::query()
             ->whereNull('sede_id')
             ->when($sede, fn ($query) => $query->orWhere('sede_id', $sede->id))
             ->get();
 
         return Inertia::render('Pos/Tarifas/Index', [
-            'sedes' => Sede::query()->orderBy('nombre')->get(['id', 'nombre']),
+            'sedes' => Sede::query()->visiblesPara($usuario)->orderBy('nombre')->get(['id', 'nombre']),
+            'puedeEditarBase' => $usuario->esSuperAdmin(),
             'sedeId' => $sede?->id,
             'filas' => collect(CodigoInfraccion::cases())->map(fn (CodigoInfraccion $codigo) => [
                 'codigo' => $codigo->value,
@@ -59,6 +62,7 @@ class TarifaGestorController extends Controller
     public function destroy(TarifaGestor $tarifa): RedirectResponse
     {
         abort_if($tarifa->sede_id === null, 403, 'La tarifa base no se puede eliminar.');
+        abort_unless(request()->user()->puedeVerSede($tarifa->sede_id), 403);
 
         $tarifa->delete();
 

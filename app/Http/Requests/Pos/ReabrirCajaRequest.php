@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Pos;
 
+use App\Models\Sede;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -12,7 +13,10 @@ class ReabrirCajaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('gestionar-pos');
+        /** @var Sede $sede */
+        $sede = $this->route('sede');
+
+        return $this->user()->can('gestionar-pos') && $this->user()->puedeVerSede($sede->id);
     }
 
     /**

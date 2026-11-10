@@ -18,6 +18,7 @@ class ExportarCursosController extends Controller
         $fecha = $request->validated('fecha') ?? today()->toDateString();
 
         $cursos = Curso::query()
+            ->visiblesPara($request->user())
             ->with('sede:id,nombre,ciudad')
             ->whereDate('fecha', $fecha)
             ->orderBy('sede_id')

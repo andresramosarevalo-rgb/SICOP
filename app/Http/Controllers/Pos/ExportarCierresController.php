@@ -27,7 +27,7 @@ class ExportarCierresController extends Controller
                 'Diferencia en QR', 'A consignar', 'Justificación', 'Cerrado por', 'Cerrado el',
                 'Valor consignado', 'Fecha de consignación', 'Referencia de consignación',
             ],
-            $consultarCierres->ejecutar($fecha)->map(function (array $fila) use ($fecha): array {
+            $consultarCierres->ejecutar($fecha, $request->user())->map(function (array $fila) use ($fecha): array {
                 $cierre = $fila['cierre'];
                 $consignacion = $cierre?->consignacion;
                 $numero = fn (?string $valor): ?float => $valor === null ? null : (float) $valor;

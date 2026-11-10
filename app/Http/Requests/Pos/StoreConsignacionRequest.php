@@ -10,14 +10,14 @@ use Illuminate\Validation\Validator;
 class StoreConsignacionRequest extends FormRequest
 {
     /**
-     * Solo el gerente consigna, y solo un día cerrado que aún no tiene su consignación.
+     * Solo quien gestiona POS consigna, y solo en su sede, y solo un día cerrado que aún no tiene su consignación.
      */
     public function authorize(): bool
     {
         /** @var CierreCaja $cierre */
         $cierre = $this->route('cierre');
 
-        return $this->user()->can('gestionar-pos') && $cierre->estaCerrado() && ! $cierre->consignacion()->exists();
+        return $this->user()->can('gestionar-pos') && $this->user()->puedeVerSede($cierre->sede_id) && $cierre->estaCerrado() && ! $cierre->consignacion()->exists();
     }
 
     /**

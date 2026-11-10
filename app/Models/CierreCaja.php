@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\Auditable;
+use App\Concerns\FiltraPorSede;
 use App\Enums\EstadoCierre;
 use Carbon\CarbonInterface;
 use Database\Factories\CierreCajaFactory;
@@ -54,7 +55,7 @@ use Illuminate\Support\Carbon;
 class CierreCaja extends Model
 {
     /** @use HasFactory<CierreCajaFactory> */
-    use Auditable, HasFactory;
+    use Auditable, FiltraPorSede, HasFactory;
 
     /**
      * La tabla asociada al modelo.

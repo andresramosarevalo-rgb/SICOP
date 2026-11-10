@@ -62,6 +62,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Indica si el usuario puede ver los datos de la sede: la suya, o cualquiera si es super administrador.
+     */
+    public function puedeVerSede(?int $sedeId): bool
+    {
+        return $this->esSuperAdmin() || ($sedeId !== null && $sedeId === $this->sede_id);
+    }
+
+    /**
      * Cómo se presenta el registro en el historial de auditoría.
      *
      * @return array{modulo: string, etiqueta: string, descripcion: string, sede_id?: int|null}

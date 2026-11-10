@@ -26,6 +26,7 @@ defineProps<{
     sedes: Pick<Sede, 'id' | 'nombre'>[];
     sedeId: number | null;
     filas: FilaTarifaGestor[];
+    puedeEditarBase: boolean;
 }>();
 
 const claseSelect =
@@ -59,7 +60,9 @@ function elegirSede(evento: Event): void {
                     :value="sedeId ?? ''"
                     @change="elegirSede"
                 >
-                    <option value="">Tarifa base (todas las sedes)</option>
+                    <option v-if="puedeEditarBase" value="">
+                        Tarifa base (todas las sedes)
+                    </option>
                     <option
                         v-for="sede in sedes"
                         :key="sede.id"
