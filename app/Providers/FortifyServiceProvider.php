@@ -52,6 +52,12 @@ class FortifyServiceProvider extends ServiceProvider
                 return null;
             }
 
+            if (! $usuario->es_activo) {
+                throw ValidationException::withMessages([
+                    Fortify::username() => 'Su usuario está deshabilitado. Comuníquese con el administrador.',
+                ]);
+            }
+
             if ($usuario->sede && ! $usuario->sede->es_activa) {
                 throw ValidationException::withMessages([
                     Fortify::username() => 'La sede está inactiva. Comuníquese con el gerente.',
