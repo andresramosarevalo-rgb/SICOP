@@ -118,11 +118,38 @@ class UsuarioController extends Controller
     }
 
     /**
-     * Actualiza el nombre del usuario.
+     * Actualiza el nombre y el correo del usuario y, si se escribe una contraseña nueva, la restablece.
+     * Un correo nuevo debe verificarse de nuevo; una contraseña nueva cierra las sesiones abiertas del usuario.
      */
     public function update(UpdateUsuarioRequest $request, User $usuario): RedirectResponse
     {
-        $usuario->update($request->validated());
+        /** @var array{name: string, email: string, password?: string|null} $datos */
+        $datos = $request->validated();
+        $cambiaCorreo = $datos['email'] !== $usuario->email;
+        $cambiaClave = filled($datos['password'] ?? null);
+
+        DB::transaction(function () use ($usuario, $datos, $cambiaCorreo, $cambiaClave): void {
+            $usuario->fill(['name' => $datos['name'], 'email' => $datos['email']]);
+
+            if ($cambiaCorreo) {
+                $usuario->email_verified_at = null;
+            }
+
+            if ($cambiaClave) {
+                $usuario->password = $datos['password'];
+                $usuario->remember_token = null;
+            }
+
+            $usuario->save();
+
+            if ($cambiaClave) {
+                DB::table('sessions')->where('user_id', $usuario->id)->delete();
+            }
+        });
+
+        if ($cambiaCorreo) {
+            $usuario->sendEmailVerificationNotification();
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Usuario actualizado.']);
 
