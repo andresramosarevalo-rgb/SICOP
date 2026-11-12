@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\Auditable;
+use App\Concerns\FiltraPorSedeDelEmpleado;
 use Database\Factories\AsignacionConceptoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,7 +28,7 @@ use Illuminate\Support\Carbon;
 class AsignacionConcepto extends Model
 {
     /** @use HasFactory<AsignacionConceptoFactory> */
-    use Auditable, HasFactory;
+    use Auditable, FiltraPorSedeDelEmpleado, HasFactory;
 
     /**
      * La tabla asociada al modelo (pivote entre conceptos de nómina y empleados).
@@ -67,6 +68,7 @@ class AsignacionConcepto extends Model
             'modulo' => 'nomina',
             'etiqueta' => 'Asignación de concepto',
             'descripcion' => "{$this->concepto?->nombre} a {$this->empleado?->nombres} {$this->empleado?->apellidos}",
+            'sede_id' => $this->empleado?->sede_id,
         ];
     }
 

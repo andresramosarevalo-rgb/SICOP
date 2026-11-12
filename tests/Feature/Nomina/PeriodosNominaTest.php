@@ -1,7 +1,6 @@
 <?php
 
 use App\Enums\EstadoPeriodo;
-use App\Enums\Rol;
 use App\Models\Contrato;
 use App\Models\PeriodoNomina;
 use App\Models\User;
@@ -9,7 +8,7 @@ use Database\Seeders\NominaSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
-    $this->auxiliar = User::factory()->conRol(Rol::AuxiliarNomina)->create();
+    $this->auxiliar = User::factory()->superAdmin()->create();
 });
 
 // Issue #13, criterio 1

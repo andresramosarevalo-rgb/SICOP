@@ -15,10 +15,12 @@ export type Permisos = {
     usarPos: boolean;
     verAuditoria: boolean;
     gestionarUsuarios: boolean;
+    gestionarSedes: boolean;
 };
 
 export type Auth = {
     user: User;
     sedeId: number | null;
+    esCajero: boolean;
     permisos: Permisos;
 };

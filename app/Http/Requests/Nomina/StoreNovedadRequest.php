@@ -34,7 +34,9 @@ class StoreNovedadRequest extends FormRequest
         $tipo = TipoNovedad::tryFrom((string) $this->input('tipo'));
 
         return [
-            'empleado_id' => ['required', Rule::exists('empleados', 'id')->where('es_activo', true)],
+            'empleado_id' => ['required', Rule::exists('empleados', 'id')
+                ->where('es_activo', true)
+                ->where(fn (Builder $query) => $this->user()->esSuperAdmin() ? $query : $query->where('sede_id', $this->user()->sede_id ?? 0))],
             'tipo' => ['required', Rule::enum(TipoNovedad::class)],
             'fecha_inicio' => ['required', 'date'],
             'fecha_fin' => [

@@ -22,6 +22,8 @@ defineProps<{
     empleado: Empleado;
     areas: Pick<Area, 'id' | 'nombre'>[];
     tiposDocumento: OpcionTipoDocumento[];
+    sedes: { id: number; nombre: string }[];
+    puedeElegirSede: boolean;
 }>();
 </script>
 
@@ -45,6 +47,8 @@ defineProps<{
             <CamposEmpleado
                 :areas="areas"
                 :tipos-documento="tiposDocumento"
+                :sedes="sedes"
+                :puede-elegir-sede="puedeElegirSede"
                 :errors="errors"
                 :empleado="empleado"
             />

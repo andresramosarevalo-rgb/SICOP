@@ -43,6 +43,7 @@ defineProps<{
                 <thead class="border-b bg-muted/50 text-muted-foreground">
                     <tr>
                         <th class="px-4 py-2 font-medium">Periodo</th>
+                        <th class="px-4 py-2 font-medium">Sede</th>
                         <th class="px-4 py-2 font-medium">Periodicidad</th>
                         <th class="px-4 py-2 font-medium">Estado</th>
                         <th class="px-4 py-2 text-right font-medium">
@@ -58,6 +59,9 @@ defineProps<{
                     <tr v-for="periodo in periodos" :key="periodo.id">
                         <td class="px-4 py-2 font-medium">
                             {{ periodo.fecha_inicio }} — {{ periodo.fecha_fin }}
+                        </td>
+                        <td class="px-4 py-2">
+                            {{ periodo.sede?.nombre ?? 'Todas las sedes' }}
                         </td>
                         <td class="px-4 py-2 capitalize">
                             {{ periodo.periodicidad_pago }}

@@ -38,7 +38,7 @@ onUnmounted(() => {
 });
 
 const mainNavItems = computed<NavItem[]>(() => [
-    ...(page.props.auth.sedeId === null
+    ...(!page.props.auth.esCajero
         ? [
               {
                   title: 'Inicio',
@@ -101,9 +101,9 @@ const mainNavItems = computed<NavItem[]>(() => [
                     >
                         <Link
                             :href="
-                                page.props.auth.sedeId === null
-                                    ? dashboard()
-                                    : pos.inicio.index()
+                                page.props.auth.esCajero
+                                    ? pos.inicio.index()
+                                    : dashboard()
                             "
                             aria-label="SICOP — Inicio"
                             @click="isMobile && setOpenMobile(false)"

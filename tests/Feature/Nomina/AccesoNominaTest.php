@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Rol;
+use App\Models\Sede;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -11,6 +12,7 @@ test('solo administradores y auxiliares de nómina pueden gestionar la nómina',
 
     expect(Gate::forUser($user)->allows('gestionar-nomina'))->toBe($puedeGestionar);
 })->with([
+    'super administrador' => [Rol::SuperAdmin, true],
     'administrador' => [Rol::Administrador, true],
     'auxiliar de nómina' => [Rol::AuxiliarNomina, true],
     'contador' => [Rol::Contador, false],
@@ -32,13 +34,14 @@ test('el auxiliar de nómina ve el módulo y el menú de nómina', function () {
 
 // Issue #4, criterio 2
 test('el cajero recibe 403 en nómina y no ve el menú', function () {
-    $user = User::factory()->conRol(Rol::Cajero)->create();
+    $user = User::factory()->paraSede(Sede::factory()->create())->create();
 
     $this->actingAs($user)
         ->get(route('nomina.inicio.index'))
         ->assertForbidden();
 
     $this->actingAs($user)
+        ->followingRedirects()
         ->get(route('dashboard'))
         ->assertInertia(fn (Assert $page) => $page
             ->where('auth.permisos.gestionarNomina', false));

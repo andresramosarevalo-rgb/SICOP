@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\Auditable;
+use App\Concerns\FiltraPorSede;
 use App\Enums\EstadoPeriodo;
 use App\Enums\PeriodicidadPago;
 use Database\Factories\PeriodoNominaFactory;
@@ -17,6 +18,7 @@ use Illuminate\Support\Carbon;
  * Periodo de pago (semana, quincena o mes) que se liquida para los empleados con esa periodicidad.
  *
  * @property int $id
+ * @property int|null $sede_id
  * @property PeriodicidadPago $periodicidad_pago
  * @property Carbon $fecha_inicio
  * @property Carbon $fecha_fin
@@ -27,11 +29,11 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['periodicidad_pago', 'fecha_inicio', 'fecha_fin'])]
+#[Fillable(['sede_id', 'periodicidad_pago', 'fecha_inicio', 'fecha_fin'])]
 class PeriodoNomina extends Model
 {
     /** @use HasFactory<PeriodoNominaFactory> */
-    use Auditable, HasFactory;
+    use Auditable, FiltraPorSede, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -39,6 +41,16 @@ class PeriodoNomina extends Model
      * @var string
      */
     protected $table = 'periodos_nomina';
+
+    /**
+     * Sede a la que pertenece el periodo; sin sede, liquida a todas.
+     *
+     * @return BelongsTo<Sede, $this>
+     */
+    public function sede(): BelongsTo
+    {
+        return $this->belongsTo(Sede::class);
+    }
 
     /**
      * The model's default values for attributes.
@@ -98,6 +110,7 @@ class PeriodoNomina extends Model
             'modulo' => 'nomina',
             'etiqueta' => 'Periodo de nómina',
             'descripcion' => "{$this->fecha_inicio->toDateString()} a {$this->fecha_fin->toDateString()}",
+            'sede_id' => $this->sede_id,
         ];
     }
 

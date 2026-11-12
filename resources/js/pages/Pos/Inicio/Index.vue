@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import {
     ArrowUpRight,
     Building2,
@@ -9,6 +9,7 @@ import {
     Wallet,
     Landmark,
 } from '@lucide/vue';
+import { computed } from 'vue';
 import Heading from '@/components/Heading.vue';
 import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import pos from '@/routes/pos';
@@ -24,9 +25,12 @@ defineOptions({
     },
 });
 
-const secciones = [
+const page = usePage();
+
+const todasLasSecciones = [
     {
         titulo: 'Sedes',
+        soloSuperAdmin: true,
         icono: Building2,
         detalle: 'Sedes de COVIACOL con su ciudad y dirección.',
         href: pos.sedes.index(),
@@ -62,6 +66,13 @@ const secciones = [
         href: pos.consignaciones.index(),
     },
 ];
+
+const secciones = computed(() =>
+    todasLasSecciones.filter(
+        (seccion) =>
+            !seccion.soloSuperAdmin || page.props.auth.permisos.gestionarSedes,
+    ),
+);
 </script>
 
 <template>

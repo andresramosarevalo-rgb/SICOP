@@ -9,7 +9,7 @@ use Illuminate\Http\UploadedFile;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
-    $this->gerente = User::factory()->conRol(Rol::Administrador)->create();
+    $this->gerente = User::factory()->conRol(Rol::SuperAdmin)->create();
     $this->sede = Sede::factory()->create();
     $this->usuarioSede = User::factory()->paraSede($this->sede)->create();
     $this->cierre = CierreCaja::factory()->cerrado()->for($this->sede)->create(['fecha' => today()->subDay(), 'valor_a_consignar' => 300000]);

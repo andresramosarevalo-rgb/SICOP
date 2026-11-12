@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route as Rutas;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
-    $this->gerente = User::factory()->conRol(Rol::Administrador)->create();
+    $this->gerente = User::factory()->conRol(Rol::SuperAdmin)->create();
 });
 
 function datosSede(array $sobrescribir = []): array
@@ -95,7 +95,7 @@ test('solo el administrador puede gestionar el punto de venta', function (?Rol $
 
     expect(Gate::forUser($user)->allows('gestionar-pos'))->toBe($puedeGestionar);
 })->with([
-    'administrador' => [Rol::Administrador, true],
+    'administrador' => [Rol::SuperAdmin, true],
     'auxiliar de nómina' => [Rol::AuxiliarNomina, false],
     'contador' => [Rol::Contador, false],
     'cajero' => [Rol::Cajero, false],

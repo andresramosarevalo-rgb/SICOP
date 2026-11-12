@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\Rol;
 use App\Enums\TipoNovedad;
 use App\Models\ConceptoNomina;
 use App\Models\Empleado;
@@ -9,7 +8,7 @@ use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
-    $this->auxiliar = User::factory()->conRol(Rol::AuxiliarNomina)->create();
+    $this->auxiliar = User::factory()->superAdmin()->create();
     $this->empleado = Empleado::factory()->create();
 });
 

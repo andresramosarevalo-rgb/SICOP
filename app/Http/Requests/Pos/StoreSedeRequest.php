@@ -13,7 +13,7 @@ class StoreSedeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('gestionar-pos');
+        return $this->user()->can('gestionar-sedes');
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Http\Requests\Nomina\UpdateNovedadRequest;
 use App\Models\ConceptoNomina;
 use App\Models\Empleado;
 use App\Models\Novedad;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,6 +30,7 @@ class NovedadController extends Controller
         ]);
 
         $novedades = Novedad::query()
+            ->visiblesPara($request->user())
             ->with(['empleado:id,nombres,apellidos', 'concepto:id,nombre'])
             ->when($filtros['empleado_id'] ?? null, fn (Builder $query, int $id) => $query->where('empleado_id', $id))
             ->when($filtros['desde'] ?? null, fn (Builder $query, string $desde) => $query
@@ -42,16 +44,16 @@ class NovedadController extends Controller
         return Inertia::render('Nomina/Novedades/Index', [
             'novedades' => $novedades,
             'filtros' => $filtros,
-            'empleados' => Empleado::query()->orderBy('apellidos')->get(['id', 'nombres', 'apellidos']),
+            'empleados' => Empleado::query()->visiblesPara($request->user())->orderBy('apellidos')->get(['id', 'nombres', 'apellidos']),
         ]);
     }
 
     /**
      * Muestra el formulario para registrar una novedad.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
-        return Inertia::render('Nomina/Novedades/Create', $this->opcionesFormulario());
+        return Inertia::render('Nomina/Novedades/Create', $this->opcionesFormulario($request->user()));
     }
 
     /**
@@ -69,11 +71,11 @@ class NovedadController extends Controller
     /**
      * Muestra el formulario de edición de una novedad que aún no se ha liquidado.
      */
-    public function edit(Novedad $novedad): Response
+    public function edit(Request $request, Novedad $novedad): Response
     {
         abort_if($novedad->estaLiquidada(), 403, 'La novedad ya fue liquidada.');
 
-        return Inertia::render('Nomina/Novedades/Edit', ['novedad' => $novedad, ...$this->opcionesFormulario()]);
+        return Inertia::render('Nomina/Novedades/Edit', ['novedad' => $novedad, ...$this->opcionesFormulario($request->user())]);
     }
 
     /**
@@ -107,10 +109,10 @@ class NovedadController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function opcionesFormulario(): array
+    private function opcionesFormulario(User $usuario): array
     {
         return [
-            'empleados' => Empleado::query()->where('es_activo', true)->orderBy('apellidos')->get(['id', 'nombres', 'apellidos']),
+            'empleados' => Empleado::query()->visiblesPara($usuario)->where('es_activo', true)->orderBy('apellidos')->get(['id', 'nombres', 'apellidos']),
             'tipos' => collect(TipoNovedad::cases())->map(fn (TipoNovedad $tipo) => [
                 'valor' => $tipo->value,
                 'etiqueta' => $tipo->etiqueta(),

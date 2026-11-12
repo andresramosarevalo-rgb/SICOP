@@ -21,6 +21,16 @@ class StoreEmpleadoRequest extends FormRequest
     }
 
     /**
+     * Quien no es super administrador registra y edita empleados siempre en su propia sede.
+     */
+    protected function prepareForValidation(): void
+    {
+        if (! $this->user()->esSuperAdmin()) {
+            $this->merge(['sede_id' => $this->user()->sede_id]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * El empleado se registra junto con su contrato, que llega anidado en `contrato`.
@@ -49,6 +59,7 @@ class StoreEmpleadoRequest extends FormRequest
             'direccion' => ['nullable', 'string', 'max:255'],
             'fecha_nacimiento' => ['nullable', 'date', 'before:today'],
             'area_id' => ['required', Rule::exists('areas', 'id')->where('es_activa', true)],
+            'sede_id' => ['required', Rule::exists('sedes', 'id')->where('es_activa', true)],
             'cargo' => ['required', 'string', 'max:100'],
         ];
     }
@@ -64,6 +75,7 @@ class StoreEmpleadoRequest extends FormRequest
             'required' => 'Este campo es obligatorio.',
             'numero_documento.unique' => 'Ya existe un empleado con ese número de documento.',
             'area_id.exists' => 'Seleccione un área activa.',
+            'sede_id.exists' => 'Seleccione una sede activa.',
             ...$this->mensajesContrato('contrato.'),
         ];
     }

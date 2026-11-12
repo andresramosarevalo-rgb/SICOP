@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\Rol;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -41,13 +42,14 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
                 'sedeId' => $request->user()?->sede_id,
+                'esCajero' => $request->user()?->rol === Rol::Cajero,
                 'permisos' => [
                     'gestionarNomina' => $request->user()?->can('gestionar-nomina') ?? false,
                     'gestionarPos' => $request->user()?->can('gestionar-pos') ?? false,
                     'verAuditoria' => $request->user()?->can('ver-auditoria') ?? false,
                     'usarPos' => $request->user()?->can('usar-pos') ?? false,
                     'gestionarUsuarios' => $request->user()?->can('gestionar-usuarios') ?? false,
-
+                    'gestionarSedes' => $request->user()?->can('gestionar-sedes') ?? false,
                 ],
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',

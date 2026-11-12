@@ -49,6 +49,21 @@ class Sede extends Model
     }
 
     /**
+     * Limita la consulta a las sedes que el usuario puede ver: la suya, o todas si es super administrador.
+     *
+     * @param  Builder<Sede>  $query
+     */
+    #[Scope]
+    protected function visiblesPara(Builder $query, User $usuario): void
+    {
+        if ($usuario->esSuperAdmin()) {
+            return;
+        }
+
+        $usuario->sede_id === null ? $query->whereRaw('1 = 0') : $query->whereKey($usuario->sede_id);
+    }
+
+    /**
      * Cajeros asociados a la sede.
      *
      * @return HasMany<User, $this>

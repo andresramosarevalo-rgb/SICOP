@@ -20,7 +20,7 @@ test('solo el administrador y el usuario de una sede pueden usar POS', function 
 
     expect(Gate::forUser($user)->allows('usar-pos'))->toBe($puedeUsar);
 })->with([
-    'administrador' => [Rol::Administrador, false, true],
+    'administrador' => [Rol::SuperAdmin, false, true],
     'cajero con sede' => [Rol::Cajero, true, true],
     'cajero sin sede' => [Rol::Cajero, false, false],
     'contador' => [Rol::Contador, false, false],
@@ -29,7 +29,7 @@ test('solo el administrador y el usuario de una sede pueden usar POS', function 
 
 // Issue #71, criterio 4
 test('el usuario de una sede solo opera su propia sede y el administrador cualquiera', function () {
-    $gerente = User::factory()->conRol(Rol::Administrador)->create();
+    $gerente = User::factory()->conRol(Rol::SuperAdmin)->create();
 
     expect(Gate::forUser($this->usuarioSede)->allows('operar-sede', $this->sede))->toBeTrue()
         ->and(Gate::forUser($this->usuarioSede)->allows('operar-sede', $this->otraSede))->toBeFalse()
@@ -115,7 +115,7 @@ test('el usuario de la sede no accede a la gestión de sedes ni a nómina', func
 
 // Issue #71, criterio 4
 test('el administrador sigue accediendo a todas las sedes', function () {
-    $gerente = User::factory()->conRol(Rol::Administrador)->create();
+    $gerente = User::factory()->conRol(Rol::SuperAdmin)->create();
 
     $this->actingAs($gerente)->get(route('pos.sedes.cursos.index', $this->otraSede))->assertOk();
     $this->actingAs($gerente)->get(route('pos.inicio.index'))->assertOk();

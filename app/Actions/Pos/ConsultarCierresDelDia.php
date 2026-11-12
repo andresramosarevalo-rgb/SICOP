@@ -4,6 +4,7 @@ namespace App\Actions\Pos;
 
 use App\Models\CierreCaja;
 use App\Models\Sede;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
@@ -15,15 +16,17 @@ class ConsultarCierresDelDia
      *
      * @return Collection<int, array{sede: Sede, cierre: CierreCaja|null}>
      */
-    public function ejecutar(string $fecha): Collection
+    public function ejecutar(string $fecha, User $usuario): Collection
     {
         $cierres = CierreCaja::query()
+            ->visiblesPara($usuario)
             ->with(['consignacion', 'cerradoPor:id,name'])
             ->whereDate('fecha', $fecha)
             ->get()
             ->keyBy('sede_id');
 
         return Sede::query()
+            ->visiblesPara($usuario)
             ->where(fn (Builder $query) => $query->where('es_activa', true)->orWhereIn('id', $cierres->filter->estaCerrado()->keys()))
             ->orderBy('nombre')
             ->get(['id', 'nombre', 'ciudad'])

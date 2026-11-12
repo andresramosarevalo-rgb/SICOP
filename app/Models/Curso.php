@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\Auditable;
+use App\Concerns\FiltraPorSede;
 use App\Enums\CodigoInfraccion;
 use App\Enums\FormaPago;
 use App\Enums\Referido;
@@ -51,7 +52,7 @@ use Illuminate\Support\Carbon;
 class Curso extends Model
 {
     /** @use HasFactory<CursoFactory> */
-    use Auditable, HasFactory;
+    use Auditable, FiltraPorSede, HasFactory;
 
     /**
      * Porcentajes de descuento que la ley permite sobre el comparendo.

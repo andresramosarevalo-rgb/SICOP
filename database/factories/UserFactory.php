@@ -56,6 +56,28 @@ class UserFactory extends Factory
     }
 
     /**
+     * Crea un super administrador, que ve todas las sedes y no pertenece a ninguna.
+     */
+    public function superAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'rol' => Rol::SuperAdmin,
+            'sede_id' => null,
+        ]);
+    }
+
+    /**
+     * Asigna un rol al usuario dentro de una sede.
+     */
+    public function enSede(Sede $sede, Rol $rol = Rol::Administrador): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'rol' => $rol,
+            'sede_id' => $sede->id,
+        ]);
+    }
+
+    /**
      * Crea el usuario con el que una sede inicia sesión.
      */
     public function paraSede(Sede $sede): static
