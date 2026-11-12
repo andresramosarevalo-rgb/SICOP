@@ -4,6 +4,7 @@ import EmpleadoController from '@/actions/App/Http/Controllers/Nomina/EmpleadoCo
 import Heading from '@/components/Heading.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import CamposEmpleado from '@/components/Nomina/CamposEmpleado.vue';
+import CambiarEstadoEmpleado from '@/components/Nomina/CambiarEstadoEmpleado.vue';
 import { Button } from '@/components/ui/button';
 import nomina from '@/routes/nomina';
 import type { Area, Empleado, OpcionTipoDocumento } from '@/types';
@@ -37,6 +38,8 @@ defineProps<{
             title="Editar empleado"
             :description="`${empleado.nombres} ${empleado.apellidos}`"
         />
+
+        <CambiarEstadoEmpleado :empleado="empleado" />
 
         <Form
             v-bind="EmpleadoController.update.form(empleado.id)"

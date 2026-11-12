@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { Form, Head, Link } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import EmpleadoController from '@/actions/App/Http/Controllers/Nomina/EmpleadoController';
 import Heading from '@/components/Heading.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
+import CambiarEstadoEmpleado from '@/components/Nomina/CambiarEstadoEmpleado.vue';
 import ConceptosRecurrentes from '@/components/Nomina/ConceptosRecurrentes.vue';
 import TablaContratos from '@/components/Nomina/TablaContratos.vue';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import nomina from '@/routes/nomina';
 import type {
@@ -62,9 +61,6 @@ const datos = computed(() => [
                 :title="`${empleado.nombres} ${empleado.apellidos}`"
                 description="Expediente del empleado."
             />
-            <Badge :variant="empleado.es_activo ? 'secondary' : 'outline'">
-                {{ empleado.es_activo ? 'Activo' : 'Inactivo' }}
-            </Badge>
         </div>
 
         <div
@@ -97,20 +93,7 @@ const datos = computed(() => [
             <Button as-child>
                 <Link :href="nomina.empleados.edit(empleado.id)">Editar</Link>
             </Button>
-            <Form
-                v-bind="EmpleadoController.cambiarEstado.form(empleado.id)"
-                :options="{ preserveScroll: true }"
-                v-slot="{ processing }"
-            >
-                <input
-                    type="hidden"
-                    name="es_activo"
-                    :value="empleado.es_activo ? 0 : 1"
-                />
-                <Button variant="outline" :disabled="processing">
-                    {{ empleado.es_activo ? 'Desactivar' : 'Activar' }}
-                </Button>
-            </Form>
+            <CambiarEstadoEmpleado :empleado="empleado" />
         </div>
 
         <section class="flex flex-col gap-4">
