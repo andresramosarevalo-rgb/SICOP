@@ -29,13 +29,16 @@ const claseSelect =
                 id="tipo_documento"
                 name="tipo_documento"
                 :class="claseSelect"
-                :value="soat?.tipo_documento ?? tiposDocumento[0]?.valor"
                 required
             >
                 <option
                     v-for="tipo in tiposDocumento"
                     :key="tipo.valor"
                     :value="tipo.valor"
+                    :selected="
+                        tipo.valor ===
+                        (soat?.tipo_documento ?? tiposDocumento[0]?.valor)
+                    "
                 >
                     {{ tipo.etiqueta }}
                 </option>
