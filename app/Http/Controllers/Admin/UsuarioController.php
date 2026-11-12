@@ -9,6 +9,7 @@ use App\Models\Sede;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -17,10 +18,11 @@ class UsuarioController extends Controller
     /**
      * Muestra los usuarios administrativos registrados.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $usuarios = User::query()
             ->whereIn('rol', array_map(fn (Rol $rol): string => $rol->value, Rol::cases()))
+            ->when(! $request->user()->esSuperAdmin(), fn ($query) => $query->where('sede_id', $request->user()->sede_id ?? 0))
             ->with('sede:id,nombre')
             ->orderBy('name')
             ->get(['id', 'name', 'email', 'rol', 'sede_id']);
@@ -33,10 +35,16 @@ class UsuarioController extends Controller
     /**
      * Muestra el formulario de registro.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
+        $esSuperAdmin = $request->user()->esSuperAdmin();
+
         return Inertia::render('Admin/Usuarios/Create', [
             'roles' => [
+                ...($esSuperAdmin ? [[
+                    'valor' => Rol::SuperAdmin->value,
+                    'etiqueta' => 'Super administrador',
+                ]] : []),
                 [
                     'valor' => Rol::Administrador->value,
                     'etiqueta' => 'Administrador',
@@ -54,12 +62,16 @@ class UsuarioController extends Controller
                     'etiqueta' => 'Cajero',
                 ],
             ],
-            'sedes' => Sede::activas()->orderBy('nombre')->get(['id', 'nombre']),
+            'sedes' => Sede::activas()
+                ->when(! $esSuperAdmin, fn ($query) => $query->whereKey($request->user()->sede_id))
+                ->orderBy('nombre')
+                ->get(['id', 'nombre']),
+            'puedeElegirSede' => $esSuperAdmin,
         ]);
     }
 
     /**
-     * Registra un usuario con un rol administrativo.
+     * Registra un usuario con rol y sede; el administrador de sede solo lo hace en su sede.
      */
     public function store(StoreUsuarioRequest $request): RedirectResponse
     {
@@ -73,7 +85,11 @@ class UsuarioController extends Controller
         ]);
 
         $usuario->rol = Rol::from($datos['rol']);
-        $usuario->sede_id = $usuario->rol === Rol::Cajero ? (int) ($datos['sede_id'] ?? 0) : null;
+        $usuario->sede_id = match (true) {
+            $usuario->rol === Rol::SuperAdmin => null,
+            $request->user()->esSuperAdmin() => (int) ($datos['sede_id'] ?? 0),
+            default => $request->user()->sede_id,
+        };
         $usuario->save();
         event(new Registered($usuario));
 

@@ -10,9 +10,12 @@ const props = defineProps<{
     tiposDocumento: OpcionTipoDocumento[];
     errors: Record<string, string | undefined>;
     empleado?: Empleado;
+    sedes: { id: number; nombre: string }[];
+    puedeElegirSede: boolean;
 }>();
 
 // Los selectores conservan la elección al recibir errores del servidor.
+const sedeSeleccionada = ref(props.empleado?.sede_id ?? '');
 const areaSeleccionada = ref(props.empleado?.area_id ?? '');
 const tipoDocumentoSeleccionado = ref(
     props.empleado?.tipo_documento ?? props.tiposDocumento[0]?.valor ?? '',
@@ -100,6 +103,39 @@ const camposTexto = [
                 :message="errors[campo.nombre]"
             />
         </div>
+
+        <div v-if="puedeElegirSede" class="flex min-w-0 flex-col gap-2">
+            <Label for="sede_id">Sede</Label>
+            <select
+                id="sede_id"
+                name="sede_id"
+                :aria-invalid="!!errors.sede_id"
+                :aria-describedby="errors.sede_id ? 'sede_id_error' : undefined"
+                :class="claseSelect"
+                v-model="sedeSeleccionada"
+                required
+            >
+                <option value="" disabled>Seleccione una sede</option>
+                <option v-for="sede in sedes" :key="sede.id" :value="sede.id">
+                    {{ sede.nombre }}
+                </option>
+            </select>
+            <InputError
+                reservar-espacio
+                id="sede_id_error"
+                :message="errors.sede_id"
+            />
+        </div>
+
+        <p
+            v-else-if="sedes.length > 0"
+            class="self-end pb-2 text-sm text-muted-foreground"
+        >
+            Sede del empleado:
+            <span class="font-medium text-foreground">{{
+                sedes[0].nombre
+            }}</span>
+        </p>
 
         <div class="flex min-w-0 flex-col gap-2">
             <Label for="area_id">Área</Label>

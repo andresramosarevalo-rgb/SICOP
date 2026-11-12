@@ -16,7 +16,7 @@ class CierreCajaGeneralController extends Controller
     public function __invoke(FiltrarPorDiaRequest $request, ConsultarCierresDelDia $consultarCierres): Response
     {
         $fecha = $request->validated('fecha') ?? today()->toDateString();
-        $filas = $consultarCierres->ejecutar($fecha);
+        $filas = $consultarCierres->ejecutar($fecha, $request->user());
 
         return Inertia::render('Pos/Cierre/Index', [
             'fecha' => $fecha,

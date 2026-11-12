@@ -19,9 +19,11 @@ class SaldoConsignacionController extends Controller
      */
     public function __invoke(Request $request): Response
     {
-        $sede = Sede::find($request->integer('sede_id'));
+        $usuario = $request->user();
+        $sede = Sede::query()->visiblesPara($usuario)->find($request->integer('sede_id'));
 
         $saldos = CierreCaja::query()
+            ->visiblesPara($usuario)
             ->leftJoin('consignaciones', 'consignaciones.cierre_caja_id', '=', 'cierres_caja.id')
             ->where('cierres_caja.estado', EstadoCierre::Cerrado)
             ->groupBy('cierres_caja.sede_id')
@@ -33,7 +35,7 @@ class SaldoConsignacionController extends Controller
             ->get()
             ->keyBy('sede_id');
 
-        $filas = Sede::query()->orderBy('nombre')->get(['id', 'nombre', 'ciudad', 'es_activa'])
+        $filas = Sede::query()->visiblesPara($usuario)->orderBy('nombre')->get(['id', 'nombre', 'ciudad', 'es_activa'])
             ->map(fn (Sede $fila) => [
                 'sede' => $fila,
                 'valor_a_consignar' => number_format((float) ($saldos->get($fila->id)->valor_a_consignar ?? 0), 2, '.', ''),

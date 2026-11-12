@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\Rol;
 use App\Models\Area;
 use App\Models\Contrato;
 use App\Models\Empleado;
@@ -8,7 +7,7 @@ use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
-    $this->auxiliar = User::factory()->conRol(Rol::AuxiliarNomina)->create();
+    $this->auxiliar = User::factory()->superAdmin()->create();
     $this->empleado = Empleado::factory()->create(['numero_documento' => '1012345678']);
 });
 

@@ -16,7 +16,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Schema;
 
 beforeEach(function () {
-    $this->gerente = User::factory()->conRol(Rol::Administrador)->create();
+    $this->gerente = User::factory()->conRol(Rol::SuperAdmin)->create();
     Auditoria::query()->delete();
 });
 

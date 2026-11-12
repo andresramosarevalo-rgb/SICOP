@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\FiltraPorSede;
 use Database\Factories\AuditoriaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,7 +29,7 @@ use Illuminate\Support\Carbon;
 class Auditoria extends Model
 {
     /** @use HasFactory<AuditoriaFactory> */
-    use HasFactory;
+    use FiltraPorSede, HasFactory;
 
     /**
      * El registro de auditoría no se modifica: solo tiene fecha de creación.

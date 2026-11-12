@@ -1,7 +1,6 @@
 <?php
 
 use App\Enums\FormaCalculo;
-use App\Enums\Rol;
 use App\Models\AsignacionConcepto;
 use App\Models\ConceptoNomina;
 use App\Models\Empleado;
@@ -9,7 +8,7 @@ use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
-    $this->auxiliar = User::factory()->conRol(Rol::AuxiliarNomina)->create();
+    $this->auxiliar = User::factory()->superAdmin()->create();
     $this->empleado = Empleado::factory()->create();
     $this->bono = ConceptoNomina::factory()->create(['nombre' => 'Bono de permanencia']);
 });

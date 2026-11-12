@@ -18,8 +18,10 @@ class AuditoriaController extends Controller
     public function __invoke(FiltrarAuditoriaRequest $request): Response
     {
         $filtros = $request->validated();
+        $usuario = $request->user();
 
         $auditorias = Auditoria::query()
+            ->visiblesPara($usuario)
             ->with(['usuario:id,name,email', 'sede:id,nombre'])
             ->when($filtros['modulo'] ?? null, fn ($query, string $modulo) => $query->where('modulo', $modulo))
             ->when($filtros['sede_id'] ?? null, fn ($query, string $sedeId) => $query->where('sede_id', $sedeId))
@@ -36,9 +38,9 @@ class AuditoriaController extends Controller
         return Inertia::render('Admin/Auditoria/Index', [
             'auditorias' => $auditorias,
             'filtros' => $filtros,
-            'sedes' => Sede::query()->orderBy('nombre')->get(['id', 'nombre']),
-            'usuarios' => User::query()->orderBy('name')->get(['id', 'name']),
-            'etiquetas' => Auditoria::query()->distinct()->orderBy('etiqueta')->pluck('etiqueta'),
+            'sedes' => Sede::query()->visiblesPara($usuario)->orderBy('nombre')->get(['id', 'nombre']),
+            'usuarios' => User::query()->when(! $usuario->esSuperAdmin(), fn ($query) => $query->where('sede_id', $usuario->sede_id ?? 0))->orderBy('name')->get(['id', 'name']),
+            'etiquetas' => Auditoria::query()->visiblesPara($usuario)->distinct()->orderBy('etiqueta')->pluck('etiqueta'),
         ]);
     }
 }

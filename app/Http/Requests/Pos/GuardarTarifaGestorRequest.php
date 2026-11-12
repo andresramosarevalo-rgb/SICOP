@@ -14,7 +14,8 @@ class GuardarTarifaGestorRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('gestionar-pos');
+        return $this->user()->can('gestionar-pos')
+            && ($this->user()->esSuperAdmin() || $this->user()->puedeVerSede($this->integer('sede_id') ?: null));
     }
 
     /**

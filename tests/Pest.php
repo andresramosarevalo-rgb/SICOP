@@ -2,6 +2,7 @@
 
 use App\Enums\PeriodicidadPago;
 use App\Enums\TipoContrato;
+use App\Models\Sede;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -69,6 +70,7 @@ function datosEmpleado(array $cambios = []): array
         'direccion' => 'Calle 1 # 2-3',
         'fecha_nacimiento' => '1995-04-10',
         'cargo' => 'Asesora',
+        'sede_id' => Sede::factory()->create()->id,
         'contrato' => [
             'tipo_contrato' => 'termino_indefinido',
             'periodicidad_pago' => 'mensual',

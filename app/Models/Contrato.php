@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\Auditable;
+use App\Concerns\FiltraPorSedeDelEmpleado;
 use App\Enums\PeriodicidadPago;
 use App\Enums\TipoContrato;
 use Database\Factories\ContratoFactory;
@@ -30,7 +31,7 @@ use Illuminate\Support\Carbon;
 class Contrato extends Model
 {
     /** @use HasFactory<ContratoFactory> */
-    use Auditable, HasFactory;
+    use Auditable, FiltraPorSedeDelEmpleado, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -60,6 +61,7 @@ class Contrato extends Model
             'modulo' => 'nomina',
             'etiqueta' => 'Contrato',
             'descripcion' => 'Contrato de '.$this->empleado?->nombres.' '.$this->empleado?->apellidos,
+            'sede_id' => $this->empleado?->sede_id,
         ];
     }
 

@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\Rol;
 use App\Models\PeriodoNomina;
 use App\Models\ReciboNomina;
 use App\Models\User;
@@ -8,7 +7,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 
 // Issue #21, criterios 1 y 2
 test('cada comprobante del periodo tiene su enlace y se abre', function () {
-    $auxiliar = User::factory()->conRol(Rol::AuxiliarNomina)->create();
+    $auxiliar = User::factory()->superAdmin()->create();
     $periodo = PeriodoNomina::factory()->create();
     $recibos = ReciboNomina::factory()->count(2)->for($periodo, 'periodo')->create();
 

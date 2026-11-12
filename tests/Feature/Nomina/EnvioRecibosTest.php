@@ -2,7 +2,6 @@
 
 use App\Actions\Nomina\LiquidarPeriodoNomina;
 use App\Enums\EstadoPeriodo;
-use App\Enums\Rol;
 use App\Mail\ReciboNominaMail;
 use App\Models\Contrato;
 use App\Models\PeriodoNomina;
@@ -14,7 +13,7 @@ use Illuminate\Support\Facades\Mail;
 beforeEach(function () {
     Mail::fake();
     $this->seed(NominaSeeder::class);
-    $this->auxiliar = User::factory()->conRol(Rol::AuxiliarNomina)->create();
+    $this->auxiliar = User::factory()->superAdmin()->create();
     $this->contratos = Contrato::factory()->count(3)->create();
     $this->periodo = PeriodoNomina::factory()->create();
     app(LiquidarPeriodoNomina::class)->ejecutar($this->periodo, $this->auxiliar);

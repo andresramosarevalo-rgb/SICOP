@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\Auditable;
+use App\Concerns\FiltraPorSedeDelEmpleado;
 use App\Enums\TipoNovedad;
 use Database\Factories\NovedadFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -32,7 +33,7 @@ use Illuminate\Support\Carbon;
 class Novedad extends Model
 {
     /** @use HasFactory<NovedadFactory> */
-    use Auditable, HasFactory;
+    use Auditable, FiltraPorSedeDelEmpleado, HasFactory;
 
     /**
      * La tabla asociada al modelo.
@@ -88,6 +89,7 @@ class Novedad extends Model
             'modulo' => 'nomina',
             'etiqueta' => 'Novedad',
             'descripcion' => "{$this->tipo->value} de {$this->empleado?->nombres} {$this->empleado?->apellidos}",
+            'sede_id' => $this->empleado?->sede_id,
         ];
     }
 

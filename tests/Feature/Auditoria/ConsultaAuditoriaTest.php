@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
-    $this->gerente = User::factory()->conRol(Rol::Administrador)->create();
+    $this->gerente = User::factory()->conRol(Rol::SuperAdmin)->create();
     Auditoria::query()->delete();
 });
 
@@ -18,7 +18,7 @@ test('solo el administrador puede ver la auditoría', function (?Rol $rol, bool 
 
     expect(Gate::forUser($user)->allows('ver-auditoria'))->toBe($puedeVer);
 })->with([
-    'administrador' => [Rol::Administrador, true],
+    'administrador' => [Rol::SuperAdmin, true],
     'auxiliar de nómina' => [Rol::AuxiliarNomina, false],
     'contador' => [Rol::Contador, false],
     'cajero' => [Rol::Cajero, false],

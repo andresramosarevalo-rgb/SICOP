@@ -11,7 +11,7 @@ use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
-    $this->gerente = User::factory()->conRol(Rol::Administrador)->create();
+    $this->gerente = User::factory()->conRol(Rol::SuperAdmin)->create();
     $this->sede = Sede::factory()->create();
 });
 

@@ -16,6 +16,8 @@ export type Empleado = {
     fecha_nacimiento: string | null;
     area_id: number;
     area?: Pick<Area, 'id' | 'nombre'>;
+    sede_id: number | null;
+    sede?: { id: number; nombre: string } | null;
     contrato_vigente?: { id: number; periodicidad_pago: string } | null;
     cargo: string;
     es_activo: boolean;
@@ -112,6 +114,8 @@ export type Novedad = {
 
 export type PeriodoNomina = {
     id: number;
+    sede_id: number | null;
+    sede?: { id: number; nombre: string } | null;
     periodicidad_pago: 'semanal' | 'quincenal' | 'mensual';
     fecha_inicio: string;
     fecha_fin: string;

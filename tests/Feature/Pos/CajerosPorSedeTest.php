@@ -8,7 +8,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 
 // Issue #165, criterio 1: la sede es obligatoria y debe estar activa.
 test('un cajero exige sede activa', function () {
-    $admin = User::factory()->conRol(Rol::Administrador)->create();
+    $admin = User::factory()->conRol(Rol::SuperAdmin)->create();
     $sede = Sede::factory()->create(['es_activa' => false]);
     $datos = [
         'name' => 'Cajero',
@@ -21,23 +21,23 @@ test('un cajero exige sede activa', function () {
     $this->post(route('admin.usuarios.store'), [...$datos, 'sede_id' => $sede->id])->assertSessionHasErrors('sede_id');
 });
 
-// Issue #165, criterio 2: el personal administrativo no tiene sede.
-test('la sede no se asocia a roles administrativos', function () {
-    $admin = User::factory()->conRol(Rol::Administrador)->create();
+// Issue #173, criterio 2: el super administrador no lleva sede.
+test('el super administrador no se asocia a una sede', function () {
+    $admin = User::factory()->conRol(Rol::SuperAdmin)->create();
     $sede = Sede::factory()->create();
     $this->actingAs($admin)->post(route('admin.usuarios.store'), [
-        'name' => 'Contador',
-        'email' => 'contador@example.com',
+        'name' => 'Super admin',
+        'email' => 'superadmin@example.com',
         'password' => 'ClaveSegura123!',
         'password_confirmation' => 'ClaveSegura123!',
-        'rol' => Rol::Contador->value,
+        'rol' => Rol::SuperAdmin->value,
         'sede_id' => $sede->id,
     ])->assertSessionHasErrors('sede_id');
 });
 
 // Issue #165, criterio 3: una sede puede tener múltiples cajeros que inician sesión.
 test('dos cajeros comparten sede e inician sesion con cuentas propias', function () {
-    $admin = User::factory()->conRol(Rol::Administrador)->create();
+    $admin = User::factory()->conRol(Rol::SuperAdmin)->create();
     $sede = Sede::factory()->create();
     foreach (['cajero1@example.com', 'cajero2@example.com'] as $correo) {
         $this->actingAs($admin)->post(route('admin.usuarios.store'), [
@@ -65,7 +65,7 @@ test('dos cajeros comparten sede e inician sesion con cuentas propias', function
 // Issue #165, criterio 4: los accesos se administran en Usuarios.
 test('sedes no tienen ruta de acceso unico', function () {
     expect(Route::has('pos.sedes.acceso.update'))->toBeFalse();
-    $admin = User::factory()->conRol(Rol::Administrador)->create();
+    $admin = User::factory()->conRol(Rol::SuperAdmin)->create();
     $sede = Sede::factory()->create();
     User::factory()->paraSede($sede)->count(2)->create();
     $this->actingAs($admin)->get(route('pos.sedes.index'))
@@ -102,7 +102,7 @@ test('cajero de sede inactiva no inicia sesion', function () {
 
 // Issue #165, criterio 6: se conserva correo único por cajero.
 test('cajeros no pueden compartir correo', function () {
-    $admin = User::factory()->conRol(Rol::Administrador)->create();
+    $admin = User::factory()->conRol(Rol::SuperAdmin)->create();
     $sede = Sede::factory()->create();
     User::factory()->paraSede($sede)->create(['email' => 'repetido@example.com']);
     $this->actingAs($admin)->post(route('admin.usuarios.store'), [

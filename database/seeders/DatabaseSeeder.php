@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
-            'rol' => Rol::Administrador,
+            'rol' => Rol::SuperAdmin,
         ]);
 
         $this->call(NominaSeeder::class);

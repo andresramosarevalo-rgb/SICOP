@@ -9,6 +9,7 @@ use App\Enums\PeriodicidadPago;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Nomina\StorePeriodoNominaRequest;
 use App\Models\PeriodoNomina;
+use App\Models\Sede;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -20,10 +21,12 @@ class PeriodoNominaController extends Controller
     /**
      * Muestra los periodos de nómina, del más reciente al más antiguo.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         return Inertia::render('Nomina/Periodos/Index', [
             'periodos' => PeriodoNomina::query()
+                ->visiblesPara($request->user())
+                ->with('sede:id,nombre')
                 ->withCount('recibos')
                 ->withSum('recibos', 'valor_neto')
                 ->latest('fecha_inicio')
@@ -34,9 +37,11 @@ class PeriodoNominaController extends Controller
     /**
      * Muestra el formulario para crear un periodo.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
         return Inertia::render('Nomina/Periodos/Create', [
+            'sedes' => Sede::activas()->visiblesPara($request->user())->orderBy('nombre')->get(['id', 'nombre']),
+            'puedeElegirSede' => $request->user()->esSuperAdmin(),
             'periodicidades' => collect(PeriodicidadPago::cases())
                 ->map(fn (PeriodicidadPago $periodicidad) => ['valor' => $periodicidad->value, 'etiqueta' => $periodicidad->etiqueta()]),
         ]);
@@ -60,7 +65,7 @@ class PeriodoNominaController extends Controller
     public function show(PeriodoNomina $periodo): Response
     {
         return Inertia::render('Nomina/Periodos/Show', [
-            'periodo' => $periodo->load('liquidador:id,name'),
+            'periodo' => $periodo->load(['liquidador:id,name', 'sede:id,nombre']),
             'recibos' => $periodo->recibos()->with('empleado:id,nombres,apellidos,numero_documento')->get(),
         ]);
     }

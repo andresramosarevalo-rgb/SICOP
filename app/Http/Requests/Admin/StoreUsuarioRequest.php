@@ -38,19 +38,40 @@ class StoreUsuarioRequest extends FormRequest
             'password' => $this->passwordRules(),
             'rol' => [
                 'required',
-                Rule::enum(Rol::class)->only([
-                    Rol::Administrador,
-                    Rol::AuxiliarNomina,
-                    Rol::Contador,
-                    Rol::Cajero,
-                ]),
+                Rule::enum(Rol::class)->only($this->rolesPermitidos()),
             ],
-            'sede_id' => [
-                Rule::requiredIf(fn (): bool => $this->input('rol') === Rol::Cajero->value),
-                Rule::prohibitedIf(fn (): bool => $this->input('rol') !== Rol::Cajero->value),
-                'integer',
-                Rule::exists('sedes', 'id')->where('es_activa', true),
-            ],
+            'sede_id' => $this->reglasSede(),
+        ];
+    }
+
+    /**
+     * Roles que quien registra puede asignar: solo el super administrador crea otros super administradores.
+     *
+     * @return list<Rol>
+     */
+    private function rolesPermitidos(): array
+    {
+        $roles = [Rol::Administrador, Rol::AuxiliarNomina, Rol::Contador, Rol::Cajero];
+
+        return $this->user()->esSuperAdmin() ? [Rol::SuperAdmin, ...$roles] : $roles;
+    }
+
+    /**
+     * La sede la elige el super administrador; el administrador de sede registra siempre en la suya.
+     *
+     * @return array<int, mixed>
+     */
+    private function reglasSede(): array
+    {
+        if (! $this->user()->esSuperAdmin()) {
+            return ['prohibited'];
+        }
+
+        return [
+            Rule::requiredIf(fn (): bool => $this->input('rol') !== Rol::SuperAdmin->value),
+            Rule::prohibitedIf(fn (): bool => $this->input('rol') === Rol::SuperAdmin->value),
+            'integer',
+            Rule::exists('sedes', 'id')->where('es_activa', true),
         ];
     }
 
@@ -65,8 +86,8 @@ class StoreUsuarioRequest extends FormRequest
             'required' => 'Este campo es obligatorio.',
             'email.unique' => 'Ya existe un usuario con este correo.',
             'rol.enum' => 'Seleccione un rol válido.',
-            'sede_id.required' => 'Seleccione una sede para el cajero.',
-            'sede_id.prohibited' => 'Solo los cajeros pueden tener una sede.',
+            'sede_id.required' => 'Seleccione la sede del usuario.',
+            'sede_id.prohibited' => 'Este usuario no lleva sede o se registra en su propia sede.',
             'sede_id.exists' => 'Seleccione una sede activa.',
         ];
     }

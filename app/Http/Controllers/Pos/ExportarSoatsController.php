@@ -18,6 +18,7 @@ class ExportarSoatsController extends Controller
         $fecha = $request->validated('fecha') ?? today()->toDateString();
 
         $soats = Soat::query()
+            ->visiblesPara($request->user())
             ->with('sede:id,nombre,ciudad')
             ->whereDate('fecha', $fecha)
             ->orderBy('sede_id')

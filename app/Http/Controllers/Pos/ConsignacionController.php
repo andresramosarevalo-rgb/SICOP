@@ -54,6 +54,7 @@ class ConsignacionController extends Controller
         Gate::authorize('gestionar-pos');
 
         $cierre = $consignacion->cierreCaja;
+        abort_unless(request()->user()->puedeVerSede($cierre->sede_id), 403);
 
         $consignacion->delete();
         Storage::delete($consignacion->ruta_soporte);
