@@ -23,17 +23,17 @@ test('el super administrador y el administrador de sede editan el nombre de los 
             ->component('Admin/Usuarios/Edit')
             ->where('usuario.name', 'Auxiliar A'));
 
-    $this->put(route('admin.usuarios.update', $this->auxiliarA), ['name' => 'Auxiliar Renombrada'])
+    $this->put(route('admin.usuarios.update', $this->auxiliarA), ['name' => 'Auxiliar Renombrada', 'email' => $this->auxiliarA->email])
         ->assertRedirect(route('admin.usuarios.index'));
 
     $this->actingAs($this->superAdmin)
-        ->put(route('admin.usuarios.update', $this->cajeroB), ['name' => 'Cajero B Nuevo'])
+        ->put(route('admin.usuarios.update', $this->cajeroB), ['name' => 'Cajero B Nuevo', 'email' => $this->cajeroB->email])
         ->assertRedirect(route('admin.usuarios.index'));
 
     expect($this->auxiliarA->fresh()->name)->toBe('Auxiliar Renombrada')
         ->and($this->cajeroB->fresh()->name)->toBe('Cajero B Nuevo');
 
-    $this->put(route('admin.usuarios.update', $this->cajeroB), ['name' => ''])->assertSessionHasErrors('name');
+    $this->put(route('admin.usuarios.update', $this->cajeroB), ['name' => '', 'email' => $this->cajeroB->email])->assertSessionHasErrors('name');
 });
 
 // Issue #178, criterio 2: el usuario deshabilitado no entra y se cierra su sesión.
@@ -80,7 +80,7 @@ test('un usuario habilitado de nuevo vuelve a iniciar sesión', function () {
 test('el administrador de sede solo gestiona usuarios de su sede y no super administradores', function () {
     $this->actingAs($this->administradorA)
         ->get(route('admin.usuarios.edit', $this->cajeroB))->assertForbidden();
-    $this->put(route('admin.usuarios.update', $this->cajeroB), ['name' => 'Otro'])->assertForbidden();
+    $this->put(route('admin.usuarios.update', $this->cajeroB), ['name' => 'Otro', 'email' => 'otro@example.com'])->assertForbidden();
     $this->patch(route('admin.usuarios.estado', $this->cajeroB), ['es_activo' => false])->assertForbidden();
     $this->patch(route('admin.usuarios.estado', $this->superAdmin), ['es_activo' => false])->assertForbidden();
 

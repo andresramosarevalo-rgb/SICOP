@@ -3,6 +3,7 @@ import { Form, Head, Link } from '@inertiajs/vue3';
 import UsuarioController from '@/actions/App/Http/Controllers/Admin/UsuarioController';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
+import PasswordInput from '@/components/PasswordInput.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,16 +41,10 @@ const etiquetasRol: Record<UsuarioAdministrativo['rol'], string> = {
 
         <Heading
             title="Editar usuario"
-            description="Solo se puede cambiar el nombre. Para impedir que entre al sistema, deshabilítelo desde el listado."
+            description="Cambie el nombre o el correo y, si hace falta, restablezca la contraseña. Para impedir que entre al sistema, deshabilítelo desde el listado."
         />
 
-        <dl class="grid gap-4 rounded-xl border p-4 text-sm sm:grid-cols-3">
-            <div>
-                <dt class="text-muted-foreground">Correo</dt>
-                <dd class="font-medium wrap-anywhere">
-                    {{ props.usuario.email }}
-                </dd>
-            </div>
+        <dl class="grid gap-4 rounded-xl border p-4 text-sm sm:grid-cols-2">
             <div>
                 <dt class="text-muted-foreground">Rol</dt>
                 <dd class="font-medium">
@@ -66,6 +61,7 @@ const etiquetasRol: Record<UsuarioAdministrativo['rol'], string> = {
 
         <Form
             v-bind="UsuarioController.update.form(props.usuario.id)"
+            :reset-on-success="['password', 'password_confirmation']"
             class="flex flex-col gap-6"
             v-slot="{ errors, processing }"
         >
@@ -80,6 +76,47 @@ const etiquetasRol: Record<UsuarioAdministrativo['rol'], string> = {
                     :default-value="props.usuario.name"
                 />
                 <InputError :message="errors.name" />
+            </div>
+
+            <div class="grid gap-2">
+                <Label for="email">Correo electrónico</Label>
+                <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    autocomplete="off"
+                    :default-value="props.usuario.email"
+                />
+                <p class="text-sm text-muted-foreground">
+                    Si lo cambia, el usuario recibirá un correo para verificarlo
+                    de nuevo.
+                </p>
+                <InputError :message="errors.email" />
+            </div>
+
+            <div class="grid gap-2">
+                <Label for="password">Nueva contraseña</Label>
+                <PasswordInput
+                    id="password"
+                    name="password"
+                    autocomplete="new-password"
+                    placeholder="Déjela vacía para conservar la actual"
+                />
+                <InputError :message="errors.password" />
+            </div>
+
+            <div class="grid gap-2">
+                <Label for="password_confirmation">
+                    Confirmar nueva contraseña
+                </Label>
+                <PasswordInput
+                    id="password_confirmation"
+                    name="password_confirmation"
+                    autocomplete="new-password"
+                    placeholder="Repita la nueva contraseña"
+                />
+                <InputError :message="errors.password_confirmation" />
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
