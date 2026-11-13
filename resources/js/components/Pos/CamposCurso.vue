@@ -32,13 +32,16 @@ const claseSelect =
                 id="tipo_documento"
                 name="tipo_documento"
                 :class="claseSelect"
-                :value="curso?.tipo_documento ?? tiposDocumento[0]?.valor"
                 required
             >
                 <option
                     v-for="tipo in tiposDocumento"
                     :key="tipo.valor"
                     :value="tipo.valor"
+                    :selected="
+                        tipo.valor ===
+                        (curso?.tipo_documento ?? tiposDocumento[0]?.valor)
+                    "
                 >
                     {{ tipo.etiqueta }}
                 </option>
@@ -86,14 +89,16 @@ const claseSelect =
                 id="codigo_infraccion"
                 name="codigo_infraccion"
                 :class="claseSelect"
-                :value="curso?.codigo_infraccion ?? ''"
                 required
             >
-                <option value="" disabled>Seleccione el tipo</option>
+                <option value="" disabled :selected="!curso?.codigo_infraccion">
+                    Seleccione el tipo
+                </option>
                 <option
                     v-for="codigo in codigosInfraccion"
                     :key="codigo.valor"
                     :value="codigo.valor"
+                    :selected="codigo.valor === curso?.codigo_infraccion"
                 >
                     {{ codigo.etiqueta }}
                 </option>
@@ -119,17 +124,18 @@ const claseSelect =
                 id="porcentaje_descuento"
                 name="porcentaje_descuento"
                 :class="claseSelect"
-                :value="
-                    curso
-                        ? Number(curso.porcentaje_descuento)
-                        : porcentajesDescuento[0]
-                "
                 required
             >
                 <option
                     v-for="porcentaje in porcentajesDescuento"
                     :key="porcentaje"
                     :value="porcentaje"
+                    :selected="
+                        porcentaje ===
+                        (curso
+                            ? Number(curso.porcentaje_descuento)
+                            : porcentajesDescuento[0])
+                    "
                 >
                     {{ porcentaje }} %
                 </option>
@@ -212,17 +218,15 @@ const claseSelect =
         </div>
         <div class="grid gap-2">
             <Label for="referido">Referido</Label>
-            <select
-                id="referido"
-                name="referido"
-                :class="claseSelect"
-                :value="curso?.referido ?? ''"
-            >
-                <option value="">Sin referido</option>
+            <select id="referido" name="referido" :class="claseSelect">
+                <option value="" :selected="!curso?.referido">
+                    Sin referido
+                </option>
                 <option
                     v-for="referido in referidos"
                     :key="referido.valor"
                     :value="referido.valor"
+                    :selected="referido.valor === curso?.referido"
                 >
                     {{ referido.etiqueta }}
                 </option>

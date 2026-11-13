@@ -35,14 +35,16 @@ const claseSelect =
                 id="empleado_id"
                 name="empleado_id"
                 :class="claseSelect"
-                :value="novedad?.empleado_id ?? ''"
                 required
             >
-                <option value="" disabled>Seleccione un empleado</option>
+                <option value="" disabled :selected="!novedad?.empleado_id">
+                    Seleccione un empleado
+                </option>
                 <option
                     v-for="empleado in empleados"
                     :key="empleado.id"
                     :value="empleado.id"
+                    :selected="empleado.id === novedad?.empleado_id"
                 >
                     {{ empleado.apellidos }}, {{ empleado.nombres }}
                 </option>
@@ -106,13 +108,19 @@ const claseSelect =
                     id="concepto_nomina_id"
                     name="concepto_nomina_id"
                     :class="claseSelect"
-                    :value="novedad?.concepto_nomina_id ?? ''"
                 >
-                    <option value="" disabled>Seleccione un concepto</option>
+                    <option
+                        value=""
+                        disabled
+                        :selected="!novedad?.concepto_nomina_id"
+                    >
+                        Seleccione un concepto
+                    </option>
                     <option
                         v-for="concepto in conceptos"
                         :key="concepto.id"
                         :value="concepto.id"
+                        :selected="concepto.id === novedad?.concepto_nomina_id"
                     >
                         {{ concepto.nombre }}
                     </option>
