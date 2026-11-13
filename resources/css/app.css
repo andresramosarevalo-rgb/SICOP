@@ -153,6 +153,24 @@
         @apply bg-background font-sans text-foreground antialiased;
     }
 
+    /* Las opciones de las listas desplegables nativas no heredan el fondo
+       translúcido del campo: se fijan a los colores del tema para que se
+       lean igual en claro y en oscuro. */
+    select option,
+    select optgroup {
+        background-color: var(--popover);
+        color: var(--popover-foreground);
+    }
+
+    select option:checked {
+        background-color: var(--accent);
+        color: var(--accent-foreground);
+    }
+
+    select option:disabled {
+        color: var(--muted-foreground);
+    }
+
     h1,
     h2,
     h3,

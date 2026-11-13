@@ -50,6 +50,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('usar-pos', fn (User $user): bool => $user->esSuperAdmin() || (in_array($user->rol, [Rol::Administrador, Rol::Cajero], true) && $user->sede?->es_activa === true));
         Gate::define('operar-sede', fn (User $user, Sede $sede): bool => $user->esSuperAdmin() || (in_array($user->rol, [Rol::Administrador, Rol::Cajero], true) && $user->sede_id === $sede->id && $sede->es_activa));
         Gate::define('gestionar-sedes', fn (User $user): bool => $user->esSuperAdmin());
+        Gate::define('gestionar-usuario', fn (User $actor, User $objetivo): bool => ($actor->rol?->puedeGestionarUsuarios() ?? false)
+            && $actor->id !== $objetivo->id
+            && ($actor->esSuperAdmin() || (! $objetivo->esSuperAdmin() && $objetivo->sede_id !== null && $objetivo->sede_id === $actor->sede_id)));
         Gate::define('gestionar-usuarios', fn (User $user): bool => $user->rol?->puedeGestionarUsuarios() ?? false);
     }
 

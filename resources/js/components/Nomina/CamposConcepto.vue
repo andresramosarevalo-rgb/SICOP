@@ -41,14 +41,19 @@ const claseSelect =
         </div>
         <div class="grid gap-2">
             <Label for="tipo">Tipo</Label>
-            <select
-                id="tipo"
-                name="tipo"
-                :class="claseSelect"
-                :value="concepto?.tipo ?? 'devengo'"
-            >
-                <option value="devengo">Devengo (suma al pago)</option>
-                <option value="deduccion">Deducción (resta del pago)</option>
+            <select id="tipo" name="tipo" :class="claseSelect">
+                <option
+                    value="devengo"
+                    :selected="(concepto?.tipo ?? 'devengo') === 'devengo'"
+                >
+                    Devengo (suma al pago)
+                </option>
+                <option
+                    value="deduccion"
+                    :selected="concepto?.tipo === 'deduccion'"
+                >
+                    Deducción (resta del pago)
+                </option>
             </select>
             <InputError :message="errors.tipo" />
         </div>

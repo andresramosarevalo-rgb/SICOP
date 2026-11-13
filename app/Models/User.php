@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property string $email
  * @property Rol|null $rol
  * @property int|null $sede_id
+ * @property bool $es_activo
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
@@ -95,6 +96,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'rol' => Rol::class,
+            'es_activo' => 'boolean',
         ];
     }
 }

@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\Rol;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUsuarioRequest;
+use App\Http\Requests\Admin\UpdateUsuarioRequest;
 use App\Models\Sede;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -25,7 +28,8 @@ class UsuarioController extends Controller
             ->when(! $request->user()->esSuperAdmin(), fn ($query) => $query->where('sede_id', $request->user()->sede_id ?? 0))
             ->with('sede:id,nombre')
             ->orderBy('name')
-            ->get(['id', 'name', 'email', 'rol', 'sede_id']);
+            ->get(['id', 'name', 'email', 'rol', 'sede_id', 'es_activo'])
+            ->each(fn (User $usuario) => $usuario->setAttribute('puede_gestionar', $request->user()->can('gestionar-usuario', $usuario)));
 
         return Inertia::render('Admin/Usuarios/Index', [
             'usuarios' => $usuarios,
@@ -97,6 +101,52 @@ class UsuarioController extends Controller
             'type' => 'success',
             'message' => 'Usuario registrado correctamente.',
         ]);
+
+        return to_route('admin.usuarios.index');
+    }
+
+    /**
+     * Muestra el formulario de edición del nombre del usuario.
+     */
+    public function edit(User $usuario): Response
+    {
+        Gate::authorize('gestionar-usuario', $usuario);
+
+        return Inertia::render('Admin/Usuarios/Edit', [
+            'usuario' => $usuario->load('sede:id,nombre')->only(['id', 'name', 'email', 'rol', 'sede', 'es_activo']),
+        ]);
+    }
+
+    /**
+     * Actualiza el nombre del usuario.
+     */
+    public function update(UpdateUsuarioRequest $request, User $usuario): RedirectResponse
+    {
+        $usuario->update($request->validated());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Usuario actualizado.']);
+
+        return to_route('admin.usuarios.index');
+    }
+
+    /**
+     * Deshabilita o habilita el inicio de sesión del usuario. Al deshabilitarlo se cierran sus sesiones abiertas.
+     */
+    public function cambiarEstado(Request $request, User $usuario): RedirectResponse
+    {
+        Gate::authorize('gestionar-usuario', $usuario);
+
+        $esActivo = (bool) $request->validate(['es_activo' => ['required', 'boolean']])['es_activo'];
+
+        DB::transaction(function () use ($usuario, $esActivo): void {
+            $usuario->forceFill(['es_activo' => $esActivo, ...($esActivo ? [] : ['remember_token' => null])])->save();
+
+            if (! $esActivo) {
+                DB::table('sessions')->where('user_id', $usuario->id)->delete();
+            }
+        });
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => $esActivo ? 'Usuario habilitado.' : 'Usuario deshabilitado.']);
 
         return to_route('admin.usuarios.index');
     }
