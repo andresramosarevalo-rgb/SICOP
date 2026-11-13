@@ -42,6 +42,8 @@ export type UsuarioAdministrativo = {
         | 'contador'
         | 'cajero';
     sede: { id: number; nombre: string } | null;
+    es_activo: boolean;
+    puede_gestionar?: boolean;
 };
 
 export type OpcionRol = {

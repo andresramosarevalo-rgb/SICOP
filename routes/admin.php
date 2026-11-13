@@ -15,5 +15,6 @@ Route::middleware(['auth', 'verified', 'can:gestionar-usuarios'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        Route::resource('usuarios', UsuarioController::class)->only(['index', 'create', 'store']);
+        Route::resource('usuarios', UsuarioController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+        Route::patch('usuarios/{usuario}/estado', [UsuarioController::class, 'cambiarEstado'])->name('usuarios.estado');
     });
