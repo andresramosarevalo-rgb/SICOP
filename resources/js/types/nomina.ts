@@ -44,6 +44,16 @@ export type Contrato = {
     es_vigente: boolean;
 };
 
+export type SaldoVacaciones = {
+    fechaCorte: string;
+    fechaIngreso: string | null;
+    diasCausados: string;
+    diasUtilizados: number;
+    diasDisponibles: string;
+    criterioCalendario: string;
+    advertencias: string[];
+};
+
 export type ParametroNomina = {
     id: number;
     anio: number;

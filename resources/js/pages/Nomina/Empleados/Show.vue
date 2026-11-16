@@ -13,6 +13,7 @@ import type {
     ConceptoNomina,
     Contrato,
     Empleado,
+    SaldoVacaciones,
 } from '@/types';
 
 const props = defineProps<{
@@ -20,6 +21,7 @@ const props = defineProps<{
     tipoDocumento: string;
     contratos: Contrato[];
     contratoVigente: Contrato | null;
+    saldoVacaciones: SaldoVacaciones;
     asignaciones: AsignacionConcepto[];
     conceptosDisponibles: ConceptoNomina[];
 }>();
@@ -46,6 +48,20 @@ const datos = computed(() => [
     { etiqueta: 'Área', valor: props.empleado.area?.nombre },
     { etiqueta: 'Cargo', valor: props.empleado.cargo },
 ]);
+
+const formatoDias = new Intl.NumberFormat('es-CO', {
+    maximumFractionDigits: 4,
+});
+
+const diasVacaciones = computed(() => [
+    { etiqueta: 'Causados', valor: props.saldoVacaciones.diasCausados },
+    { etiqueta: 'Utilizados', valor: props.saldoVacaciones.diasUtilizados },
+    { etiqueta: 'Disponibles', valor: props.saldoVacaciones.diasDisponibles },
+]);
+
+function formatearFecha(fecha: string): string {
+    return fecha.split('-').reverse().join('/');
+}
 </script>
 
 <template>
@@ -113,6 +129,68 @@ const datos = computed(() => [
             <p v-else class="text-sm text-muted-foreground">
                 El empleado no tiene contratos registrados.
             </p>
+        </section>
+
+        <section class="flex flex-col gap-4">
+            <Heading
+                variant="small"
+                title="Vacaciones"
+                description="Cálculo orientativo según los contratos y las novedades registrados en SICOP. No certifica el saldo histórico."
+            />
+
+            <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                <p>
+                    Fecha de corte:
+                    <time :datetime="saldoVacaciones.fechaCorte">
+                        {{ formatearFecha(saldoVacaciones.fechaCorte) }}
+                    </time>
+                </p>
+                <p v-if="saldoVacaciones.fechaIngreso">
+                    Primer ingreso registrado:
+                    <time :datetime="saldoVacaciones.fechaIngreso">
+                        {{ formatearFecha(saldoVacaciones.fechaIngreso) }}
+                    </time>
+                </p>
+            </div>
+
+            <dl class="grid gap-4 rounded-xl border p-4 sm:grid-cols-3">
+                <div v-for="saldo in diasVacaciones" :key="saldo.etiqueta">
+                    <dt class="text-sm text-muted-foreground">
+                        {{ saldo.etiqueta }}
+                    </dt>
+                    <dd
+                        class="text-xl font-semibold wrap-anywhere tabular-nums"
+                    >
+                        {{ formatoDias.format(Number(saldo.valor)) }}
+                        <span class="text-sm font-normal">días</span>
+                    </dd>
+                </div>
+            </dl>
+
+            <p
+                v-if="!saldoVacaciones.fechaIngreso"
+                class="text-sm text-muted-foreground"
+            >
+                No hay contratos con fechas válidas de servicio hasta la fecha
+                de corte. No se puede establecer la antigüedad del empleado.
+            </p>
+
+            <p class="text-sm text-muted-foreground">
+                {{ saldoVacaciones.criterioCalendario }}
+            </p>
+
+            <ul
+                v-if="saldoVacaciones.advertencias.length"
+                class="list-disc space-y-2 rounded-xl border bg-muted/40 py-4 pr-4 pl-8 text-sm"
+                aria-label="Limitaciones del cálculo de vacaciones"
+            >
+                <li
+                    v-for="advertencia in saldoVacaciones.advertencias"
+                    :key="advertencia"
+                >
+                    {{ advertencia }}
+                </li>
+            </ul>
         </section>
 
         <ConceptosRecurrentes
