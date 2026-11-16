@@ -111,7 +111,9 @@ const esEdicion = ref(false);
                     type="date"
                     required
                     :max="fechaMaxima"
-                    :default-value="empleado.fecha_corte_vacaciones ?? ''"
+                    :default-value="
+                        empleado.fecha_corte_vacaciones ?? fechaMaxima
+                    "
                     :aria-invalid="!!errors.fecha_corte_vacaciones"
                     aria-describedby="error-fecha-corte-vacaciones"
                 />
