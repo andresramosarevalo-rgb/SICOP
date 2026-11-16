@@ -20,6 +20,14 @@ export type Empleado = {
     sede?: { id: number; nombre: string } | null;
     contrato_vigente?: { id: number; periodicidad_pago: string } | null;
     cargo: string;
+    banco?: string | null;
+    numero_cuenta_bancaria?: string | null;
+    tipo_cuenta_bancaria?:
+        | 'ahorros'
+        | 'corriente'
+        | 'pensional'
+        | 'nomina'
+        | null;
     es_activo: boolean;
 };
 

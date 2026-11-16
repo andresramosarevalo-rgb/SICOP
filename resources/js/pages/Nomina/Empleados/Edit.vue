@@ -7,7 +7,7 @@ import CamposEmpleado from '@/components/Nomina/CamposEmpleado.vue';
 import CambiarEstadoEmpleado from '@/components/Nomina/CambiarEstadoEmpleado.vue';
 import { Button } from '@/components/ui/button';
 import nomina from '@/routes/nomina';
-import type { Area, Empleado, OpcionTipoDocumento } from '@/types';
+import type { Area, Empleado, Opcion, OpcionTipoDocumento } from '@/types';
 
 defineOptions({
     layout: {
@@ -23,6 +23,7 @@ defineProps<{
     empleado: Empleado;
     areas: Pick<Area, 'id' | 'nombre'>[];
     tiposDocumento: OpcionTipoDocumento[];
+    tiposCuentaBancaria: Opcion[];
     sedes: { id: number; nombre: string }[];
     puedeElegirSede: boolean;
 }>();
@@ -50,6 +51,7 @@ defineProps<{
             <CamposEmpleado
                 :areas="areas"
                 :tipos-documento="tiposDocumento"
+                :tipos-cuenta-bancaria="tiposCuentaBancaria"
                 :sedes="sedes"
                 :puede-elegir-sede="puedeElegirSede"
                 :errors="errors"

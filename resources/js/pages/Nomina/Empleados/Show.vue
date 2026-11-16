@@ -18,6 +18,7 @@ import type {
 const props = defineProps<{
     empleado: Empleado;
     tipoDocumento: string;
+    tipoCuentaBancaria: string | null;
     contratos: Contrato[];
     contratoVigente: Contrato | null;
     asignaciones: AsignacionConcepto[];
@@ -45,6 +46,12 @@ const datos = computed(() => [
     { etiqueta: 'Fecha de nacimiento', valor: props.empleado.fecha_nacimiento },
     { etiqueta: 'Área', valor: props.empleado.area?.nombre },
     { etiqueta: 'Cargo', valor: props.empleado.cargo },
+    { etiqueta: 'Banco', valor: props.empleado.banco },
+    {
+        etiqueta: 'Número de cuenta bancaria',
+        valor: props.empleado.numero_cuenta_bancaria,
+    },
+    { etiqueta: 'Tipo de cuenta bancaria', valor: props.tipoCuentaBancaria },
 ]);
 </script>
 
