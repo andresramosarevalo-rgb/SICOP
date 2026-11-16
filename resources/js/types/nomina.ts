@@ -54,6 +54,16 @@ export type SaldoVacaciones = {
     advertencias: string[];
 };
 
+export type ConsultaVacacionesNovedad = {
+    saldoVacaciones: SaldoVacaciones;
+    diasProgramados: number;
+    diasDisponiblesParaProgramar: string;
+    diasSolicitados: number | null;
+    diasADescontar: number | null;
+    diasRestantes: string | null;
+    tieneSaldoSuficiente: boolean | null;
+};
+
 export type ParametroNomina = {
     id: number;
     anio: number;

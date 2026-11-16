@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import NovedadController from '@/actions/App/Http/Controllers/Nomina/NovedadController';
 import Heading from '@/components/Heading.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
@@ -23,6 +24,7 @@ defineProps<{
     tipos: OpcionTipoNovedad[];
     conceptos: Pick<ConceptoNomina, 'id' | 'nombre'>[];
 }>();
+const versionFormulario = ref(0);
 </script>
 
 <template>
@@ -40,9 +42,11 @@ defineProps<{
             v-bind="NovedadController.store.form()"
             class="flex flex-col gap-6"
             reset-on-success
+            @success="versionFormulario++"
             v-slot="{ errors, processing }"
         >
             <CamposNovedad
+                :key="versionFormulario"
                 :errors="errors"
                 :empleados="empleados"
                 :tipos="tipos"

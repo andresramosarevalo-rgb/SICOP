@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import InputError from '@/components/InputError.vue';
+import ResumenVacacionesNovedad from '@/components/Nomina/ResumenVacacionesNovedad.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type {
@@ -18,6 +19,9 @@ const props = defineProps<{
     novedad?: Novedad;
 }>();
 
+const empleadoId = ref<string | number>(props.novedad?.empleado_id ?? '');
+const fechaInicio = ref(props.novedad?.fecha_inicio ?? '');
+const fechaFin = ref(props.novedad?.fecha_fin ?? '');
 const tipo = ref(props.novedad?.tipo ?? props.tipos[0]?.valor);
 const tipoSeleccionado = computed(() =>
     props.tipos.find((opcion) => opcion.valor === tipo.value),
@@ -33,18 +37,16 @@ const claseSelect =
             <Label for="empleado_id">Empleado</Label>
             <select
                 id="empleado_id"
+                v-model="empleadoId"
                 name="empleado_id"
                 :class="claseSelect"
                 required
             >
-                <option value="" disabled :selected="!novedad?.empleado_id">
-                    Seleccione un empleado
-                </option>
+                <option value="" disabled>Seleccione un empleado</option>
                 <option
                     v-for="empleado in empleados"
                     :key="empleado.id"
                     :value="empleado.id"
-                    :selected="empleado.id === novedad?.empleado_id"
                 >
                     {{ empleado.apellidos }}, {{ empleado.nombres }}
                 </option>
@@ -72,7 +74,7 @@ const claseSelect =
                 id="fecha_inicio"
                 name="fecha_inicio"
                 type="date"
-                :default-value="novedad?.fecha_inicio"
+                v-model="fechaInicio"
                 required
             />
             <InputError :message="errors.fecha_inicio" />
@@ -83,10 +85,17 @@ const claseSelect =
                 id="fecha_fin"
                 name="fecha_fin"
                 type="date"
-                :default-value="novedad?.fecha_fin ?? ''"
+                v-model="fechaFin"
             />
             <InputError :message="errors.fecha_fin" />
         </div>
+        <ResumenVacacionesNovedad
+            v-if="tipo === 'vacaciones'"
+            :empleado-id="empleadoId"
+            :fecha-inicio="fechaInicio"
+            :fecha-fin="fechaFin"
+            :novedad-id="novedad?.id"
+        />
         <div v-if="tipoSeleccionado?.unidad" class="grid gap-2">
             <Label for="cantidad"
                 >Cantidad de {{ tipoSeleccionado.unidad }}</Label
