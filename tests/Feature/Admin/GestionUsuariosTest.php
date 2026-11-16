@@ -77,7 +77,8 @@ test('un usuario habilitado de nuevo vuelve a iniciar sesión', function () {
 });
 
 // Issue #178, criterio 4: alcance del administrador de sede.
-test('el administrador de sede solo gestiona usuarios de su sede y no super administradores', function () {
+test('el administrador de sede solo gestiona usuarios de su sede y no super administradores', function (string $nombre) {
+    $this->administradorA->update(['name' => $nombre]);
     $this->actingAs($this->administradorA)
         ->get(route('admin.usuarios.edit', $this->cajeroB))->assertForbidden();
     $this->put(route('admin.usuarios.update', $this->cajeroB), ['name' => 'Otro', 'email' => 'otro@example.com'])->assertForbidden();
@@ -90,8 +91,13 @@ test('el administrador de sede solo gestiona usuarios de su sede y no super admi
     $this->get(route('admin.usuarios.index'))
         ->assertInertia(fn (Assert $page) => $page
             ->has('usuarios', 2)
-            ->where('usuarios.0.puede_gestionar', true));
-});
+            ->where('usuarios', function ($usuarios) {
+                $porId = collect($usuarios)->keyBy('id');
+
+                return $porId[$this->auxiliarA->id]['puede_gestionar'] === true
+                    && $porId[$this->administradorA->id]['puede_gestionar'] === false;
+            }));
+})->with(['actor al principio' => '000 Usuario', 'actor al final' => 'ZZZ Usuario']);
 
 test('quien no gestiona usuarios no puede editarlos ni deshabilitarlos', function () {
     $this->actingAs($this->auxiliarA)
@@ -100,7 +106,8 @@ test('quien no gestiona usuarios no puede editarlos ni deshabilitarlos', functio
 });
 
 // Issue #178, criterio 5: nadie se deshabilita a sí mismo.
-test('nadie se deshabilita ni se edita a sí mismo', function () {
+test('nadie se deshabilita ni se edita a sí mismo', function (string $nombre) {
+    $this->superAdmin->update(['name' => $nombre]);
     foreach ([$this->superAdmin, $this->administradorA] as $usuario) {
         $this->actingAs($usuario)
             ->patch(route('admin.usuarios.estado', $usuario), ['es_activo' => false])
@@ -113,6 +120,13 @@ test('nadie se deshabilita ni se edita a sí mismo', function () {
         ->get(route('admin.usuarios.index'))
         ->assertInertia(fn (Assert $page) => $page
             ->has('usuarios', 4)
-            ->where('usuarios.0.puede_gestionar', true)
+            ->where('usuarios', function ($usuarios) {
+                $porId = collect($usuarios)->keyBy('id');
+
+                return $porId[$this->superAdmin->id]['puede_gestionar'] === false
+                    && $porId[$this->administradorA->id]['puede_gestionar'] === true
+                    && $porId[$this->auxiliarA->id]['puede_gestionar'] === true
+                    && $porId[$this->cajeroB->id]['puede_gestionar'] === true;
+            })
             ->etc());
-});
+})->with(['actor al principio' => '000 Usuario', 'actor al final' => 'ZZZ Usuario']);
