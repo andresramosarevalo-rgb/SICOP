@@ -9,6 +9,7 @@ use App\Http\Controllers\Nomina\NovedadController;
 use App\Http\Controllers\Nomina\ParametroNominaController;
 use App\Http\Controllers\Nomina\PeriodoNominaController;
 use App\Http\Controllers\Nomina\ReciboNominaController;
+use App\Http\Controllers\Nomina\VacacionesNovedadController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
@@ -23,6 +24,7 @@ Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
         Route::resource('empleados.contratos', ContratoController::class)->only(['create', 'store']);
         Route::resource('empleados.asignaciones', AsignacionConceptoController::class)
             ->only(['store', 'destroy'])->shallow()->parameters(['asignaciones' => 'asignacion']);
+        Route::get('empleados/{empleado}/vacaciones-novedad', VacacionesNovedadController::class)->name('empleados.vacaciones-novedad');
         Route::resource('novedades', NovedadController::class)->except(['show'])->parameters(['novedades' => 'novedad']);
         Route::resource('parametros', ParametroNominaController::class)->except(['show', 'destroy']);
         Route::resource('conceptos', ConceptoNominaController::class)->except(['show']);

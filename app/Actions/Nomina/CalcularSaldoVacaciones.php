@@ -4,6 +4,7 @@ namespace App\Actions\Nomina;
 
 use App\Enums\TipoNovedad;
 use App\Models\Empleado;
+use App\Models\Novedad;
 use BcMath\Number;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -21,11 +22,16 @@ final class CalcularSaldoVacaciones
     /**
      * Consulta las relaciones de nuevo para reflejar cambios incluso sobre el mismo empleado cargado.
      * Las fechas de inicio, terminación y corte se incluyen; nunca se usa created_at como ingreso.
+     * La exclusión y la propuesta simulan una edición sin escribir ni duplicar su consumo.
      *
      * @return array{fechaCorte: string, fechaIngreso: ?string, diasCausados: string, diasUtilizados: int, diasDisponibles: string, criterioCalendario: string, advertencias: list<string>}
      */
-    public function ejecutar(Empleado $empleado, ?CarbonInterface $fechaCorte = null): array
-    {
+    public function ejecutar(
+        Empleado $empleado,
+        ?CarbonInterface $fechaCorte = null,
+        ?int $novedadExcluidaId = null,
+        ?Novedad $propuesta = null,
+    ): array {
         /** @var string $zonaHoraria */
         $zonaHoraria = config('vacaciones.zona_horaria', 'America/Bogota');
         $corte = CarbonImmutable::parse(
@@ -74,7 +80,15 @@ final class CalcularSaldoVacaciones
         $novedades = $empleado->novedades()
             ->where('tipo', TipoNovedad::Vacaciones)
             ->whereDate('fecha_inicio', '<=', $corte->toDateString())
+            ->when($novedadExcluidaId !== null, fn ($query) => $query->whereKeyNot($novedadExcluidaId))
             ->get(['id', 'fecha_inicio', 'fecha_fin']);
+
+        if ($propuesta !== null && $propuesta->empleado_id === $empleado->id
+            && $propuesta->tipo === TipoNovedad::Vacaciones
+            && $propuesta->fecha_inicio->toDateString() <= $corte->toDateString()) {
+            $novedades->push($propuesta);
+        }
+
         $vacaciones = [];
 
         foreach ($novedades as $novedad) {
