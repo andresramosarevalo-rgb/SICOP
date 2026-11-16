@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Nomina;
 use App\Actions\Nomina\RegistrarContrato;
 use App\Enums\PeriodicidadPago;
 use App\Enums\TipoContrato;
+use App\Enums\TipoCuentaBancaria;
 use App\Enums\TipoDocumento;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Nomina\StoreEmpleadoRequest;
@@ -95,8 +96,9 @@ class EmpleadoController extends Controller
     public function show(Empleado $empleado): Response
     {
         return Inertia::render('Nomina/Empleados/Show', [
-            'empleado' => $empleado->load(['area:id,nombre', 'sede:id,nombre']),
+            'empleado' => $empleado->load(['area:id,nombre', 'sede:id,nombre'])->makeVisible(Empleado::CAMPOS_BANCARIOS),
             'tipoDocumento' => $empleado->tipo_documento->etiqueta(),
+            'tipoCuentaBancaria' => $empleado->tipo_cuenta_bancaria?->etiqueta(),
             'contratoVigente' => $empleado->contratoVigente,
             'contratos' => $empleado->contratos->map(fn (Contrato $contrato) => [
                 ...$contrato->toArray(),
@@ -116,13 +118,13 @@ class EmpleadoController extends Controller
     public function edit(Request $request, Empleado $empleado): Response
     {
         return Inertia::render('Nomina/Empleados/Edit', [
-            'empleado' => $empleado,
+            'empleado' => $empleado->makeVisible(Empleado::CAMPOS_BANCARIOS),
             ...$this->opcionesFormulario($request->user(), $empleado->area_id),
         ]);
     }
 
     /**
-     * Actualiza los datos personales y el área del empleado.
+     * Actualiza los datos personales, laborales y bancarios del empleado.
      */
     public function update(UpdateEmpleadoRequest $request, Empleado $empleado): RedirectResponse
     {
@@ -149,13 +151,14 @@ class EmpleadoController extends Controller
     /**
      * Opciones de los selectores del formulario de empleado.
      *
-     * @return array{sedes: Collection<int, Sede>, puedeElegirSede: bool, areas: Collection<int, Area>, tiposDocumento: SupportCollection<int, array{valor: string, etiqueta: string}>}
+     * @return array{sedes: Collection<int, Sede>, puedeElegirSede: bool, areas: Collection<int, Area>, tiposDocumento: SupportCollection<int, array{valor: string, etiqueta: string}>, tiposCuentaBancaria: list<array{valor: string, etiqueta: string}>}
      */
     private function opcionesFormulario(User $usuario, ?int $areaActualId = null): array
     {
         return [
             'sedes' => Sede::activas()->visiblesPara($usuario)->orderBy('nombre')->get(['id', 'nombre']),
             'puedeElegirSede' => $usuario->esSuperAdmin(),
+            'tiposCuentaBancaria' => TipoCuentaBancaria::opciones(),
             'areas' => Area::query()
                 ->where(fn (Builder $query) => $query->where('es_activa', true)->orWhere('id', $areaActualId))
                 ->orderBy('nombre')

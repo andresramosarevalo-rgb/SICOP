@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Nomina;
 
 use App\Concerns\ReglasContrato;
+use App\Enums\TipoCuentaBancaria;
 use App\Enums\TipoDocumento;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -61,6 +62,9 @@ class StoreEmpleadoRequest extends FormRequest
             'area_id' => ['required', Rule::exists('areas', 'id')->where('es_activa', true)],
             'sede_id' => ['required', Rule::exists('sedes', 'id')->where('es_activa', true)],
             'cargo' => ['required', 'string', 'max:100'],
+            'banco' => ['required', 'string', 'max:255'],
+            'numero_cuenta_bancaria' => ['required', 'string', 'max:255'],
+            'tipo_cuenta_bancaria' => ['required', Rule::enum(TipoCuentaBancaria::class)],
         ];
     }
 
@@ -73,6 +77,14 @@ class StoreEmpleadoRequest extends FormRequest
     {
         return [
             'required' => 'Este campo es obligatorio.',
+            'banco.required' => 'Ingrese el banco.',
+            'banco.string' => 'El banco debe ser un texto.',
+            'banco.max' => 'El banco no debe superar los 255 caracteres.',
+            'numero_cuenta_bancaria.required' => 'Ingrese el número de cuenta bancaria.',
+            'numero_cuenta_bancaria.string' => 'El número de cuenta bancaria debe ser un texto.',
+            'numero_cuenta_bancaria.max' => 'El número de cuenta bancaria no debe superar los 255 caracteres.',
+            'tipo_cuenta_bancaria.required' => 'Seleccione el tipo de cuenta bancaria.',
+            'tipo_cuenta_bancaria.enum' => 'Seleccione un tipo de cuenta bancaria válido.',
             'numero_documento.unique' => 'Ya existe un empleado con ese número de documento.',
             'area_id.exists' => 'Seleccione un área activa.',
             'sede_id.exists' => 'Seleccione una sede activa.',
