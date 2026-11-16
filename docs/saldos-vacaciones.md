@@ -123,7 +123,6 @@ Las pruebas de `SaldoInicialVacacionesTest` cubren los cinco criterios de #192,
 validaciones, corte inclusivo, solapamientos, correcciones, auditoría atómica,
 roles y sedes, ausencia de historial, reservas de #191 y regresión monetaria.
 
-
 ## Validación en novedades
 
 Al seleccionar Vacaciones, el formulario consulta el saldo del empleado y muestra
