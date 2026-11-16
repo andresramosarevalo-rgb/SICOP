@@ -10,6 +10,7 @@ use App\Enums\TipoDocumento;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Nomina\StoreEmpleadoRequest;
 use App\Http\Requests\Nomina\UpdateEmpleadoRequest;
+use App\Http\Requests\Nomina\UpdateSaldoInicialVacacionesRequest;
 use App\Models\Area;
 use App\Models\ConceptoNomina;
 use App\Models\Contrato;
@@ -131,6 +132,23 @@ class EmpleadoController extends Controller
         $empleado->update($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Empleado actualizado.']);
+
+        return to_route('nomina.empleados.show', $empleado);
+    }
+
+    /**
+     * Guarda el total disfrutado al corte con el mismo bloqueo por empleado que las novedades.
+     * Auditable registra ambos campos y el usuario dentro de esta transacción.
+     */
+    public function actualizarSaldoInicialVacaciones(UpdateSaldoInicialVacacionesRequest $request, Empleado $empleado): RedirectResponse
+    {
+        DB::transaction(function () use ($request, $empleado): void {
+            $actual = Empleado::query()->visiblesPara($request->user())
+                ->lockForUpdate()->findOrFail($empleado->id);
+            $actual->update($request->validated());
+        }, 3);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Referencia histórica de vacaciones guardada.']);
 
         return to_route('nomina.empleados.show', $empleado);
     }

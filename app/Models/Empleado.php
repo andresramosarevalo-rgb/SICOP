@@ -30,12 +30,15 @@ use Illuminate\Support\Carbon;
  * @property int|null $sede_id
  * @property string $cargo
  * @property bool $es_activo
+ * @property int|null $dias_vacaciones_historicos
+ * @property Carbon|null $fecha_corte_vacaciones
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
 #[Fillable([
     'tipo_documento', 'numero_documento', 'nombres', 'apellidos', 'email',
     'telefono', 'direccion', 'fecha_nacimiento', 'area_id', 'sede_id', 'cargo', 'es_activo',
+    'dias_vacaciones_historicos', 'fecha_corte_vacaciones',
 ])]
 class Empleado extends Model
 {
@@ -135,6 +138,8 @@ class Empleado extends Model
             'tipo_documento' => TipoDocumento::class,
             'fecha_nacimiento' => 'date:Y-m-d',
             'es_activo' => 'boolean',
+            'dias_vacaciones_historicos' => 'integer',
+            'fecha_corte_vacaciones' => 'date:Y-m-d',
         ];
     }
 }

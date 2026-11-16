@@ -21,6 +21,7 @@ Route::middleware(['auth', 'verified', 'can:gestionar-nomina'])
         Route::resource('areas', AreaController::class)->only(['index', 'store', 'update']);
         Route::resource('empleados', EmpleadoController::class)->except(['destroy']);
         Route::patch('empleados/{empleado}/estado', [EmpleadoController::class, 'cambiarEstado'])->name('empleados.estado');
+        Route::patch('empleados/{empleado}/saldo-inicial-vacaciones', [EmpleadoController::class, 'actualizarSaldoInicialVacaciones'])->name('empleados.saldo-inicial-vacaciones');
         Route::resource('empleados.contratos', ContratoController::class)->only(['create', 'store']);
         Route::resource('empleados.asignaciones', AsignacionConceptoController::class)
             ->only(['store', 'destroy'])->shallow()->parameters(['asignaciones' => 'asignacion']);
