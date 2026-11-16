@@ -76,8 +76,14 @@ descuentan días no cubiertos por otras vacaciones; editar o eliminar devuelve
 únicamente los días que dejan de estar cubiertos.
 
 La consulta y las operaciones respetan los permisos por sede del expediente y
-los bloqueos de novedades liquidadas. Un saldo insuficiente impide guardar; las
-escrituras concurrentes no pueden comprometer el mismo saldo disponible.
+los bloqueos de novedades liquidadas. Las altas y los aumentos de consumo exigen
+saldo suficiente.
+Una edición de vacaciones del mismo empleado puede conservar o reducir el
+consumo total aunque exista saldo negativo previo. La comparación incluye la
+novedad original y su reemplazo al mismo horizonte temporal, todas las reservas
+futuras y la unión de solapamientos. Esta excepción no se aplica a altas, cambios
+de empleado ni conversiones desde otro tipo de novedad.
+Las escrituras concurrentes no pueden comprometer el mismo saldo disponible.
 
 Esta validación de días hábiles es independiente de los días calendario y los
 importes de liquidación de nómina.

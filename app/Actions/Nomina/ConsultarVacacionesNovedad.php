@@ -29,10 +29,10 @@ final class ConsultarVacacionesNovedad
         /** @var string $zonaHoraria */
         $zonaHoraria = config('vacaciones.zona_horaria', 'America/Bogota');
         $hoy = CarbonImmutable::parse($saldo['fechaCorte'], $zonaHoraria);
+        // Incluye la fecha original aunque se edite para comparar ambos consumos al mismo corte.
         /** @var string|null $ultimaFecha */
         $ultimaFecha = $empleado->novedades()
             ->where('tipo', TipoNovedad::Vacaciones)
-            ->when($excluidaId !== null, fn ($query) => $query->whereKeyNot($excluidaId))
             ->max(DB::raw('COALESCE(fecha_fin, fecha_inicio)'));
         $corteConsumo = CarbonImmutable::parse($ultimaFecha ?? $saldo['fechaCorte'], $zonaHoraria)->max($hoy);
 
@@ -51,6 +51,7 @@ final class ConsultarVacacionesNovedad
         $disponibles = (new Number($causados))->sub($sinPropuesta['diasUtilizados'], 4);
         $solicitados = null;
         $descontar = null;
+        $tieneEdicionSinAumento = false;
 
         if ($propuesta !== null) {
             $solicitados = $this->calendario->contarDias(
@@ -59,6 +60,14 @@ final class ConsultarVacacionesNovedad
             );
             $conPropuesta = $this->calcularSaldo->ejecutar($empleado, $corteConsumo, $excluidaId, $propuesta);
             $descontar = $conPropuesta['diasUtilizados'] - $sinPropuesta['diasUtilizados'];
+
+            if ($editada !== null && $editada->empleado_id === $empleado->id
+                && $editada->tipo === TipoNovedad::Vacaciones) {
+                // Compara el total con la original y con su reemplazo al mismo horizonte.
+                // Mantiene solapamientos y reservas; no transfiere crédito entre empleados.
+                $antesDeEditar = $this->calcularSaldo->ejecutar($empleado, $corteConsumo);
+                $tieneEdicionSinAumento = $conPropuesta['diasUtilizados'] <= $antesDeEditar['diasUtilizados'];
+            }
         }
 
         return [
@@ -68,7 +77,7 @@ final class ConsultarVacacionesNovedad
             'diasSolicitados' => $solicitados,
             'diasADescontar' => $descontar,
             'diasRestantes' => $descontar === null ? null : (string) $disponibles->sub($descontar, 4),
-            'tieneSaldoSuficiente' => $descontar === null ? null : $disponibles >= new Number($descontar),
+            'tieneSaldoSuficiente' => $descontar === null ? null : ($tieneEdicionSinAumento || $disponibles >= new Number($descontar)),
         ];
     }
 }
