@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Nomina;
 
+use App\Actions\Nomina\CalcularSaldoVacaciones;
 use App\Actions\Nomina\RegistrarContrato;
 use App\Enums\PeriodicidadPago;
 use App\Enums\TipoContrato;
@@ -90,9 +91,9 @@ class EmpleadoController extends Controller
     }
 
     /**
-     * Muestra el expediente del empleado con su historial de contratos y sus conceptos recurrentes.
+     * Muestra el expediente con contratos, saldo de vacaciones y conceptos recurrentes.
      */
-    public function show(Empleado $empleado): Response
+    public function show(Empleado $empleado, CalcularSaldoVacaciones $calcularSaldoVacaciones): Response
     {
         return Inertia::render('Nomina/Empleados/Show', [
             'empleado' => $empleado->load(['area:id,nombre', 'sede:id,nombre']),
@@ -103,6 +104,7 @@ class EmpleadoController extends Controller
                 'tipo_contrato' => $contrato->tipo_contrato->etiqueta(),
                 'periodicidad_pago' => $contrato->periodicidad_pago->etiqueta(),
             ]),
+            'saldoVacaciones' => $calcularSaldoVacaciones->ejecutar($empleado),
             'asignaciones' => $empleado->asignacionesConcepto()->with('concepto:id,codigo,nombre,tipo,forma_calculo,valor_base,porcentaje_base')->get(),
             'conceptosDisponibles' => ConceptoNomina::query()
                 ->where('es_activo', true)->where('es_sistema', false)
