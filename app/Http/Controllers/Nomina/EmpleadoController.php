@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Nomina;
 
+use App\Actions\Nomina\CalcularSaldoVacaciones;
 use App\Actions\Nomina\RegistrarContrato;
 use App\Enums\PeriodicidadPago;
 use App\Enums\TipoContrato;
@@ -10,6 +11,7 @@ use App\Enums\TipoDocumento;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Nomina\StoreEmpleadoRequest;
 use App\Http\Requests\Nomina\UpdateEmpleadoRequest;
+use App\Http\Requests\Nomina\UpdateSaldoInicialVacacionesRequest;
 use App\Models\Area;
 use App\Models\ConceptoNomina;
 use App\Models\Contrato;
@@ -91,9 +93,9 @@ class EmpleadoController extends Controller
     }
 
     /**
-     * Muestra el expediente del empleado con su historial de contratos y sus conceptos recurrentes.
+     * Muestra el expediente con contratos, saldo de vacaciones y conceptos recurrentes.
      */
-    public function show(Empleado $empleado): Response
+    public function show(Empleado $empleado, CalcularSaldoVacaciones $calcularSaldoVacaciones): Response
     {
         return Inertia::render('Nomina/Empleados/Show', [
             'empleado' => $empleado->load(['area:id,nombre', 'sede:id,nombre'])->makeVisible(Empleado::CAMPOS_BANCARIOS),
@@ -105,6 +107,7 @@ class EmpleadoController extends Controller
                 'tipo_contrato' => $contrato->tipo_contrato->etiqueta(),
                 'periodicidad_pago' => $contrato->periodicidad_pago->etiqueta(),
             ]),
+            'saldoVacaciones' => $calcularSaldoVacaciones->ejecutar($empleado),
             'asignaciones' => $empleado->asignacionesConcepto()->with('concepto:id,codigo,nombre,tipo,forma_calculo,valor_base,porcentaje_base')->get(),
             'conceptosDisponibles' => ConceptoNomina::query()
                 ->where('es_activo', true)->where('es_sistema', false)
@@ -131,6 +134,23 @@ class EmpleadoController extends Controller
         $empleado->update($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Empleado actualizado.']);
+
+        return to_route('nomina.empleados.show', $empleado);
+    }
+
+    /**
+     * Guarda el total disfrutado al corte con el mismo bloqueo por empleado que las novedades.
+     * Auditable registra ambos campos y el usuario dentro de esta transacción.
+     */
+    public function actualizarSaldoInicialVacaciones(UpdateSaldoInicialVacacionesRequest $request, Empleado $empleado): RedirectResponse
+    {
+        DB::transaction(function () use ($request, $empleado): void {
+            $actual = Empleado::query()->visiblesPara($request->user())
+                ->lockForUpdate()->findOrFail($empleado->id);
+            $actual->update($request->validated());
+        }, 3);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Referencia histórica de vacaciones guardada.']);
 
         return to_route('nomina.empleados.show', $empleado);
     }

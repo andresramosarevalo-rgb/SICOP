@@ -35,6 +35,8 @@ use Illuminate\Support\Carbon;
  * @property TipoCuentaBancaria|null $tipo_cuenta_bancaria
  * @property string $cargo
  * @property bool $es_activo
+ * @property int|null $dias_vacaciones_historicos
+ * @property Carbon|null $fecha_corte_vacaciones
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -42,6 +44,7 @@ use Illuminate\Support\Carbon;
     'tipo_documento', 'numero_documento', 'nombres', 'apellidos', 'email',
     'telefono', 'direccion', 'fecha_nacimiento', 'area_id', 'sede_id', 'cargo', 'es_activo',
     'banco', 'numero_cuenta_bancaria', 'tipo_cuenta_bancaria',
+    'dias_vacaciones_historicos', 'fecha_corte_vacaciones',
 ])]
 #[Hidden(['banco', 'numero_cuenta_bancaria', 'tipo_cuenta_bancaria'])]
 class Empleado extends Model
@@ -146,6 +149,8 @@ class Empleado extends Model
             'tipo_cuenta_bancaria' => TipoCuentaBancaria::class,
             'fecha_nacimiento' => 'date:Y-m-d',
             'es_activo' => 'boolean',
+            'dias_vacaciones_historicos' => 'integer',
+            'fecha_corte_vacaciones' => 'date:Y-m-d',
         ];
     }
 }

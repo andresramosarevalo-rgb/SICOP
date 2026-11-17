@@ -65,6 +65,7 @@ test('el 100 % de las rutas de nómina responde 403 al cajero y redirige al visi
         }
     }
 
-    expect($rutas)->toHaveCount(41)
+    // Issue #192: incluye el registro y la corrección de la referencia histórica.
+    expect($rutas)->toHaveCount(43)
         ->and($expuestas)->toBe([]);
 });

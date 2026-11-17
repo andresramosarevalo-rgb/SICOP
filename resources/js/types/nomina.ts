@@ -19,6 +19,8 @@ export type Empleado = {
     sede_id: number | null;
     sede?: { id: number; nombre: string } | null;
     contrato_vigente?: { id: number; periodicidad_pago: string } | null;
+    dias_vacaciones_historicos: number | null;
+    fecha_corte_vacaciones: string | null;
     cargo: string;
     banco?: string | null;
     numero_cuenta_bancaria?: string | null;
@@ -50,6 +52,26 @@ export type Contrato = {
     fecha_fin: string | null;
     valor_salario_base: string;
     es_vigente: boolean;
+};
+
+export type SaldoVacaciones = {
+    fechaCorte: string;
+    fechaIngreso: string | null;
+    diasCausados: string;
+    diasUtilizados: number;
+    diasDisponibles: string;
+    criterioCalendario: string;
+    advertencias: string[];
+};
+
+export type ConsultaVacacionesNovedad = {
+    saldoVacaciones: SaldoVacaciones;
+    diasProgramados: number;
+    diasDisponiblesParaProgramar: string;
+    diasSolicitados: number | null;
+    diasADescontar: number | null;
+    diasRestantes: string | null;
+    tieneSaldoSuficiente: boolean | null;
 };
 
 export type ParametroNomina = {

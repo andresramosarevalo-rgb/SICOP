@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Nomina;
 
+use App\Actions\Nomina\GuardarNovedad;
 use App\Enums\TipoNovedad;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Nomina\StoreNovedadRequest;
@@ -13,6 +14,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -59,9 +61,9 @@ class NovedadController extends Controller
     /**
      * Registra la novedad y vuelve al formulario para registrar la siguiente.
      */
-    public function store(StoreNovedadRequest $request): RedirectResponse
+    public function store(StoreNovedadRequest $request, GuardarNovedad $guardar): RedirectResponse
     {
-        Novedad::create($request->datosParaGuardar());
+        $guardar->ejecutar($request->datosParaGuardar());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Novedad registrada.']);
 
@@ -81,9 +83,9 @@ class NovedadController extends Controller
     /**
      * Actualiza una novedad que aún no se ha liquidado.
      */
-    public function update(UpdateNovedadRequest $request, Novedad $novedad): RedirectResponse
+    public function update(UpdateNovedadRequest $request, Novedad $novedad, GuardarNovedad $guardar): RedirectResponse
     {
-        $novedad->update($request->datosParaGuardar());
+        $guardar->ejecutar($request->datosParaGuardar(), $novedad);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Novedad actualizada.']);
 
@@ -97,7 +99,12 @@ class NovedadController extends Controller
     {
         abort_if($novedad->estaLiquidada(), 403, 'La novedad ya fue liquidada.');
 
-        $novedad->delete();
+        DB::transaction(function () use ($novedad): void {
+            $actual = Novedad::query()->lockForUpdate()->findOrFail($novedad->id);
+            abort_if($actual->estaLiquidada(), 403, 'La novedad ya fue liquidada.');
+            Empleado::query()->whereKey($actual->empleado_id)->lockForUpdate()->firstOrFail();
+            $actual->delete();
+        }, 3);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Novedad eliminada.']);
 
