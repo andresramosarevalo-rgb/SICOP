@@ -1,11 +1,8 @@
 # Saldos de vacaciones
 
-## Requisitos confirmados
-
 La causación es de 15 días hábiles por año de servicio, con proporcionalidad.
 La jornada es de lunes a sábado, excluyendo domingos y festivos nacionales
-colombianos. El alcance funcional se describe en la
-[issue #188](https://github.com/andresramosarevalo-rgb/SICOP/issues/188).
+colombianos.
 
 ## Cálculo y decisiones técnicas
 
@@ -63,5 +60,30 @@ autorizado no se resuelven y responden 404.
 El saldo depende del historial registrado: no incluye saldos iniciales ni
 compensaciones anteriores y no certifica el saldo histórico completo. Sin
 intervalos válidos devuelve cero días y fecha de ingreso nula. El calendario es
-global, sin jornadas particulares por empleado o sede. La consulta no valida
-saldo suficiente al registrar novedades.
+global, sin jornadas particulares por empleado o sede. La consulta del expediente conserva el corte a hoy. La validación de novedades
+se describe a continuación.
+
+## Validación en novedades
+
+Al seleccionar Vacaciones, el formulario consulta el saldo del empleado y muestra
+los días hábiles del período y el consumo adicional. El servidor recalcula y
+valida el saldo al guardar, sin depender de la consulta previa del formulario.
+
+Para validar la programación de vacaciones, se utiliza la causación acumulada hasta la fecha actual y se reserva el consumo de todas las vacaciones registradas, incluidas las futuras, sin anticipar causación. Este criterio corresponde a una decisión técnica pendiente de validación con el cliente.
+
+Al editar se excluye la novedad original antes de evaluar su reemplazo. Solo se
+descuentan días no cubiertos por otras vacaciones; editar o eliminar devuelve
+únicamente los días que dejan de estar cubiertos.
+
+La consulta y las operaciones respetan los permisos por sede del expediente y
+los bloqueos de novedades liquidadas. Las altas y los aumentos de consumo exigen
+saldo suficiente.
+Una edición de vacaciones del mismo empleado puede conservar o reducir el
+consumo total aunque exista saldo negativo previo. La comparación incluye la
+novedad original y su reemplazo al mismo horizonte temporal, todas las reservas
+futuras y la unión de solapamientos. Esta excepción no se aplica a altas, cambios
+de empleado ni conversiones desde otro tipo de novedad.
+Las escrituras concurrentes no pueden comprometer el mismo saldo disponible.
+
+Esta validación de días hábiles es independiente de los días calendario y los
+importes de liquidación de nómina.
