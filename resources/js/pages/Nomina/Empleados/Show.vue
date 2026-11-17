@@ -5,6 +5,7 @@ import Heading from '@/components/Heading.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import CambiarEstadoEmpleado from '@/components/Nomina/CambiarEstadoEmpleado.vue';
 import ConceptosRecurrentes from '@/components/Nomina/ConceptosRecurrentes.vue';
+import SaldoInicialVacaciones from '@/components/Nomina/SaldoInicialVacaciones.vue';
 import TablaContratos from '@/components/Nomina/TablaContratos.vue';
 import { Button } from '@/components/ui/button';
 import nomina from '@/routes/nomina';
@@ -135,12 +136,12 @@ function formatearFecha(fecha: string): string {
             <Heading
                 variant="small"
                 title="Vacaciones"
-                description="Cálculo orientativo según los contratos y las novedades registrados en SICOP. No certifica el saldo histórico."
+                description="Cálculo orientativo según los contratos, las novedades y la referencia histórica registrada. No certifica el saldo histórico."
             />
 
             <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
                 <p>
-                    Fecha de corte:
+                    Fecha de cálculo del saldo:
                     <time :datetime="saldoVacaciones.fechaCorte">
                         {{ formatearFecha(saldoVacaciones.fechaCorte) }}
                     </time>
@@ -172,12 +173,17 @@ function formatearFecha(fecha: string): string {
                 class="text-sm text-muted-foreground"
             >
                 No hay contratos con fechas válidas de servicio hasta la fecha
-                de corte. No se puede establecer la antigüedad del empleado.
+                de cálculo. No se puede establecer la antigüedad del empleado.
             </p>
 
             <p class="text-sm text-muted-foreground">
                 {{ saldoVacaciones.criterioCalendario }}
             </p>
+
+            <SaldoInicialVacaciones
+                :empleado="empleado"
+                :fecha-maxima="saldoVacaciones.fechaCorte"
+            />
 
             <ul
                 v-if="saldoVacaciones.advertencias.length"

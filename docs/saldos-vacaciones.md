@@ -6,8 +6,8 @@ colombianos.
 
 ## Cálculo y decisiones técnicas
 
-`CalcularSaldoVacaciones::ejecutar(Empleado, ?CarbonInterface)` consulta los contratos
-y las novedades de vacaciones en cada llamada. No persiste saldos ni depende de
+`CalcularSaldoVacaciones::ejecutar(Empleado, ?CarbonInterface)` consulta los contratos,
+la referencia histórica y las novedades de vacaciones en cada llamada. No persiste saldos calculados ni depende de
 recibos o de `periodo_nomina_id`, por lo que las reliquidaciones no agregan consumo.
 El corte predeterminado es la fecha en `America/Bogota`; puede recibirse una fecha
 explícita. Los límites de inicio, terminación y corte son inclusivos.
@@ -25,7 +25,8 @@ explícita. Los límites de inicio, terminación y corte son inclusivos.
 - **Consumo:** las novedades se intersectan con el servicio válido y el corte.
   Una fecha final nula representa un día; un rango invertido se excluye con
   advertencia. Se unen los intervalos antes de contar días hábiles para evitar
-  duplicados.
+  duplicados. Si hay referencia histórica aplicable, se suma su total disfrutado
+  y solo se cuentan novedades desde el día siguiente a su corte.
 - **Disponible:** causados menos utilizados, conservando resultados negativos.
   BCMath opera con 12 decimales; causados y disponibles se devuelven como cadenas
   con cuatro decimales, redondeadas al final.
@@ -57,11 +58,76 @@ El binding de empleados aplica `visiblesPara`: Administrador y Auxiliar de Nómi
 acceden a su sede; Superadmin tiene alcance global. Los empleados fuera del ámbito
 autorizado no se resuelven y responden 404.
 
-El saldo depende del historial registrado: no incluye saldos iniciales ni
-compensaciones anteriores y no certifica el saldo histórico completo. Sin
-intervalos válidos devuelve cero días y fecha de ingreso nula. El calendario es
-global, sin jornadas particulares por empleado o sede. La consulta del expediente conserva el corte a hoy. La validación de novedades
-se describe a continuación.
+El saldo depende del historial registrado y de la referencia histórica informada;
+no incluye compensaciones anteriores ni certifica el saldo histórico completo.
+Sin intervalos válidos la causación es cero y la fecha de ingreso es nula; un
+consumo histórico informado se conserva y puede producir un disponible negativo.
+El calendario es global, sin jornadas particulares por empleado o sede. La consulta
+del expediente conserva el corte a hoy.
+
+## Referencia histórica de vacaciones
+
+La referencia histórica registra el total de días hábiles de vacaciones
+disfrutados por un empleado hasta una fecha de corte inclusiva, incluyendo los
+días que también estén representados por novedades en SICOP. Esta información
+permite incorporar consumos anteriores al uso del sistema sin duplicar
+descuentos ni alterar la causación acumulada.
+
+Se incorporan dos columnas opcionales a `empleados` mediante una migración
+aditiva:
+
+- `dias_vacaciones_historicos`: entero no negativo que representa los días
+  hábiles disfrutados hasta el corte.
+- `fecha_corte_vacaciones`: fecha inclusiva que delimita el consumo histórico.
+
+Ambos campos deben tener valor o permanecer nulos. Un total de cero con fecha
+representa una referencia explícita. PostgreSQL garantiza esta integridad y
+el formulario valida que la fecha no sea posterior al día actual en
+`America/Bogota`. La migración conserva los registros existentes.
+
+Al registrar una referencia histórica por primera vez, el formulario propone
+automáticamente la fecha actual como corte histórico, permitiendo modificarla
+manualmente. Al corregir una referencia existente, se conserva la fecha
+previamente registrada. El corte es inclusivo y determina hasta qué día están
+comprendidas las vacaciones históricas informadas; las novedades posteriores
+se descuentan adicionalmente, evitando contabilizar dos veces los días
+ya incluidos.
+
+El saldo se calcula sumando el consumo histórico y los días hábiles de las
+novedades posteriores al corte, unificando los intervalos solapados. Una novedad
+que atraviesa la fecha histórica solo aporta los días posteriores, limitados al
+servicio válido y a la fecha de consulta. La causación mantiene todos los
+periodos contractuales y su proporcionalidad por aniversarios; el corte
+histórico no reinicia la antigüedad.
+
+Por ejemplo, con 30 días causados y 12 disfrutados hasta el corte, el disponible
+es de 18 días si no existen consumos posteriores. Las novedades incluidas
+completamente en el histórico no generan descuentos adicionales. Para corregir
+el total disfrutado debe actualizarse la referencia, no las novedades que ya
+están comprendidas en ella.
+
+En consultas anteriores al corte histórico, el total registrado no se aplica
+ni se prorratea. Se utilizan las novedades disponibles para esa fecha y se
+advierte que no es posible reconstruir completamente el consumo anterior.
+Los empleados sin referencia conservan el comportamiento habitual del cálculo.
+
+El expediente permite registrar y corregir ambos valores mediante una
+operación restringida por `gestionar-nomina` y la visibilidad por sede. La
+actualización utiliza una transacción con bloqueo de la fila del empleado y
+reutiliza `Empleado::Auditable` para conservar valores anteriores y nuevos,
+usuario, fecha y sede. Si falla la auditoría, se revierte la operación; guardar
+valores idénticos no genera eventos adicionales.
+
+Las correcciones sustituyen la referencia vigente y actualizan las consultas
+posteriores sin eliminar novedades ni reservas. Pueden producir saldos
+negativos, que permanecen visibles y sujetos a las validaciones existentes.
+La referencia no modifica los recibos, importes, días calendario de
+liquidación ni las restricciones de cierre y reapertura de periodos.
+
+`SaldoInicialVacacionesTest` verifica el registro, las validaciones, el corte
+inclusivo, los solapamientos, las correcciones, la auditoría, los permisos por
+sede, la ausencia de historial y la compatibilidad con las novedades y los
+cálculos monetarios.
 
 ## Validación en novedades
 

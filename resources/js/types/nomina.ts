@@ -19,6 +19,8 @@ export type Empleado = {
     sede_id: number | null;
     sede?: { id: number; nombre: string } | null;
     contrato_vigente?: { id: number; periodicidad_pago: string } | null;
+    dias_vacaciones_historicos: number | null;
+    fecha_corte_vacaciones: string | null;
     cargo: string;
     es_activo: boolean;
 };

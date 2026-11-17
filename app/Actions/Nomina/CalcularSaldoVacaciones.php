@@ -11,7 +11,7 @@ use Carbon\CarbonInterface;
 use RoundingMode;
 
 /**
- * Saldo calculado a partir de contratos y novedades registrados, sin guardar movimientos.
+ * Saldo calculado a partir de contratos, referencia histórica y novedades, sin guardar movimientos.
  * Los días de servicio causan 15 días por año cumplido y una fracción del siguiente año.
  * El consumo usa su propio calendario, independiente de los días pagados en nómina.
  */
@@ -38,11 +38,26 @@ final class CalcularSaldoVacaciones
             $fechaCorte?->toDateString() ?? CarbonImmutable::now($zonaHoraria)->toDateString(),
             $zonaHoraria,
         )->startOfDay();
+        // Se consulta de nuevo: una corrección debe verse incluso con un empleado ya cargado.
+        $referencia = Empleado::query()->findOrFail($empleado->id, [
+            'dias_vacaciones_historicos', 'fecha_corte_vacaciones',
+        ]);
+        $corteHistorico = $referencia->fecha_corte_vacaciones === null ? null
+            : CarbonImmutable::parse($referencia->fecha_corte_vacaciones->toDateString(), $zonaHoraria);
+        $tieneReferenciaAplicable = $corteHistorico !== null && $corteHistorico->lte($corte);
         $advertencias = [
-            'Saldo calculado con los contratos y las novedades registrados en SICOP. '
-            .'No certifica el historial completo ni incluye saldos iniciales o compensaciones anteriores.',
+            $tieneReferenciaAplicable
+                ? 'Saldo calculado con los contratos, la referencia histórica y las novedades posteriores a su corte. '
+                    .'La referencia incluye todos los días disfrutados hasta ese día. No certifica el historial completo ni incluye compensaciones anteriores.'
+                : 'Saldo calculado con los contratos y las novedades registrados en SICOP. '
+                    .'No certifica el historial completo ni incluye saldos iniciales o compensaciones anteriores.',
             ...$this->calendario->advertencias(),
         ];
+
+        if ($corteHistorico !== null && ! $tieneReferenciaAplicable) {
+            $advertencias[] = 'La referencia histórica tiene un corte posterior a esta consulta y no se aplica. '
+                .'Su total no permite reconstruir los días disfrutados a una fecha anterior.';
+        }
         $servicio = [];
 
         $contratos = $empleado->contratos()
@@ -104,6 +119,11 @@ final class CalcularSaldoVacaciones
                 continue;
             }
 
+            if ($tieneReferenciaAplicable) {
+                // El corte histórico es inclusivo, también para novedades que lo atraviesan.
+                $desde = $desde->max($corteHistorico->addDay());
+            }
+
             foreach ($servicio as $intervalo) {
                 $inicio = $desde->max($intervalo['desde']);
                 $fin = $hasta->min($intervalo['hasta']);
@@ -114,7 +134,7 @@ final class CalcularSaldoVacaciones
             }
         }
 
-        $utilizados = 0;
+        $utilizados = $tieneReferenciaAplicable ? $referencia->dias_vacaciones_historicos : 0;
 
         foreach ($this->unirIntervalos($vacaciones) as $intervalo) {
             $utilizados += $this->calendario->contarDias($intervalo['desde'], $intervalo['hasta']);
