@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Concerns\Auditable;
 use App\Concerns\FiltraPorSede;
+use App\Enums\TipoCuentaBancaria;
 use App\Enums\TipoDocumento;
 use Database\Factories\EmpleadoFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,6 +30,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $fecha_nacimiento
  * @property int $area_id
  * @property int|null $sede_id
+ * @property string|null $banco
+ * @property string|null $numero_cuenta_bancaria
+ * @property TipoCuentaBancaria|null $tipo_cuenta_bancaria
  * @property string $cargo
  * @property bool $es_activo
  * @property int|null $dias_vacaciones_historicos
@@ -38,10 +43,15 @@ use Illuminate\Support\Carbon;
 #[Fillable([
     'tipo_documento', 'numero_documento', 'nombres', 'apellidos', 'email',
     'telefono', 'direccion', 'fecha_nacimiento', 'area_id', 'sede_id', 'cargo', 'es_activo',
+    'banco', 'numero_cuenta_bancaria', 'tipo_cuenta_bancaria',
     'dias_vacaciones_historicos', 'fecha_corte_vacaciones',
 ])]
+#[Hidden(['banco', 'numero_cuenta_bancaria', 'tipo_cuenta_bancaria'])]
 class Empleado extends Model
 {
+    /** Campos que se muestran únicamente en el expediente y su edición. */
+    public const CAMPOS_BANCARIOS = ['banco', 'numero_cuenta_bancaria', 'tipo_cuenta_bancaria'];
+
     /** @use HasFactory<EmpleadoFactory> */
     use Auditable, FiltraPorSede, HasFactory;
 
@@ -136,6 +146,7 @@ class Empleado extends Model
     {
         return [
             'tipo_documento' => TipoDocumento::class,
+            'tipo_cuenta_bancaria' => TipoCuentaBancaria::class,
             'fecha_nacimiento' => 'date:Y-m-d',
             'es_activo' => 'boolean',
             'dias_vacaciones_historicos' => 'integer',

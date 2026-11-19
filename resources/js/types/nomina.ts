@@ -22,6 +22,14 @@ export type Empleado = {
     dias_vacaciones_historicos: number | null;
     fecha_corte_vacaciones: string | null;
     cargo: string;
+    banco?: string | null;
+    numero_cuenta_bancaria?: string | null;
+    tipo_cuenta_bancaria?:
+        | 'ahorros'
+        | 'corriente'
+        | 'pensional'
+        | 'nomina'
+        | null;
     es_activo: boolean;
 };
 

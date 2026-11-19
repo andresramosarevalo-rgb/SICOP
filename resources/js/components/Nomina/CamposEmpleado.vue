@@ -3,11 +3,12 @@ import { ref } from 'vue';
 import InputError from '@/components/InputError.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { Area, Empleado, OpcionTipoDocumento } from '@/types';
+import type { Area, Empleado, Opcion, OpcionTipoDocumento } from '@/types';
 
 const props = defineProps<{
     areas: Pick<Area, 'id' | 'nombre'>[];
     tiposDocumento: OpcionTipoDocumento[];
+    tiposCuentaBancaria: Opcion[];
     errors: Record<string, string | undefined>;
     empleado?: Empleado;
     sedes: { id: number; nombre: string }[];
@@ -17,6 +18,7 @@ const props = defineProps<{
 // Los selectores conservan la elección al recibir errores del servidor.
 const sedeSeleccionada = ref(props.empleado?.sede_id ?? '');
 const areaSeleccionada = ref(props.empleado?.area_id ?? '');
+const tipoCuentaSeleccionado = ref(props.empleado?.tipo_cuenta_bancaria ?? '');
 const tipoDocumentoSeleccionado = ref(
     props.empleado?.tipo_documento ?? props.tiposDocumento[0]?.valor ?? '',
 );
@@ -47,6 +49,18 @@ const camposTexto = [
         tipo: 'date',
     },
     { nombre: 'cargo', etiqueta: 'Cargo', requerido: true },
+    {
+        nombre: 'banco',
+        etiqueta: 'Banco',
+        requerido: true,
+        maximo: 255,
+    },
+    {
+        nombre: 'numero_cuenta_bancaria',
+        etiqueta: 'Número de cuenta bancaria',
+        requerido: true,
+        maximo: 255,
+    },
 ] as const;
 </script>
 
@@ -96,11 +110,49 @@ const camposTexto = [
                 :type="'tipo' in campo ? campo.tipo : 'text'"
                 :default-value="empleado?.[campo.nombre] ?? ''"
                 :required="campo.requerido"
+                :maxlength="'maximo' in campo ? campo.maximo : undefined"
             />
             <InputError
                 reservar-espacio
                 :id="`${campo.nombre}_error`"
                 :message="errors[campo.nombre]"
+            />
+        </div>
+
+        <div class="flex min-w-0 flex-col gap-2">
+            <Label for="tipo_cuenta_bancaria">Tipo de cuenta bancaria</Label>
+            <select
+                id="tipo_cuenta_bancaria"
+                name="tipo_cuenta_bancaria"
+                :aria-invalid="!!errors.tipo_cuenta_bancaria"
+                :aria-describedby="
+                    errors.tipo_cuenta_bancaria
+                        ? 'tipo_cuenta_bancaria_error'
+                        : undefined
+                "
+                :class="claseSelect"
+                required
+                v-model="tipoCuentaSeleccionado"
+            >
+                <option value="" disabled>
+                    {{
+                        empleado
+                            ? 'Sin registrar'
+                            : 'Seleccione un tipo de cuenta'
+                    }}
+                </option>
+                <option
+                    v-for="tipo in tiposCuentaBancaria"
+                    :key="tipo.valor"
+                    :value="tipo.valor"
+                >
+                    {{ tipo.etiqueta }}
+                </option>
+            </select>
+            <InputError
+                reservar-espacio
+                id="tipo_cuenta_bancaria_error"
+                :message="errors.tipo_cuenta_bancaria"
             />
         </div>
 
