@@ -24,10 +24,6 @@ class CerrarCajaRequest extends FormRequest
     {
         return [
             'fecha' => ['required', 'date_format:Y-m-d', 'before_or_equal:today'],
-            'valor_efectivo_contado' => ['required', 'numeric', 'min:0', 'decimal:0,2', 'max:9999999999999'],
-            'valor_reportado_datafono' => ['required', 'numeric', 'min:0', 'decimal:0,2', 'max:9999999999999'],
-            'valor_reportado_qr' => ['required', 'numeric', 'min:0', 'decimal:0,2', 'max:9999999999999'],
-            'justificacion' => ['nullable', 'string', 'max:1000'],
         ];
     }
 
@@ -41,7 +37,6 @@ class CerrarCajaRequest extends FormRequest
         return [
             'required' => 'Este campo es obligatorio.',
             'fecha.before_or_equal' => 'La fecha no puede ser futura.',
-            'min' => 'El valor no puede ser negativo.',
         ];
     }
 }

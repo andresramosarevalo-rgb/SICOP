@@ -79,7 +79,7 @@ test('después de reabrir el día se puede cerrar de nuevo con las cifras correg
     $this->actingAs($this->gerente)->post(route('pos.sedes.cierre.reabrir', $this->sede), ['fecha' => today()->toDateString()]);
 
     $this->actingAs($this->usuarioSede)
-        ->post(route('pos.sedes.cierre.store', $this->sede), ['fecha' => today()->toDateString(), 'valor_efectivo_contado' => '400000', 'valor_reportado_datafono' => '0', 'valor_reportado_qr' => '0'])
+        ->post(route('pos.sedes.cierre.store', $this->sede), ['fecha' => today()->toDateString()])
         ->assertSessionHasNoErrors();
 
     expect(CierreCaja::first())

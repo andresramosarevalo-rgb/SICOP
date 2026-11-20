@@ -4,6 +4,7 @@ import AsignacionConceptoController from '@/actions/App/Http/Controllers/Nomina/
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
+import InputDinero from '@/components/InputDinero.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatearPesos } from '@/lib/formato';
@@ -139,7 +140,7 @@ const claseSelect =
             </div>
             <div class="flex min-w-0 flex-col gap-2">
                 <Label for="valor_asignado">Valor (opcional)</Label>
-                <Input
+                <InputDinero
                     id="valor_asignado"
                     name="valor_asignado"
                     :aria-invalid="!!errors.valor_asignado"
@@ -148,9 +149,6 @@ const claseSelect =
                             ? 'asignacion_valor_asignado_error'
                             : undefined
                     "
-                    type="number"
-                    min="0"
-                    step="0.01"
                 />
                 <InputError
                     reservar-espacio
