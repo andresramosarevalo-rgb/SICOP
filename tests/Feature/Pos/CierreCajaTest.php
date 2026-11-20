@@ -27,10 +27,6 @@ function datosCierre(array $sobrescribir = []): array
 {
     return [
         'fecha' => today()->toDateString(),
-        'valor_efectivo_contado' => '850000',
-        'valor_reportado_datafono' => '100000',
-        'valor_reportado_qr' => '350000',
-        'justificacion' => null,
         ...$sobrescribir,
     ];
 }
@@ -72,7 +68,7 @@ function datosSoatDelDia(): array
 }
 
 // Issue #77, criterio 1
-test('la sede cierra el día cuando todo cuadra y se congelan las cifras', function () {
+test('la sede cierra el día sin digitar conteos y se congelan las cifras del sistema', function () {
     $this->actingAs($this->usuarioSede)
         ->post(route('pos.sedes.cierre.store', $this->sede), datosCierre())
         ->assertRedirect(route('pos.sedes.cierre.show', ['sede' => $this->sede, 'fecha' => today()->toDateString()]))
@@ -86,6 +82,8 @@ test('la sede cierra el día cuando todo cuadra y se congelan las cifras', funct
         ->valor_gastos->toBe('0.00')
         ->valor_efectivo_esperado->toBe('850000.00')
         ->valor_efectivo_contado->toBe('850000.00')
+        ->valor_reportado_datafono->toBe('100000.00')
+        ->valor_reportado_qr->toBe('350000.00')
         ->valor_diferencia_efectivo->toBe('0.00')
         ->valor_diferencia_datafono->toBe('0.00')
         ->valor_diferencia_qr->toBe('0.00')
@@ -101,7 +99,7 @@ test('los gastos y los gestores salen del efectivo esperado y el sistema calcula
     GastoCaja::factory()->for($cierre)->create(['valor_gasto' => 50000]);
 
     $this->actingAs($this->usuarioSede)
-        ->post(route('pos.sedes.cierre.store', $this->sede), datosCierre(['valor_efectivo_contado' => '800000']))
+        ->post(route('pos.sedes.cierre.store', $this->sede), datosCierre())
         ->assertSessionHasNoErrors();
 
     expect($cierre->fresh())
@@ -111,57 +109,16 @@ test('los gastos y los gestores salen del efectivo esperado y el sistema calcula
         ->valor_a_consignar->toBe('600000.00');
 });
 
-// Issue #77, criterio 2
-test('un faltante de efectivo exige justificación', function () {
-    $this->actingAs($this->usuarioSede)
-        ->post(route('pos.sedes.cierre.store', $this->sede), datosCierre(['valor_efectivo_contado' => '840000']))
-        ->assertSessionHasErrors(['justificacion' => 'Hay diferencias en la caja: escriba la justificación.']);
-
-    expect(CierreCaja::where('estado', EstadoCierre::Cerrado)->count())->toBe(0);
-
-    $this->actingAs($this->usuarioSede)
-        ->post(route('pos.sedes.cierre.store', $this->sede), datosCierre(['valor_efectivo_contado' => '840000', 'justificacion' => 'Se prestó para el almuerzo']))
-        ->assertSessionHasNoErrors();
-
-    expect(CierreCaja::first())
-        ->estado->toBe(EstadoCierre::Cerrado)
-        ->valor_diferencia_efectivo->toBe('-10000.00')
-        ->justificacion->toBe('Se prestó para el almuerzo');
-});
-
-// Issue #77, criterio 2
-test('un sobrante de efectivo o una diferencia en datáfono o QR también exigen justificación', function (array $cambio, string $campo, string $diferencia) {
-    $this->actingAs($this->usuarioSede)
-        ->post(route('pos.sedes.cierre.store', $this->sede), datosCierre($cambio))
-        ->assertSessionHasErrors('justificacion');
-
-    $this->actingAs($this->usuarioSede)
-        ->post(route('pos.sedes.cierre.store', $this->sede), datosCierre([...$cambio, 'justificacion' => 'Revisado']))
-        ->assertSessionHasNoErrors();
-
-    expect(CierreCaja::first()->{$campo})->toBe($diferencia);
-})->with([
-    'sobrante de efectivo' => [['valor_efectivo_contado' => '855000'], 'valor_diferencia_efectivo', '5000.00'],
-    'datáfono menor' => [['valor_reportado_datafono' => '90000'], 'valor_diferencia_datafono', '-10000.00'],
-    'QR mayor' => [['valor_reportado_qr' => '360000'], 'valor_diferencia_qr', '10000.00'],
-]);
-
-// Issue #77, criterio 2
-test('la justificación solo con espacios no cuenta', function () {
-    $this->actingAs($this->usuarioSede)
-        ->post(route('pos.sedes.cierre.store', $this->sede), datosCierre(['valor_efectivo_contado' => '1', 'justificacion' => '   ']))
-        ->assertSessionHasErrors('justificacion');
-});
-
-// Issue #77, criterio 1
-test('el arqueo exige el efectivo contado y los totales de datáfono y QR sin negativos', function () {
+test('el cierre ya no pide efectivo contado, datáfono ni QR', function () {
     $this->actingAs($this->usuarioSede)
         ->post(route('pos.sedes.cierre.store', $this->sede), ['fecha' => today()->toDateString()])
-        ->assertSessionHasErrors(['valor_efectivo_contado', 'valor_reportado_datafono', 'valor_reportado_qr']);
+        ->assertSessionHasNoErrors();
 
-    $this->actingAs($this->usuarioSede)
-        ->post(route('pos.sedes.cierre.store', $this->sede), datosCierre(['valor_efectivo_contado' => '-1']))
-        ->assertSessionHasErrors('valor_efectivo_contado');
+    expect(CierreCaja::firstOrFail())
+        ->estado->toBe(EstadoCierre::Cerrado)
+        ->valor_diferencia_efectivo->toBe('0.00')
+        ->valor_diferencia_datafono->toBe('0.00')
+        ->valor_diferencia_qr->toBe('0.00');
 });
 
 // Issue #77, criterios 3 y 5
@@ -184,7 +141,7 @@ test('se puede cerrar un día anterior que quedó sin cerrar', function () {
     Curso::factory()->for($this->sede)->create(['fecha' => $ayer, 'valor_efectivo' => 100000, 'valor_pago_gestor' => 0]);
 
     $this->actingAs($this->usuarioSede)
-        ->post(route('pos.sedes.cierre.store', $this->sede), datosCierre(['fecha' => $ayer->toDateString(), 'valor_efectivo_contado' => '300000', 'valor_reportado_datafono' => '0', 'valor_reportado_qr' => '0']))
+        ->post(route('pos.sedes.cierre.store', $this->sede), datosCierre(['fecha' => $ayer->toDateString()]))
         ->assertSessionHasNoErrors();
 
     expect(CierreCaja::whereDate('fecha', $ayer)->first())
