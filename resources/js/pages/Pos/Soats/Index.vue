@@ -2,6 +2,7 @@
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import Heading from '@/components/Heading.vue';
+import ImportarExcel from '@/components/Pos/ImportarExcel.vue';
 import PanelTabla from '@/components/Pos/PanelTabla.vue';
 import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
@@ -59,6 +60,13 @@ defineOptions({
                 </Button>
             </div>
         </div>
+
+        <ImportarExcel
+            v-if="props.sede.es_activa"
+            :sede-id="props.sede.id"
+            tipo="soats"
+            etiqueta="SOAT"
+        />
 
         <PanelTabla titulo="SOAT registrados">
             <table class="w-full text-left text-sm">
