@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { Badge } from '@/components/ui/badge';
-import { formatearPesos } from '@/lib/formato';
+import { formatearFecha, formatearPesos } from '@/lib/formato';
 import type { Contrato } from '@/types';
 
 defineProps<{
@@ -9,41 +8,44 @@ defineProps<{
 </script>
 
 <template>
-    <div class="overflow-x-auto rounded-xl border">
-        <table class="w-full text-left text-sm">
-            <thead class="border-b bg-muted/50 text-muted-foreground">
-                <tr>
-                    <th class="px-4 py-2 font-medium">Tipo</th>
-                    <th class="px-4 py-2 font-medium">Periodicidad</th>
-                    <th class="px-4 py-2 font-medium">Vigencia</th>
-                    <th class="px-4 py-2 text-right font-medium">
-                        Salario base
-                    </th>
-                    <th class="px-4 py-2 font-medium">Estado</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y">
-                <tr v-for="contrato in contratos" :key="contrato.id">
-                    <td class="px-4 py-2">{{ contrato.tipo_contrato }}</td>
-                    <td class="px-4 py-2">{{ contrato.periodicidad_pago }}</td>
-                    <td class="px-4 py-2 whitespace-nowrap">
-                        {{ contrato.fecha_inicio }} —
-                        {{ contrato.fecha_fin ?? 'sin fecha de fin' }}
-                    </td>
-                    <td class="px-4 py-2 text-right">
-                        {{ formatearPesos(contrato.valor_salario_base) }}
-                    </td>
-                    <td class="px-4 py-2">
-                        <Badge
-                            :variant="
-                                contrato.es_vigente ? 'secondary' : 'outline'
-                            "
-                        >
-                            {{ contrato.es_vigente ? 'Vigente' : 'Terminado' }}
-                        </Badge>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <table class="min-w-[720px]">
+        <thead>
+            <tr>
+                <th scope="col">Tipo</th>
+                <th scope="col">Periodicidad</th>
+                <th scope="col">Vigencia</th>
+                <th scope="col">Salario base</th>
+                <th scope="col">Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="contrato in contratos" :key="contrato.id">
+                <td>{{ contrato.tipo_contrato }}</td>
+                <td class="capitalize">{{ contrato.periodicidad_pago }}</td>
+                <td class="whitespace-nowrap">
+                    {{ formatearFecha(contrato.fecha_inicio) }} –
+                    {{
+                        contrato.fecha_fin
+                            ? formatearFecha(contrato.fecha_fin)
+                            : 'sin fecha de fin'
+                    }}
+                </td>
+                <td class="font-heading whitespace-nowrap">
+                    {{ formatearPesos(contrato.valor_salario_base) }}
+                </td>
+                <td>
+                    <span
+                        class="inline-flex rounded-full px-3 py-[5px] text-[13px] leading-[normal] font-semibold"
+                        :class="
+                            contrato.es_vigente
+                                ? 'bg-ok-bg text-success'
+                                : 'bg-muted text-muted-foreground'
+                        "
+                    >
+                        {{ contrato.es_vigente ? 'Vigente' : 'Finalizado' }}
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </template>

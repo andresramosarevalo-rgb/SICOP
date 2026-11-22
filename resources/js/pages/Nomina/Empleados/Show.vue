@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import Heading from '@/components/Heading.vue';
-import BotonAtras from '@/components/Nomina/BotonAtras.vue';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
+import PanelTabla from '@/components/Pos/PanelTabla.vue';
 import CambiarEstadoEmpleado from '@/components/Nomina/CambiarEstadoEmpleado.vue';
 import ConceptosRecurrentes from '@/components/Nomina/ConceptosRecurrentes.vue';
 import SaldoInicialVacaciones from '@/components/Nomina/SaldoInicialVacaciones.vue';
 import TablaContratos from '@/components/Nomina/TablaContratos.vue';
 import { Button } from '@/components/ui/button';
+import { formatearFecha } from '@/lib/formato';
 import nomina from '@/routes/nomina';
 import type {
     AsignacionConcepto,
@@ -39,6 +40,7 @@ defineOptions({
 });
 
 const datos = computed(() => [
+    { etiqueta: 'Sede', valor: props.empleado.sede?.nombre },
     {
         etiqueta: 'Documento',
         valor: `${props.tipoDocumento} ${props.empleado.numero_documento}`,
@@ -46,7 +48,12 @@ const datos = computed(() => [
     { etiqueta: 'Correo electrónico', valor: props.empleado.email },
     { etiqueta: 'Teléfono', valor: props.empleado.telefono },
     { etiqueta: 'Dirección', valor: props.empleado.direccion },
-    { etiqueta: 'Fecha de nacimiento', valor: props.empleado.fecha_nacimiento },
+    {
+        etiqueta: 'Fecha de nacimiento',
+        valor: props.empleado.fecha_nacimiento
+            ? formatearFecha(props.empleado.fecha_nacimiento)
+            : '',
+    },
     { etiqueta: 'Área', valor: props.empleado.area?.nombre },
     { etiqueta: 'Cargo', valor: props.empleado.cargo },
     { etiqueta: 'Banco', valor: props.empleado.banco },
@@ -66,85 +73,124 @@ const diasVacaciones = computed(() => [
     { etiqueta: 'Utilizados', valor: props.saldoVacaciones.diasUtilizados },
     { etiqueta: 'Disponibles', valor: props.saldoVacaciones.diasDisponibles },
 ]);
-
-function formatearFecha(fecha: string): string {
-    return fecha.split('-').reverse().join('/');
-}
 </script>
 
 <template>
     <Head :title="`${empleado.nombres} ${empleado.apellidos}`" />
 
-    <div class="flex h-full max-w-3xl min-w-0 flex-1 flex-col gap-6 p-4">
-        <BotonAtras :respaldo="nomina.empleados.index()" />
-
+    <PaginaPos>
         <div
-            class="flex flex-wrap items-start justify-between gap-4 wrap-anywhere"
+            class="rv flex flex-wrap items-start justify-between gap-5 rounded-[22px] border border-brand-gold/55 bg-cream px-7 py-6"
+            style="--i: 1"
         >
-            <Heading
-                :title="`${empleado.nombres} ${empleado.apellidos}`"
-                description="Expediente del empleado."
-            />
+            <div class="flex min-w-0 flex-col gap-2.5">
+                <div class="flex flex-wrap items-center gap-3">
+                    <h1
+                        class="font-heading text-3xl leading-[1.15] font-extrabold wrap-anywhere md:text-[34px]"
+                    >
+                        {{ empleado.nombres }} {{ empleado.apellidos }}
+                    </h1>
+                    <span
+                        class="inline-flex rounded-full px-3 py-[5px] text-[13px] leading-[normal] font-semibold"
+                        :class="
+                            empleado.es_activo
+                                ? 'bg-ok-bg text-success'
+                                : 'bg-muted text-muted-foreground'
+                        "
+                        >{{ empleado.es_activo ? 'Activo' : 'Inactivo' }}</span
+                    >
+                </div>
+                <p class="text-base leading-[1.6] text-muted-foreground">
+                    Expediente del empleado · {{ tipoDocumento }}
+                    {{ empleado.numero_documento }}
+                </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2.5">
+                <CambiarEstadoEmpleado :empleado="empleado" />
+                <Button
+                    variant="outline"
+                    as-child
+                    class="boton-plano h-12 rounded-full border-line-strong bg-card px-[22px] text-[15px] font-semibold shadow-none hover:bg-card dark:bg-card dark:hover:bg-card"
+                >
+                    <Link :href="nomina.empleados.edit(empleado.id)"
+                        >Editar</Link
+                    >
+                </Button>
+                <Button
+                    as-child
+                    class="boton-plano h-12 rounded-full px-6 text-[15px] font-bold hover:bg-primary"
+                >
+                    <Link :href="nomina.empleados.contratos.create(empleado.id)"
+                        >Registrar contrato</Link
+                    >
+                </Button>
+            </div>
         </div>
 
         <div
             v-if="!contratoVigente"
-            class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/50 bg-destructive/5 p-4 text-sm"
+            class="rv flex flex-wrap items-center justify-between gap-3 rounded-[18px] border border-danger/40 bg-danger-bg px-5 py-4 text-sm"
+            style="--i: 2"
         >
             <p>
                 <strong>Este empleado no tiene contrato vigente</strong> y no se
                 incluirá en la liquidación de la nómina.
             </p>
-            <Button as-child>
-                <Link :href="nomina.empleados.contratos.create(empleado.id)"
-                    >Registrar contrato</Link
-                >
-            </Button>
         </div>
 
-        <dl class="grid gap-4 rounded-xl border p-4 sm:grid-cols-2">
-            <div v-for="dato in datos" :key="dato.etiqueta">
-                <dt class="text-sm text-muted-foreground">
-                    {{ dato.etiqueta }}
-                </dt>
-                <dd class="font-medium wrap-anywhere">
-                    {{ dato.valor || '—' }}
-                </dd>
-            </div>
-        </dl>
-
-        <div class="flex flex-wrap gap-2">
-            <Button as-child>
-                <Link :href="nomina.empleados.edit(empleado.id)">Editar</Link>
-            </Button>
-            <CambiarEstadoEmpleado :empleado="empleado" />
-        </div>
-
-        <section class="flex flex-col gap-4">
-            <div class="flex flex-wrap items-center justify-between gap-4">
-                <Heading
-                    variant="small"
-                    title="Contratos"
-                    description="El más reciente primero."
-                />
-                <Button variant="outline" as-child>
-                    <Link :href="nomina.empleados.contratos.create(empleado.id)"
-                        >Nuevo contrato</Link
+        <section
+            class="rv rounded-[22px] border bg-card px-7 py-6"
+            style="--i: 2"
+        >
+            <dl
+                class="grid grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] gap-5"
+            >
+                <div v-for="dato in datos" :key="dato.etiqueta">
+                    <dt class="text-sm leading-[normal] text-muted-foreground">
+                        {{ dato.etiqueta }}
+                    </dt>
+                    <dd
+                        class="mt-1 text-base leading-[normal] font-semibold wrap-anywhere"
                     >
-                </Button>
+                        {{ dato.valor || '—' }}
+                    </dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="rv flex flex-col gap-3.5" style="--i: 3">
+            <div class="flex flex-wrap items-baseline gap-x-3">
+                <h2 class="font-heading text-lg leading-[normal] font-bold">
+                    Contratos
+                </h2>
+                <span class="text-sm text-muted-foreground"
+                    >El más reciente primero</span
+                >
             </div>
-            <TablaContratos v-if="contratos.length" :contratos="contratos" />
+            <PanelTabla
+                v-if="contratos.length"
+                titulo="Contratos"
+                sin-animacion
+                ocultar-titulo
+            >
+                <TablaContratos :contratos="contratos" />
+            </PanelTabla>
             <p v-else class="text-sm text-muted-foreground">
                 El empleado no tiene contratos registrados.
             </p>
         </section>
 
-        <section class="flex flex-col gap-4">
-            <Heading
-                variant="small"
-                title="Vacaciones"
-                description="Cálculo orientativo según los contratos, las novedades y la referencia histórica registrada. No certifica el saldo histórico."
-            />
+        <section class="rv flex flex-col gap-3.5" style="--i: 4">
+            <div class="flex flex-col gap-1">
+                <h2 class="font-heading text-lg leading-[normal] font-bold">
+                    Vacaciones
+                </h2>
+                <p class="text-sm text-muted-foreground">
+                    Cálculo orientativo según los contratos, las novedades y la
+                    referencia histórica registrada. No certifica el saldo
+                    histórico.
+                </p>
+            </div>
 
             <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
                 <p>
@@ -161,16 +207,25 @@ function formatearFecha(fecha: string): string {
                 </p>
             </div>
 
-            <dl class="grid gap-4 rounded-xl border p-4 sm:grid-cols-3">
-                <div v-for="saldo in diasVacaciones" :key="saldo.etiqueta">
-                    <dt class="text-sm text-muted-foreground">
+            <dl
+                class="grid grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] gap-4"
+            >
+                <div
+                    v-for="saldo in diasVacaciones"
+                    :key="saldo.etiqueta"
+                    class="lift rounded-[18px] border bg-card p-5"
+                >
+                    <dt class="text-sm leading-[normal] text-muted-foreground">
                         {{ saldo.etiqueta }}
                     </dt>
                     <dd
-                        class="text-xl font-semibold wrap-anywhere tabular-nums"
+                        class="mt-1.5 font-heading text-[28px] leading-[normal] font-bold wrap-anywhere"
                     >
                         {{ formatoDias.format(Number(saldo.valor)) }}
-                        <span class="text-sm font-normal">días</span>
+                        <span
+                            class="font-sans text-sm font-normal text-muted-foreground"
+                            >días</span
+                        >
                     </dd>
                 </div>
             </dl>
@@ -194,7 +249,7 @@ function formatearFecha(fecha: string): string {
 
             <ul
                 v-if="saldoVacaciones.advertencias.length"
-                class="list-disc space-y-2 rounded-xl border bg-muted/40 py-4 pr-4 pl-8 text-sm"
+                class="list-disc space-y-2 rounded-[18px] border bg-card py-4 pr-5 pl-9 text-sm"
                 aria-label="Limitaciones del cálculo de vacaciones"
             >
                 <li
@@ -211,5 +266,5 @@ function formatearFecha(fecha: string): string {
             :asignaciones="asignaciones"
             :conceptos-disponibles="conceptosDisponibles"
         />
-    </div>
+    </PaginaPos>
 </template>
