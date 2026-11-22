@@ -68,14 +68,25 @@ const campos: {
         paso: '0.01',
     },
 ];
+
+const claseEtiqueta = 'text-sm leading-[normal] font-semibold';
 </script>
 
 <template>
-    <div class="grid gap-4 sm:grid-cols-2">
-        <div v-for="campo in campos" :key="campo.nombre" class="grid gap-2">
-            <Label :for="campo.nombre">{{ campo.etiqueta }}</Label>
+    <div
+        class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-5"
+    >
+        <div
+            v-for="campo in campos"
+            :key="campo.nombre"
+            class="flex flex-col gap-2"
+        >
+            <Label :for="campo.nombre" :class="claseEtiqueta">{{
+                campo.etiqueta
+            }}</Label>
             <InputDinero
                 v-if="campo.nombre.startsWith('valor_')"
+                class="campo-sicop"
                 :id="campo.nombre"
                 :name="campo.nombre"
                 :default-value="parametro?.[campo.nombre]"
@@ -83,6 +94,7 @@ const campos: {
             />
             <Input
                 v-else
+                class="campo-sicop"
                 :id="campo.nombre"
                 :name="campo.nombre"
                 type="number"
