@@ -10,8 +10,6 @@ import {
     Landmark,
 } from '@lucide/vue';
 import { computed } from 'vue';
-import Heading from '@/components/Heading.vue';
-import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import pos from '@/routes/pos';
 
 defineOptions({
@@ -78,41 +76,57 @@ const secciones = computed(() =>
 <template>
     <Head title="Punto de venta" />
 
-    <PaginaPos>
-        <Heading
-            title="Punto de venta"
-            description="Sedes y registro de cursos y SOAT vendidos."
-        />
+    <div
+        class="mx-auto flex w-full max-w-[1280px] flex-1 flex-col gap-7 px-4 pt-7 pb-12 md:px-10"
+    >
+        <header class="rv flex flex-col gap-2" style="--i: 1">
+            <h1
+                class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+            >
+                Punto de venta
+            </h1>
+            <p class="text-[17px] leading-[1.6] text-muted-foreground">
+                Sedes y registro de cursos y SOAT vendidos.
+            </p>
+        </header>
 
         <nav
             aria-label="Secciones de punto de venta"
-            class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+            class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3"
         >
             <Link
-                v-for="seccion in secciones"
+                v-for="(seccion, indice) in secciones"
                 :key="seccion.titulo"
                 :href="seccion.href"
-                class="group flex flex-col rounded-xl border bg-card p-6 shadow-sm transition-colors hover:border-primary/40 hover:bg-accent/30 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+                class="lift-modulo rv flex flex-col gap-5 rounded-[20px] border bg-card p-[26px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+                :style="{ '--i': indice + 2 }"
             >
-                <span
-                    class="mb-5 flex size-11 items-center justify-center rounded-xl bg-secondary text-secondary-foreground"
-                    ><component
-                        :is="seccion.icono"
-                        class="size-5"
+                <div class="flex items-start justify-between">
+                    <span
+                        class="bub flex size-[52px] items-center justify-center rounded-[14px] bg-secondary text-foreground"
+                        ><component
+                            :is="seccion.icono"
+                            class="size-6"
+                            aria-hidden="true"
+                    /></span>
+                    <ArrowUpRight
+                        class="arr size-[22px] text-ink-3"
                         aria-hidden="true"
-                /></span>
-                <h2 class="text-base font-semibold">{{ seccion.titulo }}</h2>
-                <p
-                    class="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground"
-                >
-                    {{ seccion.detalle }}
-                </p>
-                <span
-                    class="mt-6 flex items-center justify-between text-sm font-semibold text-primary"
-                    >Abrir sección
-                    <ArrowUpRight class="size-4" aria-hidden="true"
-                /></span>
+                    />
+                </div>
+                <div>
+                    <h2
+                        class="font-heading text-[19px] leading-[normal] font-bold"
+                    >
+                        {{ seccion.titulo }}
+                    </h2>
+                    <p
+                        class="mt-2 text-[15px] leading-[1.6] text-muted-foreground"
+                    >
+                        {{ seccion.detalle }}
+                    </p>
+                </div>
             </Link>
         </nav>
-    </PaginaPos>
+    </div>
 </template>

@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
+import {
+    ArrowUpRight,
+    Building2,
+    Calendar,
+    Scale,
+    Tag,
+    Users,
+    Wallet,
+} from '@lucide/vue';
 import nomina from '@/routes/nomina';
 
 defineOptions({
@@ -14,57 +22,40 @@ defineOptions({
     },
 });
 
-const pasos = [
-    {
-        titulo: 'Registrar empleados',
-        detalle: 'Con sus datos y su contrato.',
-        href: nomina.empleados.create(),
-    },
-    {
-        titulo: 'Registrar novedades',
-        detalle: 'Horas extra, ausencias, incapacidades o vacaciones.',
-        href: nomina.novedades.index(),
-    },
-    {
-        titulo: 'Liquidar el periodo',
-        detalle: 'Cree el periodo y presione Liquidar.',
-        href: nomina.periodos.index(),
-    },
-    {
-        titulo: 'Revisar y enviar comprobantes',
-        detalle: 'Ábralos, cierre el periodo y envíelos por correo.',
-        href: nomina.periodos.index(),
-    },
-];
-
 const secciones = [
     {
         titulo: 'Empleados',
+        icono: Users,
         detalle: 'Expedientes y contratos de los trabajadores.',
         href: nomina.empleados.index(),
     },
     {
         titulo: 'Novedades',
+        icono: Calendar,
         detalle: 'Ausencias, horas extra, incapacidades y vacaciones.',
         href: nomina.novedades.index(),
     },
     {
         titulo: 'Periodos y liquidación',
+        icono: Wallet,
         detalle: 'Liquidar la nómina y ver los comprobantes de pago.',
         href: nomina.periodos.index(),
     },
     {
         titulo: 'Áreas',
+        icono: Building2,
         detalle: 'Departamentos de los empleados.',
         href: nomina.areas.index(),
     },
     {
         titulo: 'Conceptos',
+        icono: Tag,
         detalle: 'Devengos y deducciones del comprobante.',
         href: nomina.conceptos.index(),
     },
     {
         titulo: 'Parámetros legales',
+        icono: Scale,
         detalle: 'SMMLV, UVT, aportes y recargos por año.',
         href: nomina.parametros.index(),
     },
@@ -74,51 +65,57 @@ const secciones = [
 <template>
     <Head title="Nómina" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 rounded-xl p-4">
-        <Heading
-            title="Nómina"
-            description="Expedientes de trabajadores, novedades y liquidación de la nómina."
-        />
+    <div
+        class="mx-auto flex w-full max-w-[1280px] flex-1 flex-col gap-7 px-4 pt-7 pb-12 md:px-10"
+    >
+        <header class="rv flex flex-col gap-2" style="--i: 1">
+            <h1
+                class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+            >
+                Nómina
+            </h1>
+            <p class="text-[17px] leading-[1.6] text-muted-foreground">
+                Expedientes de trabajadores, novedades y liquidación de la
+                nómina.
+            </p>
+        </header>
 
-        <section class="rounded-xl border bg-muted/50 p-4">
-            <h2 class="mb-3 font-medium">Cómo liquidar la nómina</h2>
-            <ol class="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
-                <li
-                    v-for="(paso, indice) in pasos"
-                    :key="paso.titulo"
-                    class="flex gap-3"
-                >
-                    <span
-                        class="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground"
-                    >
-                        {{ indice + 1 }}
-                    </span>
-                    <span>
-                        <Link
-                            :href="paso.href"
-                            class="font-medium underline-offset-4 hover:underline"
-                        >
-                            {{ paso.titulo }}
-                        </Link>
-                        <span class="block text-muted-foreground">{{
-                            paso.detalle
-                        }}</span>
-                    </span>
-                </li>
-            </ol>
-        </section>
-
-        <nav class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <nav
+            aria-label="Secciones de nómina"
+            class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3"
+        >
             <Link
-                v-for="seccion in secciones"
+                v-for="(seccion, indice) in secciones"
                 :key="seccion.titulo"
                 :href="seccion.href"
-                class="rounded-xl border p-4 transition-colors hover:bg-accent"
+                class="lift-modulo rv flex flex-col gap-5 rounded-[20px] border bg-card p-[26px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+                :style="{ '--i': indice + 2 }"
             >
-                <p class="font-medium">{{ seccion.titulo }}</p>
-                <p class="text-sm text-muted-foreground">
-                    {{ seccion.detalle }}
-                </p>
+                <div class="flex items-start justify-between">
+                    <span
+                        class="bub flex size-[52px] items-center justify-center rounded-[14px] bg-secondary text-foreground"
+                        ><component
+                            :is="seccion.icono"
+                            class="size-6"
+                            aria-hidden="true"
+                    /></span>
+                    <ArrowUpRight
+                        class="arr size-[22px] text-ink-3"
+                        aria-hidden="true"
+                    />
+                </div>
+                <div>
+                    <h2
+                        class="font-heading text-[19px] leading-[normal] font-bold"
+                    >
+                        {{ seccion.titulo }}
+                    </h2>
+                    <p
+                        class="mt-2 text-[15px] leading-[1.6] text-muted-foreground"
+                    >
+                        {{ seccion.detalle }}
+                    </p>
+                </div>
             </Link>
         </nav>
     </div>

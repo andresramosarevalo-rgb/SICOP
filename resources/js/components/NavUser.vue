@@ -13,11 +13,13 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/components/ui/sidebar';
-import UserInfo from '@/components/UserInfo.vue';
 import UserMenuContent from '@/components/UserMenuContent.vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+const inicial = computed(
+    () => Array.from(user.value.name)[0]?.toUpperCase() ?? '',
+);
 const { isMobile, state } = useSidebar();
 </script>
 
@@ -27,15 +29,29 @@ const { isMobile, state } = useSidebar();
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
                     <SidebarMenuButton
-                        size="lg"
-                        class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                        class="h-auto gap-3 rounded-[14px] border border-sidebar-border bg-white/6 p-3 text-brand-cream transition-[background,transform] duration-200 group-data-[collapsible=icon]:size-12! group-data-[collapsible=icon]:p-2! hover:translate-x-[3px] hover:bg-white/10 hover:text-brand-cream data-[state=open]:bg-white/10 data-[state=open]:text-brand-cream motion-reduce:transition-none motion-reduce:hover:translate-x-0"
                         data-test="sidebar-menu-button"
                         :aria-label="'Menú de ' + user.name"
                         :tooltip="user.name"
                     >
-                        <UserInfo :user="user" />
+                        <span
+                            class="flex size-[38px] shrink-0 items-center justify-center rounded-full bg-brand-gold font-heading font-bold text-brand-navy"
+                            aria-hidden="true"
+                        >
+                            {{ inicial }}
+                        </span>
+                        <span
+                            class="flex min-w-0 flex-1 flex-col group-data-[collapsible=icon]:hidden"
+                        >
+                            <span class="truncate text-sm font-semibold">{{
+                                user.name
+                            }}</span>
+                            <span class="truncate text-xs text-[#b9c6d6]">{{
+                                user.email
+                            }}</span>
+                        </span>
                         <ChevronsUpDown
-                            class="ml-auto size-4 group-data-[collapsible=icon]:hidden"
+                            class="size-4 group-data-[collapsible=icon]:hidden"
                         />
                     </SidebarMenuButton>
                 </DropdownMenuTrigger>
