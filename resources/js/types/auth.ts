@@ -11,6 +11,7 @@ export type User = {
 
 export type Permisos = {
     gestionarNomina: boolean;
+    reabrirPeriodoNomina: boolean;
     gestionarPos: boolean;
     usarPos: boolean;
     verAuditoria: boolean;

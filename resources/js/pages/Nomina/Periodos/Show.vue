@@ -91,6 +91,21 @@ const claseBotonSecundario =
                     >
                 </Form>
                 <Form
+                    v-if="
+                        periodo.estado === 'cerrado' &&
+                        page.props.auth.permisos.reabrirPeriodoNomina
+                    "
+                    v-bind="PeriodoNominaController.reabrir.form(periodo.id)"
+                    v-slot="{ processing }"
+                >
+                    <Button
+                        variant="outline"
+                        :disabled="processing"
+                        :class="claseBotonSecundario"
+                        >Reabrir periodo</Button
+                    >
+                </Form>
+                <Form
                     v-else
                     v-bind="PeriodoNominaController.liquidar.form(periodo.id)"
                     v-slot="{ processing }"

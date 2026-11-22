@@ -45,6 +45,7 @@ class AppServiceProvider extends ServiceProvider
     protected function definirPermisos(): void
     {
         Gate::define('gestionar-nomina', fn (User $user): bool => $user->rol?->puedeGestionarNomina() ?? false);
+        Gate::define('reabrir-periodo-nomina', fn (User $user): bool => $user->rol?->puedeReabrirPeriodoNomina() ?? false);
         Gate::define('gestionar-pos', fn (User $user): bool => $user->rol?->puedeGestionarPos() ?? false);
         Gate::define('ver-auditoria', fn (User $user): bool => $user->rol?->puedeVerAuditoria() ?? false);
         Gate::define('usar-pos', fn (User $user): bool => $user->esSuperAdmin() || (in_array($user->rol, [Rol::Administrador, Rol::Cajero], true) && $user->sede?->es_activa === true));

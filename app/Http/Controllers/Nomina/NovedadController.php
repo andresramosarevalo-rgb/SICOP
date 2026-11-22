@@ -33,7 +33,7 @@ class NovedadController extends Controller
 
         $novedades = Novedad::query()
             ->visiblesPara($request->user())
-            ->with(['empleado:id,nombres,apellidos', 'concepto:id,nombre'])
+            ->with(['empleado:id,nombres,apellidos', 'concepto:id,nombre', 'periodo:id,estado'])
             ->when($filtros['empleado_id'] ?? null, fn (Builder $query, int $id) => $query->where('empleado_id', $id))
             ->when($filtros['desde'] ?? null, fn (Builder $query, string $desde) => $query
                 ->where(fn (Builder $query) => $query->where('fecha_fin', '>=', $desde)
@@ -41,7 +41,7 @@ class NovedadController extends Controller
             ->when($filtros['hasta'] ?? null, fn (Builder $query, string $hasta) => $query->where('fecha_inicio', '<=', $hasta))
             ->latest('fecha_inicio')
             ->get()
-            ->map(fn (Novedad $novedad) => [...$novedad->toArray(), 'tipo_etiqueta' => $novedad->tipo->etiqueta(), 'esta_liquidada' => $novedad->estaLiquidada()]);
+            ->map(fn (Novedad $novedad) => [...$novedad->toArray(), 'tipo_etiqueta' => $novedad->tipo->etiqueta(), 'esta_liquidada' => $novedad->estaLiquidada(), 'esta_bloqueada' => $novedad->estaBloqueada()]);
 
         return Inertia::render('Nomina/Novedades/Index', [
             'novedades' => $novedades,
@@ -71,11 +71,11 @@ class NovedadController extends Controller
     }
 
     /**
-     * Muestra el formulario de edición de una novedad que aún no se ha liquidado.
+     * Muestra el formulario de edición de una novedad que aún no se ha liquidado o que es de un periodo reabierto.
      */
     public function edit(Request $request, Novedad $novedad): Response
     {
-        abort_if($novedad->estaLiquidada(), 403, 'La novedad ya fue liquidada.');
+        abort_if($novedad->estaBloqueada(), 403, 'La novedad ya fue liquidada.');
 
         return Inertia::render('Nomina/Novedades/Edit', ['novedad' => $novedad, ...$this->opcionesFormulario($request->user())]);
     }
@@ -97,11 +97,11 @@ class NovedadController extends Controller
      */
     public function destroy(Novedad $novedad): RedirectResponse
     {
-        abort_if($novedad->estaLiquidada(), 403, 'La novedad ya fue liquidada.');
+        abort_if($novedad->estaBloqueada(), 403, 'La novedad ya fue liquidada.');
 
         DB::transaction(function () use ($novedad): void {
             $actual = Novedad::query()->lockForUpdate()->findOrFail($novedad->id);
-            abort_if($actual->estaLiquidada(), 403, 'La novedad ya fue liquidada.');
+            abort_if($actual->estaBloqueada(), 403, 'La novedad ya fue liquidada.');
             Empleado::query()->whereKey($actual->empleado_id)->lockForUpdate()->firstOrFail();
             $actual->delete();
         }, 3);

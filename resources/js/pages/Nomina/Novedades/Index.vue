@@ -156,7 +156,7 @@ function describirDetalle(novedad: Novedad): string {
                         <td>{{ describirDetalle(novedad) }}</td>
                         <td>
                             <span
-                                v-if="novedad.esta_liquidada"
+                                v-if="novedad.esta_bloqueada"
                                 class="inline-flex rounded-full bg-ok-bg px-3 py-[5px] text-[13px] leading-[normal] font-semibold text-success"
                                 >Liquidada</span
                             >

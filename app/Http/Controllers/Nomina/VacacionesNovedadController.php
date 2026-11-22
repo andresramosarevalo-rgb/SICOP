@@ -19,7 +19,7 @@ class VacacionesNovedadController extends Controller
             ? Novedad::query()->visiblesPara($request->user())->findOrFail((int) $datos['novedad_id'])
             : null;
 
-        abort_if($editada?->estaLiquidada(), 403, 'La novedad ya fue liquidada.');
+        abort_if($editada?->estaBloqueada(), 403, 'La novedad ya fue liquidada.');
 
         $propuesta = isset($datos['fecha_inicio'], $datos['fecha_fin']) ? new Novedad([
             'empleado_id' => $empleado->id,

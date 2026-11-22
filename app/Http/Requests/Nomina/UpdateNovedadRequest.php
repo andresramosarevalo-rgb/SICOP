@@ -14,6 +14,6 @@ class UpdateNovedadRequest extends StoreNovedadRequest
         /** @var Novedad $novedad */
         $novedad = $this->route('novedad');
 
-        return parent::authorize() && ! $novedad->estaLiquidada();
+        return parent::authorize() && ! $novedad->estaBloqueada();
     }
 }
