@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import InputError from '@/components/InputError.vue';
-import { Input } from '@/components/ui/input';
+import InputDinero from '@/components/InputDinero.vue';
 import { Label } from '@/components/ui/label';
 import type { Opcion } from '@/types';
 
@@ -64,12 +64,9 @@ const claseSelect =
     <template v-if="forma === 'mixto'">
         <div v-for="medio in medios" :key="medio.campo" class="grid gap-2">
             <Label :for="medio.campo">{{ medio.etiqueta }}</Label>
-            <Input
+            <InputDinero
                 :id="medio.campo"
                 :name="medio.campo"
-                type="number"
-                min="0"
-                step="0.01"
                 :default-value="Number(medio.valor ?? 0)"
                 required
             />

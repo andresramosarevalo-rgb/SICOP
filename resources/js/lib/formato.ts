@@ -59,3 +59,38 @@ export function formatearValorAuditoria(
 
     return String(valor);
 }
+
+/**
+ * Deja un valor digitado como número con punto decimal y a lo sumo dos decimales,
+ * por ejemplo `1234.5`. Descarta todo lo que no sea dígito o separador decimal.
+ */
+export function normalizarDinero(
+    valor: string | number | null | undefined,
+): string {
+    if (valor === null || valor === undefined || valor === '') {
+        return '';
+    }
+
+    const texto = String(valor);
+    const [entero, ...resto] = texto.replace(/[^\d.]/g, '').split('.');
+    const decimales = resto.join('').slice(0, 2);
+    const sinCeros = entero.replace(/^0+(?=\d)/, '');
+
+    return resto.length > 0 || texto.endsWith('.')
+        ? `${sinCeros}.${decimales}`
+        : sinCeros;
+}
+
+/**
+ * Pone el punto de miles a un valor ya normalizado: `1234567.5` se muestra `1.234.567,5`.
+ */
+export function formatearMiles(valor: string): string {
+    if (valor === '') {
+        return '';
+    }
+
+    const [entero, decimales] = valor.split('.');
+    const conPuntos = entero.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    return decimales === undefined ? conPuntos : `${conPuntos},${decimales}`;
+}

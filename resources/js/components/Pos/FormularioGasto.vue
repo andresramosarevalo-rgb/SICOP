@@ -3,6 +3,7 @@ import { Form } from '@inertiajs/vue3';
 import GastoCajaController from '@/actions/App/Http/Controllers/Pos/GastoCajaController';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
+import InputDinero from '@/components/InputDinero.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -28,14 +29,7 @@ defineProps<{
         </div>
         <div class="grid gap-2">
             <Label for="valor_gasto">Valor</Label>
-            <Input
-                id="valor_gasto"
-                name="valor_gasto"
-                type="number"
-                min="0"
-                step="0.01"
-                required
-            />
+            <InputDinero id="valor_gasto" name="valor_gasto" required />
             <InputError :message="errors.valor_gasto" />
         </div>
         <div class="grid gap-2">

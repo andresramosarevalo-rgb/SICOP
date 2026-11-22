@@ -7,6 +7,7 @@ import PanelTabla from '@/components/Pos/PanelTabla.vue';
 import InputError from '@/components/InputError.vue';
 import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import { Button } from '@/components/ui/button';
+import InputDinero from '@/components/InputDinero.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatearPesos } from '@/lib/formato';
@@ -122,11 +123,8 @@ function elegirSede(evento: Event): void {
                                     :value="sedeId"
                                 />
                                 <div class="grid gap-1">
-                                    <Input
+                                    <InputDinero
                                         name="valor_pago_gestor"
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
                                         class="w-40"
                                         :aria-label="`Valor para el tipo ${fila.codigo}`"
                                         :placeholder="

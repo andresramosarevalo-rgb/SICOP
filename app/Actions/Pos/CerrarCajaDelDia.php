@@ -7,7 +7,6 @@ use App\Models\CierreCaja;
 use App\Models\Sede;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class CerrarCajaDelDia
 {
@@ -15,16 +14,12 @@ class CerrarCajaDelDia
 
     /**
      * Cierra el día de una sede: calcula el arqueo con las ventas y los gastos del día, congela
-     * las cifras y deja constancia de quién cerró. Si el efectivo, el datáfono o el QR no cuadran,
-     * exige la justificación.
-     *
-     * @param  array{valor_efectivo_contado: string|int|float, valor_reportado_datafono: string|int|float, valor_reportado_qr: string|int|float, justificacion?: string|null}  $datos
-     *
-     * @throws ValidationException
+     * las cifras y deja constancia de quién cerró. El cierre no pide conteos: el efectivo contado, el datáfono
+     * y el QR quedan iguales a lo que registra el sistema, así que no hay diferencias que justificar.
      */
-    public function ejecutar(Sede $sede, string $fecha, array $datos, User $usuario): CierreCaja
+    public function ejecutar(Sede $sede, string $fecha, User $usuario): CierreCaja
     {
-        return DB::transaction(function () use ($sede, $fecha, $datos, $usuario): CierreCaja {
+        return DB::transaction(function () use ($sede, $fecha, $usuario): CierreCaja {
             Sede::query()->whereKey($sede->id)->lockForUpdate()->first();
 
             $cierre = CierreCaja::query()->where('sede_id', $sede->id)->whereDate('fecha', $fecha)->lockForUpdate()->first()
@@ -37,19 +32,9 @@ class CerrarCajaDelDia
 
             $base = $this->centavos($resumen['valor_base_caja']);
             $esperado = $base + $this->centavos($resumen['valor_efectivo_ventas']) - $this->centavos($resumen['valor_pago_gestores']) - $gastos;
-            $contado = $this->centavos($datos['valor_efectivo_contado']);
-            $reportadoDatafono = $this->centavos($datos['valor_reportado_datafono']);
-            $reportadoQr = $this->centavos($datos['valor_reportado_qr']);
-
-            $diferenciaEfectivo = $contado - $esperado;
-            $diferenciaDatafono = $reportadoDatafono - $this->centavos($resumen['valor_ventas_datafono']);
-            $diferenciaQr = $reportadoQr - $this->centavos($resumen['valor_ventas_qr']);
-
-            $justificacion = trim((string) ($datos['justificacion'] ?? ''));
-
-            if (($diferenciaEfectivo !== 0 || $diferenciaDatafono !== 0 || $diferenciaQr !== 0) && $justificacion === '') {
-                throw ValidationException::withMessages(['justificacion' => 'Hay diferencias en la caja: escriba la justificación.']);
-            }
+            $contado = $esperado;
+            $reportadoDatafono = $this->centavos($resumen['valor_ventas_datafono']);
+            $reportadoQr = $this->centavos($resumen['valor_ventas_qr']);
 
             $cierre->update([
                 'estado' => EstadoCierre::Cerrado,
@@ -59,15 +44,14 @@ class CerrarCajaDelDia
                 'valor_gastos' => $this->pesos($gastos),
                 'valor_efectivo_esperado' => $this->pesos($esperado),
                 'valor_efectivo_contado' => $this->pesos($contado),
-                'valor_diferencia_efectivo' => $this->pesos($diferenciaEfectivo),
+                'valor_diferencia_efectivo' => '0.00',
                 'valor_ventas_datafono' => $resumen['valor_ventas_datafono'],
                 'valor_reportado_datafono' => $this->pesos($reportadoDatafono),
-                'valor_diferencia_datafono' => $this->pesos($diferenciaDatafono),
+                'valor_diferencia_datafono' => '0.00',
                 'valor_ventas_qr' => $resumen['valor_ventas_qr'],
                 'valor_reportado_qr' => $this->pesos($reportadoQr),
-                'valor_diferencia_qr' => $this->pesos($diferenciaQr),
+                'valor_diferencia_qr' => '0.00',
                 'valor_a_consignar' => $this->pesos($contado - $base),
-                'justificacion' => $justificacion === '' ? null : $justificacion,
                 'cerrado_por' => $usuario->id,
                 'cerrado_en' => now(),
             ]);
