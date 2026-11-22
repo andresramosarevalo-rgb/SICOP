@@ -7,6 +7,7 @@ enum EstadoPeriodo: string
     case Borrador = 'borrador';
     case Liquidado = 'liquidado';
     case Cerrado = 'cerrado';
+    case Reabierto = 'reabierto';
 
     /**
      * Nombre del estado para mostrar en pantalla.
@@ -17,6 +18,7 @@ enum EstadoPeriodo: string
             self::Borrador => 'Borrador',
             self::Liquidado => 'Liquidado',
             self::Cerrado => 'Cerrado',
+            self::Reabierto => 'Reabierto',
         };
     }
 }

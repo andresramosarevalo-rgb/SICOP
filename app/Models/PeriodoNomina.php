@@ -26,6 +26,8 @@ use Illuminate\Support\Carbon;
  * @property int|null $liquidado_por
  * @property Carbon|null $fecha_liquidacion
  * @property Carbon|null $fecha_cierre
+ * @property int|null $reabierto_por
+ * @property Carbon|null $fecha_reapertura
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -102,11 +104,29 @@ class PeriodoNomina extends Model
     }
 
     /**
+     * Usuario que reabrió el periodo cerrado por última vez.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function reabridor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reabierto_por');
+    }
+
+    /**
      * Indica si el periodo está cerrado y por lo tanto ya no se puede volver a liquidar.
      */
     public function estaCerrado(): bool
     {
         return $this->estado === EstadoPeriodo::Cerrado;
+    }
+
+    /**
+     * Indica si el periodo fue reabierto y está a la espera de corregir y volver a liquidar.
+     */
+    public function estaReabierto(): bool
+    {
+        return $this->estado === EstadoPeriodo::Reabierto;
     }
 
     /**
@@ -138,6 +158,7 @@ class PeriodoNomina extends Model
             'fecha_fin' => 'date:Y-m-d',
             'fecha_liquidacion' => 'datetime',
             'fecha_cierre' => 'datetime',
+            'fecha_reapertura' => 'datetime',
         ];
     }
 }

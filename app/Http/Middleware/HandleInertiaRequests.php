@@ -45,6 +45,7 @@ class HandleInertiaRequests extends Middleware
                 'esCajero' => $request->user()?->rol === Rol::Cajero,
                 'permisos' => [
                     'gestionarNomina' => $request->user()?->can('gestionar-nomina') ?? false,
+                    'reabrirPeriodoNomina' => $request->user()?->can('reabrir-periodo-nomina') ?? false,
                     'gestionarPos' => $request->user()?->can('gestionar-pos') ?? false,
                     'verAuditoria' => $request->user()?->can('ver-auditoria') ?? false,
                     'usarPos' => $request->user()?->can('usar-pos') ?? false,

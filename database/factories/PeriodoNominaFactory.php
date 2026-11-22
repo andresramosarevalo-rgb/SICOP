@@ -37,4 +37,15 @@ class PeriodoNominaFactory extends Factory
             'fecha_cierre' => now(),
         ]);
     }
+
+    /**
+     * Indica que el periodo fue cerrado y después reabierto para corregirlo.
+     */
+    public function reabierto(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'estado' => EstadoPeriodo::Reabierto,
+            'fecha_reapertura' => now(),
+        ]);
+    }
 }

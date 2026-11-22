@@ -43,6 +43,14 @@ enum Rol: string
     }
 
     /**
+     * Indica si el rol puede reabrir un periodo de nómina cerrado para corregirlo.
+     */
+    public function puedeReabrirPeriodoNomina(): bool
+    {
+        return in_array($this, [self::SuperAdmin, self::Administrador], true);
+    }
+
+    /**
      * Indica si el rol puede consultar el historial de auditoría.
      */
     public function puedeVerAuditoria(): bool

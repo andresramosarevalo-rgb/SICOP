@@ -63,11 +63,30 @@ class Novedad extends Model
     }
 
     /**
-     * Indica si la novedad ya entró en una liquidación y por lo tanto no se puede modificar.
+     * Periodo de nómina en cuya liquidación entró la novedad; sin periodo, aún no se ha liquidado.
+     *
+     * @return BelongsTo<PeriodoNomina, $this>
+     */
+    public function periodo(): BelongsTo
+    {
+        return $this->belongsTo(PeriodoNomina::class, 'periodo_nomina_id');
+    }
+
+    /**
+     * Indica si la novedad ya entró en una liquidación.
      */
     public function estaLiquidada(): bool
     {
         return $this->periodo_nomina_id !== null;
+    }
+
+    /**
+     * Indica si la novedad no se puede modificar: entró en una liquidación cuyo periodo no está reabierto.
+     * Las de un periodo reabierto se pueden corregir; las de cualquier otro periodo siguen protegidas.
+     */
+    public function estaBloqueada(): bool
+    {
+        return $this->estaLiquidada() && ! $this->periodo?->estaReabierto();
     }
 
     /**
