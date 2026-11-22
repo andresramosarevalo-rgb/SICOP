@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Form, Head, Link } from '@inertiajs/vue3';
 import NovedadController from '@/actions/App/Http/Controllers/Nomina/NovedadController';
-import Heading from '@/components/Heading.vue';
-import BotonAtras from '@/components/Nomina/BotonAtras.vue';
-import { Badge } from '@/components/ui/badge';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
+import PanelTabla from '@/components/Pos/PanelTabla.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { formatearPesos } from '@/lib/formato';
+import { Label } from '@/components/ui/label';
+import { formatearFecha, formatearPesos } from '@/lib/formato';
 import nomina from '@/routes/nomina';
 import type { Empleado, Novedad } from '@/types';
 
@@ -36,96 +36,136 @@ function describirDetalle(novedad: Novedad): string {
             : `${novedad.cantidad} h`;
     }
 
-    return novedad.fecha_fin ? `hasta ${novedad.fecha_fin}` : '1 día';
+    return novedad.fecha_fin
+        ? `hasta ${formatearFecha(novedad.fecha_fin)}`
+        : '1 día';
 }
 </script>
 
 <template>
     <Head title="Novedades" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-4">
-        <BotonAtras :respaldo="nomina.inicio.index()" />
-
-        <div class="flex flex-wrap items-start justify-between gap-4">
-            <Heading
-                title="Novedades"
-                description="Incidencias de asistencia y pagos eventuales que entran en la liquidación."
-            />
-            <Button as-child>
+    <PaginaPos>
+        <header
+            class="rv flex flex-wrap items-end justify-between gap-5"
+            style="--i: 1"
+        >
+            <div class="flex flex-col gap-2">
+                <h1
+                    class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+                >
+                    Novedades
+                </h1>
+                <p class="text-[17px] leading-[1.6] text-muted-foreground">
+                    Incidencias de asistencia y pagos eventuales que entran en
+                    la liquidación.
+                </p>
+            </div>
+            <Button
+                as-child
+                class="boton-plano h-12 rounded-full px-6 text-[15px] font-bold hover:bg-primary"
+            >
                 <Link :href="nomina.novedades.create()">Registrar novedad</Link>
             </Button>
-        </div>
+        </header>
 
         <Form
             v-bind="NovedadController.index.form()"
-            class="flex flex-wrap items-end gap-2"
+            class="rv flex flex-wrap items-end gap-4 rounded-[20px] border bg-card px-6 py-5"
+            style="--i: 2"
         >
-            <select
-                name="empleado_id"
-                :value="filtros.empleado_id ?? ''"
-                aria-label="Empleado"
-                class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs dark:bg-input/30"
-            >
-                <option value="">Todos los empleados</option>
-                <option
-                    v-for="empleado in empleados"
-                    :key="empleado.id"
-                    :value="empleado.id"
+            <div class="flex min-w-[180px] flex-col gap-2">
+                <Label
+                    for="desde"
+                    class="text-sm leading-[normal] font-semibold"
+                    >Desde</Label
                 >
-                    {{ empleado.apellidos }}, {{ empleado.nombres }}
-                </option>
-            </select>
-            <Input
-                name="desde"
-                type="date"
-                :default-value="filtros.desde ?? ''"
-                aria-label="Desde"
-                class="w-auto"
-            />
-            <Input
-                name="hasta"
-                type="date"
-                :default-value="filtros.hasta ?? ''"
-                aria-label="Hasta"
-                class="w-auto"
-            />
-            <Button variant="outline">Filtrar</Button>
+                <Input
+                    id="desde"
+                    name="desde"
+                    type="date"
+                    class="campo-sicop"
+                    :default-value="filtros.desde ?? ''"
+                />
+            </div>
+            <div class="flex min-w-[180px] flex-col gap-2">
+                <Label
+                    for="hasta"
+                    class="text-sm leading-[normal] font-semibold"
+                    >Hasta</Label
+                >
+                <Input
+                    id="hasta"
+                    name="hasta"
+                    type="date"
+                    class="campo-sicop"
+                    :default-value="filtros.hasta ?? ''"
+                />
+            </div>
+            <div class="flex min-w-[220px] flex-col gap-2">
+                <Label
+                    for="empleado_id"
+                    class="text-sm leading-[normal] font-semibold"
+                    >Empleado</Label
+                >
+                <select
+                    id="empleado_id"
+                    name="empleado_id"
+                    :value="filtros.empleado_id ?? ''"
+                    class="campo-sicop"
+                >
+                    <option value="">Todos</option>
+                    <option
+                        v-for="empleado in empleados"
+                        :key="empleado.id"
+                        :value="empleado.id"
+                    >
+                        {{ empleado.nombres }} {{ empleado.apellidos }}
+                    </option>
+                </select>
+            </div>
+            <Button
+                class="boton-plano h-[50px] rounded-full px-[26px] text-[15px] font-bold hover:bg-primary"
+                >Filtrar</Button
+            >
         </Form>
 
-        <div v-if="novedades.length" class="overflow-x-auto rounded-xl border">
-            <table class="w-full text-left text-sm">
-                <thead class="border-b bg-muted/50 text-muted-foreground">
+        <PanelTabla titulo="Novedades registradas" :indice="3" ocultar-titulo>
+            <table class="min-w-[800px]">
+                <thead>
                     <tr>
-                        <th class="px-4 py-2 font-medium">Fecha</th>
-                        <th class="px-4 py-2 font-medium">Empleado</th>
-                        <th class="px-4 py-2 font-medium">Tipo</th>
-                        <th class="px-4 py-2 font-medium">Detalle</th>
-                        <th class="px-4 py-2">
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Empleado</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Detalle</th>
+                        <th scope="col">
                             <span class="sr-only">Acciones</span>
                         </th>
                     </tr>
                 </thead>
-                <tbody class="divide-y">
+                <tbody>
                     <tr v-for="novedad in novedades" :key="novedad.id">
-                        <td class="px-4 py-2 whitespace-nowrap">
-                            {{ novedad.fecha_inicio }}
+                        <td class="whitespace-nowrap">
+                            {{ formatearFecha(novedad.fecha_inicio) }}
                         </td>
-                        <td class="px-4 py-2">
-                            {{ novedad.empleado?.apellidos }},
+                        <td class="font-semibold">
                             {{ novedad.empleado?.nombres }}
+                            {{ novedad.empleado?.apellidos }}
                         </td>
-                        <td class="px-4 py-2">{{ novedad.tipo_etiqueta }}</td>
-                        <td class="px-4 py-2">
-                            {{ describirDetalle(novedad) }}
-                        </td>
-                        <td class="px-4 py-2">
-                            <Badge
+                        <td>{{ novedad.tipo_etiqueta }}</td>
+                        <td>{{ describirDetalle(novedad) }}</td>
+                        <td>
+                            <span
                                 v-if="novedad.esta_liquidada"
-                                variant="outline"
-                                >Liquidada</Badge
+                                class="inline-flex rounded-full bg-ok-bg px-3 py-[5px] text-[13px] leading-[normal] font-semibold text-success"
+                                >Liquidada</span
                             >
-                            <div v-else class="flex justify-end gap-2">
-                                <Button variant="outline" size="sm" as-child>
+                            <div v-else class="flex gap-2">
+                                <Button
+                                    variant="outline"
+                                    as-child
+                                    class="min-h-9 rounded-[10px] border-line-strong bg-transparent px-3.5 text-[13px] font-semibold shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+                                >
                                     <Link
                                         :href="
                                             nomina.novedades.edit(novedad.id)
@@ -142,20 +182,25 @@ function describirDetalle(novedad: Novedad): string {
                                     v-slot="{ processing }"
                                 >
                                     <Button
-                                        variant="ghost"
-                                        size="sm"
+                                        variant="outline"
                                         :disabled="processing"
+                                        class="boton-plano min-h-9 rounded-[10px] border-line-strong bg-card px-3.5 text-[13px] font-semibold text-danger shadow-none hover:bg-card hover:text-danger dark:bg-card dark:hover:bg-card"
                                         >Eliminar</Button
                                     >
                                 </Form>
                             </div>
                         </td>
                     </tr>
+                    <tr v-if="novedades.length === 0">
+                        <td
+                            colspan="5"
+                            class="px-4 py-6 text-center text-muted-foreground"
+                        >
+                            No hay novedades para los filtros seleccionados.
+                        </td>
+                    </tr>
                 </tbody>
             </table>
-        </div>
-        <p v-else class="text-sm text-muted-foreground">
-            No hay novedades para los filtros seleccionados.
-        </p>
-    </div>
+        </PanelTabla>
+    </PaginaPos>
 </template>
