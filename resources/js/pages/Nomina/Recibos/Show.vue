@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
-import BotonAtras from '@/components/Nomina/BotonAtras.vue';
+import { Form, Head, Link } from '@inertiajs/vue3';
+import ReciboNominaController from '@/actions/App/Http/Controllers/Nomina/ReciboNominaController';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import TablaDetallesRecibo from '@/components/Nomina/TablaDetallesRecibo.vue';
 import { Button } from '@/components/ui/button';
-import { formatearPesos } from '@/lib/formato';
+import { formatearFecha, formatearPesos } from '@/lib/formato';
 import nomina from '@/routes/nomina';
 import type {
     DetalleReciboNomina,
@@ -43,6 +44,9 @@ defineProps<{
     deducciones: DetalleReciboNomina[];
 }>();
 
+const claseBotonSecundario =
+    'boton-plano h-12 rounded-full border-line-strong bg-card px-[22px] text-[15px] font-semibold shadow-none hover:bg-card dark:bg-card dark:hover:bg-card';
+
 function imprimir(): void {
     window.print();
 }
@@ -53,89 +57,158 @@ function imprimir(): void {
         :title="`Comprobante de pago - ${empleado.nombres} ${empleado.apellidos}`"
     />
 
-    <div class="flex h-full max-w-4xl flex-1 flex-col gap-6 p-4">
-        <BotonAtras :respaldo="nomina.periodos.show(periodo.id)" />
-
-        <div class="flex justify-end print:hidden">
-            <Button variant="outline" @click="imprimir">Imprimir</Button>
-        </div>
-
-        <article
-            class="flex flex-col gap-6 rounded-xl border p-6 print:border-0 print:p-0"
+    <PaginaPos>
+        <header
+            class="rv flex flex-wrap items-end justify-between gap-5"
+            style="--i: 1"
         >
-            <header
-                class="flex flex-wrap items-start justify-between gap-4 border-b pb-4"
+            <div class="flex flex-col gap-2">
+                <h1
+                    class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+                >
+                    Recibo de nómina
+                </h1>
+                <p class="text-[17px] leading-[1.6] text-muted-foreground">
+                    {{ empleado.nombres }} {{ empleado.apellidos }} ·
+                    {{ empleado.tipo_documento }}
+                    {{ empleado.numero_documento }}
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-2.5 print:hidden">
+                <Button
+                    variant="outline"
+                    as-child
+                    :class="claseBotonSecundario"
+                >
+                    <Link :href="nomina.periodos.show(periodo.id)"
+                        >Volver al periodo</Link
+                    >
+                </Button>
+                <Button
+                    variant="outline"
+                    :class="claseBotonSecundario"
+                    @click="imprimir"
+                    >Imprimir</Button
+                >
+                <Form
+                    v-if="periodo.estado === 'cerrado' && recibo.fecha_envio"
+                    v-bind="ReciboNominaController.reenviar.form(recibo.id)"
+                    v-slot="{ processing }"
+                >
+                    <Button
+                        :disabled="processing"
+                        class="boton-plano h-12 rounded-full px-6 text-[15px] font-bold hover:bg-primary"
+                        >Reenviar por correo</Button
+                    >
+                </Form>
+            </div>
+        </header>
+
+        <section
+            class="rv rounded-[22px] border bg-card px-7 py-6"
+            style="--i: 2"
+        >
+            <dl
+                class="grid grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] gap-5"
             >
                 <div>
-                    <p class="text-lg font-semibold">COVIACOL</p>
-                    <p class="text-sm text-muted-foreground">
-                        Comprobante de pago de nómina
-                    </p>
-                </div>
-                <div class="text-right text-sm">
-                    <p>
-                        Periodo {{ periodo.fecha_inicio }} —
-                        {{ periodo.fecha_fin }}
-                    </p>
-                    <p class="text-muted-foreground capitalize">
-                        Nómina {{ periodo.periodicidad_pago }}
-                    </p>
-                </div>
-            </header>
-
-            <dl class="grid gap-3 text-sm sm:grid-cols-3">
-                <div>
-                    <dt class="text-muted-foreground">Empleado</dt>
-                    <dd class="font-medium">
-                        {{ empleado.nombres }} {{ empleado.apellidos }}
+                    <dt class="text-sm leading-[normal] text-muted-foreground">
+                        Periodo
+                    </dt>
+                    <dd class="mt-1 text-base leading-[normal] font-semibold">
+                        {{ formatearFecha(periodo.fecha_inicio) }} –
+                        {{ formatearFecha(periodo.fecha_fin) }}
                     </dd>
                 </div>
                 <div>
-                    <dt class="text-muted-foreground">Documento</dt>
-                    <dd class="font-medium">
-                        {{ empleado.tipo_documento }}
-                        {{ empleado.numero_documento }}
+                    <dt class="text-sm leading-[normal] text-muted-foreground">
+                        Días pagados
+                    </dt>
+                    <dd class="mt-1 text-base leading-[normal] font-semibold">
+                        {{ recibo.dias_liquidados }}
                     </dd>
                 </div>
                 <div>
-                    <dt class="text-muted-foreground">Cargo y área</dt>
-                    <dd class="font-medium">
+                    <dt class="text-sm leading-[normal] text-muted-foreground">
+                        Cargo y área
+                    </dt>
+                    <dd class="mt-1 text-base leading-[normal] font-semibold">
                         {{ empleado.cargo }} · {{ empleado.area }}
                     </dd>
                 </div>
                 <div>
-                    <dt class="text-muted-foreground">Salario base mensual</dt>
-                    <dd class="font-medium">
+                    <dt class="text-sm leading-[normal] text-muted-foreground">
+                        Salario base mensual
+                    </dt>
+                    <dd class="mt-1 text-base leading-[normal] font-semibold">
                         {{ formatearPesos(recibo.valor_salario_base) }}
                     </dd>
                 </div>
                 <div>
-                    <dt class="text-muted-foreground">Días de salario</dt>
-                    <dd class="font-medium">{{ recibo.dias_liquidados }}</dd>
+                    <dt class="text-sm leading-[normal] text-muted-foreground">
+                        Comprobante
+                    </dt>
+                    <dd class="mt-1">
+                        <span
+                            class="inline-flex rounded-full px-3 py-[5px] text-[13px] leading-[normal] font-semibold"
+                            :class="
+                                recibo.fecha_envio
+                                    ? 'bg-ok-bg text-success'
+                                    : 'bg-cream text-warning'
+                            "
+                            >{{
+                                recibo.fecha_envio ? 'Enviado' : 'Pendiente'
+                            }}</span
+                        >
+                    </dd>
                 </div>
             </dl>
+        </section>
 
-            <div class="grid gap-6 md:grid-cols-2">
-                <TablaDetallesRecibo
-                    titulo="Devengos"
-                    :detalles="devengos"
-                    :total="recibo.valor_total_devengado"
-                />
-                <TablaDetallesRecibo
-                    titulo="Deducciones"
-                    :detalles="deducciones"
-                    :total="recibo.valor_total_deducciones"
-                />
-            </div>
+        <div class="flex flex-wrap gap-6">
+            <TablaDetallesRecibo
+                titulo="Devengados"
+                :detalles="devengos"
+                :indice="3"
+            />
+            <TablaDetallesRecibo
+                titulo="Deducciones"
+                :detalles="deducciones"
+                :indice="4"
+            />
+        </div>
 
-            <footer
-                class="flex items-center justify-between rounded-lg bg-muted/50 p-4 print:bg-transparent"
+        <section class="rv flex flex-wrap items-stretch gap-4" style="--i: 5">
+            <div
+                class="min-w-0 flex-[1_1_220px] rounded-[18px] border bg-card p-5"
             >
-                <span class="font-medium">Neto a pagar</span>
-                <span class="text-xl font-semibold">{{
-                    formatearPesos(recibo.valor_neto)
-                }}</span>
-            </footer>
-        </article>
-    </div>
+                <p class="text-sm text-muted-foreground">Total devengado</p>
+                <p
+                    class="mt-1.5 font-heading text-2xl leading-[normal] font-bold"
+                >
+                    {{ formatearPesos(recibo.valor_total_devengado) }}
+                </p>
+            </div>
+            <div
+                class="min-w-0 flex-[1_1_220px] rounded-[18px] border bg-card p-5"
+            >
+                <p class="text-sm text-muted-foreground">Total deducciones</p>
+                <p
+                    class="mt-1.5 font-heading text-2xl leading-[normal] font-bold"
+                >
+                    {{ formatearPesos(recibo.valor_total_deducciones) }}
+                </p>
+            </div>
+            <div
+                class="min-w-0 flex-[1_1_220px] rounded-[18px] border border-brand-gold/55 bg-cream p-5"
+            >
+                <p class="text-sm text-muted-foreground">Neto a pagar</p>
+                <p
+                    class="mt-1.5 font-heading text-[28px] leading-[normal] font-extrabold"
+                >
+                    {{ formatearPesos(recibo.valor_neto) }}
+                </p>
+            </div>
+        </section>
+    </PaginaPos>
 </template>
