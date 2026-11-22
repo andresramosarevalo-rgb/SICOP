@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Rol;
+use App\Enums\TipoImportacion;
 use App\Models\CierreCaja;
 use App\Models\Consignacion;
 use App\Models\Curso;
@@ -122,6 +123,7 @@ test('todas las rutas de POS responden 403 al cajero y redirigen al visitante al
         'gasto' => GastoCaja::factory()->create(),
         'cierre' => CierreCaja::factory()->cerrado()->create(),
         'consignacion' => Consignacion::factory()->create(),
+        'tipo' => TipoImportacion::Cursos,
     ];
     $cajero = User::factory()->conRol(Rol::Cajero)->create();
 
@@ -144,7 +146,7 @@ test('todas las rutas de POS responden 403 al cajero y redirigen al visitante al
         }
     }
 
-    expect($rutas)->toHaveCount(35)
+    expect($rutas)->toHaveCount(37)
         ->and($expuestas)->toBe([]);
 });
 

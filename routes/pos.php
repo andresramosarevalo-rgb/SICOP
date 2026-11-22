@@ -9,6 +9,7 @@ use App\Http\Controllers\Pos\ExportarCierresController;
 use App\Http\Controllers\Pos\ExportarCursosController;
 use App\Http\Controllers\Pos\ExportarSoatsController;
 use App\Http\Controllers\Pos\GastoCajaController;
+use App\Http\Controllers\Pos\ImportacionExcelController;
 use App\Http\Controllers\Pos\InicioController;
 use App\Http\Controllers\Pos\SaldoConsignacionController;
 use App\Http\Controllers\Pos\SedeController;
@@ -26,6 +27,9 @@ Route::middleware(['auth', 'verified'])
 
             Route::resource('sedes.cursos', CursoController::class)->except(['show', 'destroy'])->shallow();
             Route::resource('sedes.soats', SoatController::class)->except(['show', 'destroy'])->shallow();
+
+            Route::get('sedes/{sede}/importar/{tipo}/plantilla', [ImportacionExcelController::class, 'plantilla'])->name('sedes.importacion.plantilla');
+            Route::post('sedes/{sede}/importar/{tipo}', [ImportacionExcelController::class, 'store'])->name('sedes.importacion.store');
 
             Route::get('sedes/{sede}/cierre', [CierreCajaController::class, 'show'])->name('sedes.cierre.show');
             Route::post('sedes/{sede}/cierre', [CierreCajaController::class, 'store'])->name('sedes.cierre.store');
