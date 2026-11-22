@@ -28,14 +28,17 @@ const tipoSeleccionado = computed(() =>
     props.tipos.find((opcion) => opcion.valor === tipo.value),
 );
 
-const claseSelect =
-    'h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm dark:bg-input/30';
+const claseSelect = 'campo-sicop';
+
+const claseEtiqueta = 'text-sm leading-[normal] font-semibold';
 </script>
 
 <template>
-    <div class="grid gap-4 sm:grid-cols-2">
-        <div class="grid gap-2">
-            <Label for="empleado_id">Empleado</Label>
+    <div
+        class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-5"
+    >
+        <div class="col-span-full flex flex-col gap-2">
+            <Label for="empleado_id" :class="claseEtiqueta">Empleado</Label>
             <select
                 id="empleado_id"
                 v-model="empleadoId"
@@ -49,13 +52,13 @@ const claseSelect =
                     :key="empleado.id"
                     :value="empleado.id"
                 >
-                    {{ empleado.apellidos }}, {{ empleado.nombres }}
+                    {{ empleado.nombres }} {{ empleado.apellidos }}
                 </option>
             </select>
             <InputError :message="errors.empleado_id" />
         </div>
-        <div class="grid gap-2">
-            <Label for="tipo">Tipo de novedad</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="tipo" :class="claseEtiqueta">Tipo de novedad</Label>
             <select id="tipo" v-model="tipo" name="tipo" :class="claseSelect">
                 <option
                     v-for="opcion in tipos"
@@ -67,11 +70,12 @@ const claseSelect =
             </select>
             <InputError :message="errors.tipo" />
         </div>
-        <div class="grid gap-2">
-            <Label for="fecha_inicio">{{
+        <div class="flex flex-col gap-2">
+            <Label for="fecha_inicio" :class="claseEtiqueta">{{
                 tipoSeleccionado?.es_por_dias ? 'Desde' : 'Fecha'
             }}</Label>
             <Input
+                class="campo-sicop"
                 id="fecha_inicio"
                 name="fecha_inicio"
                 type="date"
@@ -80,9 +84,10 @@ const claseSelect =
             />
             <InputError :message="errors.fecha_inicio" />
         </div>
-        <div v-if="tipoSeleccionado?.es_por_dias" class="grid gap-2">
-            <Label for="fecha_fin">Hasta</Label>
+        <div v-if="tipoSeleccionado?.es_por_dias" class="flex flex-col gap-2">
+            <Label for="fecha_fin" :class="claseEtiqueta">Hasta</Label>
             <Input
+                class="campo-sicop"
                 id="fecha_fin"
                 name="fecha_fin"
                 type="date"
@@ -97,11 +102,12 @@ const claseSelect =
             :fecha-fin="fechaFin"
             :novedad-id="novedad?.id"
         />
-        <div v-if="tipoSeleccionado?.unidad" class="grid gap-2">
+        <div v-if="tipoSeleccionado?.unidad" class="flex flex-col gap-2">
             <Label for="cantidad"
                 >Cantidad de {{ tipoSeleccionado.unidad }}</Label
             >
             <Input
+                class="campo-sicop"
                 id="cantidad"
                 name="cantidad"
                 type="number"
@@ -112,8 +118,10 @@ const claseSelect =
             <InputError :message="errors.cantidad" />
         </div>
         <template v-if="tipo === 'concepto_eventual'">
-            <div class="grid gap-2">
-                <Label for="concepto_nomina_id">Concepto</Label>
+            <div class="flex flex-col gap-2">
+                <Label for="concepto_nomina_id" :class="claseEtiqueta"
+                    >Concepto</Label
+                >
                 <select
                     id="concepto_nomina_id"
                     name="concepto_nomina_id"
@@ -137,9 +145,10 @@ const claseSelect =
                 </select>
                 <InputError :message="errors.concepto_nomina_id" />
             </div>
-            <div class="grid gap-2">
-                <Label for="valor_eventual">Valor</Label>
+            <div class="flex flex-col gap-2">
+                <Label for="valor_eventual" :class="claseEtiqueta">Valor</Label>
                 <InputDinero
+                    class="campo-sicop"
                     id="valor_eventual"
                     name="valor_eventual"
                     :default-value="novedad?.valor_eventual ?? ''"
@@ -147,9 +156,12 @@ const claseSelect =
                 <InputError :message="errors.valor_eventual" />
             </div>
         </template>
-        <div class="grid gap-2 sm:col-span-2">
-            <Label for="observacion">Observación (opcional)</Label>
+        <div class="col-span-full grid gap-2">
+            <Label for="observacion" :class="claseEtiqueta"
+                >Observación (opcional)</Label
+            >
             <Input
+                class="campo-sicop"
                 id="observacion"
                 name="observacion"
                 :default-value="novedad?.observacion ?? ''"

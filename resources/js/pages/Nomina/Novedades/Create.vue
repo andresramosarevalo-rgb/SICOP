@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head } from '@inertiajs/vue3';
 import NovedadController from '@/actions/App/Http/Controllers/Nomina/NovedadController';
-import Heading from '@/components/Heading.vue';
-import BotonAtras from '@/components/Nomina/BotonAtras.vue';
-import CamposNovedad from '@/components/Nomina/CamposNovedad.vue';
-import { Button } from '@/components/ui/button';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
+import FormularioNovedad from '@/components/Nomina/FormularioNovedad.vue';
 import nomina from '@/routes/nomina';
 import type { ConceptoNomina, Empleado, OpcionTipoNovedad } from '@/types';
 
@@ -24,37 +21,30 @@ defineProps<{
     tipos: OpcionTipoNovedad[];
     conceptos: Pick<ConceptoNomina, 'id' | 'nombre'>[];
 }>();
-const versionFormulario = ref(0);
 </script>
 
 <template>
     <Head title="Registrar novedad" />
 
-    <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
-        <BotonAtras :respaldo="nomina.novedades.index()" />
+    <PaginaPos>
+        <header class="rv flex flex-col gap-2" style="--i: 1">
+            <h1
+                class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+            >
+                Registrar novedad
+            </h1>
+            <p class="text-[17px] leading-[1.6] text-muted-foreground">
+                Incidencias y pagos eventuales de un empleado para un rango de
+                fechas.
+            </p>
+        </header>
 
-        <Heading
-            title="Registrar novedad"
-            description="Ausencias, retardos, horas extra, recargos, incapacidades, vacaciones o conceptos eventuales."
+        <FormularioNovedad
+            :accion="NovedadController.store.form()"
+            :empleados="empleados"
+            :tipos="tipos"
+            :conceptos="conceptos"
+            limpiar-al-guardar
         />
-
-        <Form
-            v-bind="NovedadController.store.form()"
-            class="flex flex-col gap-6"
-            reset-on-success
-            @success="versionFormulario++"
-            v-slot="{ errors, processing }"
-        >
-            <CamposNovedad
-                :key="versionFormulario"
-                :errors="errors"
-                :empleados="empleados"
-                :tipos="tipos"
-                :conceptos="conceptos"
-            />
-            <div>
-                <Button :disabled="processing">Guardar</Button>
-            </div>
-        </Form>
-    </div>
+    </PaginaPos>
 </template>
