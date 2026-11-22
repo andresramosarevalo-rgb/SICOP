@@ -282,12 +282,7 @@ function cambiarDia(fecha: string | number): void {
             class="flex flex-col gap-5 rounded-xl border bg-card p-5 shadow-sm sm:p-6"
         >
             <h2 class="text-base font-semibold">Cerrar el día</h2>
-            <FormularioArqueo
-                :sede-id="sede.id"
-                :fecha="fecha"
-                :resumen="resumen"
-                :valor-efectivo-esperado="valorEfectivoEsperado"
-            />
+            <FormularioArqueo :sede-id="sede.id" :fecha="fecha" />
         </section>
     </PaginaPos>
 </template>

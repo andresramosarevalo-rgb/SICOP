@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import InputError from '@/components/InputError.vue';
 import ResumenVacacionesNovedad from '@/components/Nomina/ResumenVacacionesNovedad.vue';
+import InputDinero from '@/components/InputDinero.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type {
@@ -138,12 +139,9 @@ const claseSelect =
             </div>
             <div class="grid gap-2">
                 <Label for="valor_eventual">Valor</Label>
-                <Input
+                <InputDinero
                     id="valor_eventual"
                     name="valor_eventual"
-                    type="number"
-                    min="0"
-                    step="0.01"
                     :default-value="novedad?.valor_eventual ?? ''"
                 />
                 <InputError :message="errors.valor_eventual" />

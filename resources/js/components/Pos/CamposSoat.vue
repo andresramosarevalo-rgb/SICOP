@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
+import InputDinero from '@/components/InputDinero.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import CamposPago from '@/components/Pos/CamposPago.vue';
@@ -82,12 +83,9 @@ const claseSelect =
         </div>
         <div class="grid gap-2">
             <Label for="valor_soat">Valor del SOAT</Label>
-            <Input
+            <InputDinero
                 id="valor_soat"
                 name="valor_soat"
-                type="number"
-                min="0"
-                step="0.01"
                 :default-value="soat?.valor_soat"
                 required
             />

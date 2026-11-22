@@ -3,6 +3,7 @@ import { Form } from '@inertiajs/vue3';
 import ConsignacionController from '@/actions/App/Http/Controllers/Pos/ConsignacionController';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
+import InputDinero from '@/components/InputDinero.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -34,12 +35,9 @@ const hoy = new Date().toLocaleDateString('en-CA');
         </div>
         <div class="grid gap-2">
             <Label for="valor_consignado">Valor consignado</Label>
-            <Input
+            <InputDinero
                 id="valor_consignado"
                 name="valor_consignado"
-                type="number"
-                min="0"
-                step="0.01"
                 :default-value="Number(valorAConsignar)"
                 required
             />

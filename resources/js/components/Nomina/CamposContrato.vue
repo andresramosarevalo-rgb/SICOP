@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
+import InputDinero from '@/components/InputDinero.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Opcion } from '@/types';
@@ -129,7 +130,7 @@ const claseSelect =
         </div>
         <div class="flex min-w-0 flex-col gap-2">
             <Label :for="id('valor_salario_base')">Salario base mensual</Label>
-            <Input
+            <InputDinero
                 :id="id('valor_salario_base')"
                 :name="nombre('valor_salario_base')"
                 :aria-invalid="!!error('valor_salario_base')"
@@ -138,9 +139,6 @@ const claseSelect =
                         ? id('valor_salario_base_error')
                         : undefined
                 "
-                type="number"
-                min="0"
-                step="0.01"
                 required
             />
             <InputError
