@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import ConceptoNominaController from '@/actions/App/Http/Controllers/Nomina/ConceptoNominaController';
-import Heading from '@/components/Heading.vue';
-import BotonAtras from '@/components/Nomina/BotonAtras.vue';
+import FormularioNomina from '@/components/Nomina/FormularioNomina.vue';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import CamposConcepto from '@/components/Nomina/CamposConcepto.vue';
-import { Button } from '@/components/ui/button';
 import nomina from '@/routes/nomina';
 import type { ConceptoNomina } from '@/types';
 
@@ -26,23 +25,26 @@ defineProps<{
 <template>
     <Head title="Editar concepto" />
 
-    <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
-        <BotonAtras :respaldo="nomina.conceptos.index()" />
+    <PaginaPos>
+        <header class="rv flex flex-col gap-2" style="--i: 1">
+            <h1
+                class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+            >
+                Editar concepto
+            </h1>
+            <p class="text-[17px] leading-[1.6] text-muted-foreground">
+                Defina un devengado o una deducción para usar en los recibos.
+            </p>
+        </header>
 
-        <Heading
-            title="Editar concepto"
-            description="Devengo o deducción de valor fijo o porcentaje del salario."
-        />
-
-        <Form
-            v-bind="ConceptoNominaController.update.form(concepto.id)"
-            class="flex flex-col gap-6"
-            v-slot="{ errors, processing }"
+        <FormularioNomina
+            :accion="ConceptoNominaController.update.form(concepto.id)"
+            etiqueta-guardar="Guardar"
+            :href-cancelar="nomina.conceptos.index()"
         >
-            <CamposConcepto :errors="errors" :concepto="concepto" />
-            <div>
-                <Button :disabled="processing">Guardar</Button>
-            </div>
-        </Form>
-    </div>
+            <template #default="{ errors }">
+                <CamposConcepto :errors="errors" :concepto="concepto" />
+            </template>
+        </FormularioNomina>
+    </PaginaPos>
 </template>
