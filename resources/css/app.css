@@ -7,7 +7,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-sans: 'Segoe UI', sans-serif;
+    --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
     --font-heading: 'Montserrat', 'Segoe UI', sans-serif;
 
     --color-brand-navy: #153359;
@@ -40,6 +40,17 @@
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
+    --color-cream: var(--cream);
+    --color-ink-3: var(--ink-3);
+    --color-line-strong: var(--line-strong);
+    --color-line-faint: var(--line-faint);
+    --color-line-cream: var(--line-cream);
+    --color-ok-bg: var(--ok-bg);
+    --color-hover-row: var(--hover-row);
+    --color-bar-a: var(--bar-a);
+    --color-bar-b: var(--bar-b);
+    --color-cta-hover: var(--cta-hover);
+    --color-cta-mark: var(--cta-mark);
     --color-chart-1: var(--chart-1);
     --color-chart-2: var(--chart-2);
     --color-chart-3: var(--chart-3);
@@ -81,6 +92,18 @@
     --chart-3: #9cadc4;
     --chart-4: #2c4b75;
     --chart-5: #0d2038;
+    --cream: #f3eedd;
+    --ink-3: #6b7c92;
+    --line-strong: #c3d0df;
+    --line-faint: #eef2f6;
+    --line-cream: #e6e0cc;
+    --ok-bg: #e3f3ec;
+    --hover-row: #f6f8fb;
+    --bar-a: #153359;
+    --bar-b: #b8860b;
+    --cta-hover: #1d4272;
+    --cta-mark: #ecc254;
+    --shadow-card: rgba(21, 51, 89, 0.35);
     --radius: 0.625rem;
     --sidebar-background: #153359;
     --sidebar-foreground: #f3eedd;
@@ -114,30 +137,18 @@
     --border: #355275;
     --input: #7c90aa;
     --ring: #ecc254;
-}
-
-/* El acceso conserva la composición clara de la referencia, incluso con
-   preferencia oscura. La preferencia de la aplicación permanece intacta. */
-.sicop-auth {
-    color-scheme: light;
-    --background: #f3eedd;
-    --foreground: #153359;
-    --card: #ffffff;
-    --card-foreground: #153359;
-    --primary: #153359;
-    --primary-foreground: #ffffff;
-    --secondary: #eaf0f6;
-    --secondary-foreground: #153359;
-    --muted: #edf1f5;
-    --muted-foreground: #536479;
-    --accent: #f3eedd;
-    --accent-foreground: #153359;
-    --destructive: #b42332;
-    --success: #176749;
-    --border: #dae2eb;
-    --input: #8798ad;
-    --ring: #2c4b75;
-    color: var(--foreground);
+    --cream: #1b3555;
+    --ink-3: #9cadc4;
+    --line-strong: #4a6a92;
+    --line-faint: #243f60;
+    --line-cream: #355275;
+    --ok-bg: rgba(130, 214, 177, 0.14);
+    --hover-row: #1b3555;
+    --bar-a: #9cadc4;
+    --bar-b: #ecc254;
+    --cta-hover: #f0cd6a;
+    --cta-mark: #0d2038;
+    --shadow-card: rgba(0, 0, 0, 0.5);
 }
 
 @layer base {
@@ -180,6 +191,17 @@
         @apply font-heading;
     }
 
+    a:focus-visible,
+    button:focus-visible {
+        outline: 2px solid #2c4b75;
+        outline-offset: 2px;
+    }
+
+    [data-sidebar='sidebar'] a:focus-visible,
+    [data-sidebar='sidebar'] button:focus-visible {
+        outline-color: #ecc254;
+    }
+
     ::selection {
         background: #ecc254;
         color: #153359;
@@ -196,6 +218,342 @@
     }
 }
 
+/* Animaciones y estados del rediseño: van fuera de las capas para que las
+   utilidades de Tailwind (transition-all, hover:*) no pisen lo del mockup. */
+/* Entrada escalonada: cada bloque sube y aparece según su --i. */
+.rv {
+    opacity: 0;
+    animation: sicop-rise 0.65s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    animation-delay: calc(var(--i, 0) * 80ms);
+}
+
+/* Las barras crecen desde la base. */
+.bar-grow {
+    transform-origin: bottom;
+    animation: sicop-grow 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 70ms + 450ms);
+}
+
+.flota {
+    animation: sicop-flota 6s ease-in-out infinite;
+}
+
+.deriva {
+    animation: sicop-deriva 14s ease-in-out infinite;
+}
+
+.chip {
+    transition:
+        transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+        background 0.25s,
+        border-color 0.25s;
+}
+
+.chip:hover {
+    transform: translateY(-3px);
+    background: rgb(255 255 255 / 0.12);
+    border-color: rgb(236 194 84 / 0.6);
+}
+
+.lift {
+    transition:
+        transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+        box-shadow 0.25s,
+        border-color 0.25s;
+}
+
+.lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 32px -14px rgb(21 51 89 / 0.3);
+    border-color: var(--line-strong);
+}
+
+.lift .bub {
+    transition:
+        background 0.25s,
+        color 0.25s;
+}
+
+.lift:hover .bub {
+    background: var(--primary);
+    color: var(--cta-mark);
+}
+
+.lift .arr {
+    transition: transform 0.25s;
+}
+
+.lift:hover .arr {
+    transform: translate(3px, -3px);
+}
+
+/* Entrada del acceso: un poco más lenta y espaciada que la del resto. */
+.rv-acceso {
+    opacity: 0;
+    animation: sicop-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+.flota-acceso {
+    animation: sicop-flota-acceso 6s ease-in-out infinite;
+}
+
+/* Tarjetas de Nómina y Punto de venta: se elevan más y el icono crece. */
+.lift-modulo {
+    transition:
+        transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+        box-shadow 0.25s,
+        border-color 0.25s;
+}
+
+.lift-modulo:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 34px -16px rgb(21 51 89 / 0.32);
+    border-color: var(--line-strong);
+}
+
+.lift-modulo .bub {
+    transition:
+        background 0.25s,
+        color 0.25s,
+        transform 0.25s;
+}
+
+.lift-modulo:hover .bub {
+    background: var(--primary);
+    color: var(--cta-mark);
+    transform: scale(1.06);
+}
+
+.lift-modulo .arr {
+    transition:
+        transform 0.25s,
+        color 0.25s;
+}
+
+.lift-modulo:hover .arr {
+    transform: translate(3px, -3px);
+    color: var(--foreground);
+}
+
+/* Botones con flecha o signo que se mueve al pasar el mouse. */
+.boton-inicio,
+.boton-usuarios {
+    transition:
+        transform 0.15s,
+        box-shadow 0.2s,
+        filter 0.2s;
+}
+
+.boton-inicio:hover,
+.boton-usuarios:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px -10px rgb(0 0 0 / 0.45);
+    filter: brightness(1.04);
+}
+
+.boton-inicio:active,
+.boton-usuarios:active {
+    transform: scale(0.98);
+}
+
+.boton-inicio .go,
+.boton-usuarios .go {
+    transition: transform 0.2s;
+}
+
+.boton-inicio:hover .go {
+    transform: translateX(4px);
+}
+
+.boton-usuarios:hover .go {
+    transform: rotate(90deg);
+}
+
+.boton-acceso {
+    transition:
+        transform 0.15s,
+        box-shadow 0.2s,
+        background 0.2s;
+}
+
+.boton-acceso:hover {
+    transform: translateY(-1px);
+    background: var(--cta-hover) !important;
+    box-shadow: 0 12px 24px -12px rgb(0 0 0 / 0.5);
+}
+
+.boton-acceso:active {
+    transform: scale(0.985);
+}
+
+.boton-acceso .go {
+    transition: transform 0.2s;
+}
+
+.boton-acceso:hover .go {
+    transform: translateX(4px);
+}
+
+.fld {
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+.fld:focus-within {
+    border-color: #2c4b75 !important;
+    box-shadow: 0 0 0 4px rgb(44 75 117 / 0.16);
+}
+
+.ojo {
+    transition: background 0.2s;
+}
+
+.ojo:hover {
+    background: var(--secondary);
+}
+
+/* Listado de usuarios. */
+.fila-usuario {
+    opacity: 0;
+    animation: sicop-rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    animation-delay: calc(var(--i, 0) * 70ms + 250ms);
+    transition: background 0.2s;
+}
+
+.fila-usuario:hover {
+    background: var(--hover-row);
+}
+
+.punto-activo {
+    animation: sicop-pulso 2.4s ease-out infinite;
+}
+
+.fantasma {
+    transition:
+        background 0.2s,
+        border-color 0.2s,
+        transform 0.15s;
+}
+
+.fantasma:hover {
+    background: var(--secondary);
+    border-color: #8798ad;
+}
+
+.fantasma:active {
+    transform: scale(0.97);
+}
+
+/* Barra lateral. */
+[data-sidebar='sidebar'] {
+    background-image: linear-gradient(180deg, #153359 0%, #0d2038 100%);
+}
+
+@keyframes sicop-flota-acceso {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-9px);
+    }
+}
+
+@keyframes sicop-pulso {
+    0% {
+        box-shadow: 0 0 0 0 rgb(23 103 73 / 0.5);
+    }
+    70% {
+        box-shadow: 0 0 0 7px rgb(23 103 73 / 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgb(23 103 73 / 0);
+    }
+}
+
+@keyframes sicop-rise {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes sicop-grow {
+    from {
+        transform: scaleY(0);
+    }
+    to {
+        transform: scaleY(1);
+    }
+}
+
+@keyframes sicop-deriva {
+    0%,
+    100% {
+        transform: translate(0, 0);
+    }
+    50% {
+        transform: translate(18px, -14px);
+    }
+}
+
+@keyframes sicop-flota {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-7px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rv,
+    .bar-grow,
+    .flota,
+    .deriva,
+    .rv-acceso,
+    .flota-acceso,
+    .fila-usuario,
+    .punto-activo {
+        animation: none !important;
+        opacity: 1 !important;
+    }
+
+    .lift,
+    .lift:hover,
+    .chip,
+    .chip:hover,
+    .lift-modulo,
+    .lift-modulo:hover,
+    .lift-modulo .bub,
+    .lift-modulo .arr,
+    .lift-modulo:hover .bub,
+    .lift-modulo:hover .arr,
+    .boton-inicio,
+    .boton-usuarios,
+    .boton-acceso,
+    .boton-inicio .go,
+    .boton-usuarios .go,
+    .boton-acceso .go,
+    .fld,
+    .ojo,
+    .fantasma,
+    .fila-usuario:hover,
+    .lift .bub,
+    .lift .arr,
+    .lift:hover .arr {
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     *,
     ::before,
@@ -205,8 +563,4 @@
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
-}
-
-.sicop-auth [data-slot='input'] {
-    background-color: #ffffff;
 }

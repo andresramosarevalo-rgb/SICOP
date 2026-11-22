@@ -2,7 +2,6 @@
 import { Link } from '@inertiajs/vue3';
 import {
     SidebarGroup,
-    SidebarGroupLabel,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
@@ -20,16 +19,12 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
 </script>
 
 <template>
-    <SidebarGroup class="px-3 py-0 group-data-[collapsible=icon]:px-4">
-        <SidebarGroupLabel
-            class="mb-2 text-[11px] font-semibold tracking-wider text-sidebar-foreground/75 uppercase"
-            >Navegación</SidebarGroupLabel
-        >
-        <SidebarMenu class="gap-2">
+    <SidebarGroup class="p-0">
+        <SidebarMenu class="gap-1.5">
             <SidebarMenuItem v-for="item in items" :key="item.title">
                 <SidebarMenuButton
                     as-child
-                    class="h-10 border-l-2 border-transparent px-3 data-[active=true]:border-brand-gold"
+                    class="h-auto gap-3 rounded-xl px-3.5 py-3 text-[15px] leading-[normal] font-medium text-brand-cream transition-[background,transform] duration-200 hover:translate-x-[3px] hover:bg-white/8 hover:text-brand-cream data-[active=true]:bg-brand-gold/16 data-[active=true]:font-semibold data-[active=true]:text-white data-[active=true]:hover:bg-brand-gold/16 motion-reduce:transition-none motion-reduce:hover:translate-x-0 [&>svg]:size-5 [&>svg]:stroke-[1.8] data-[active=true]:[&>svg]:text-brand-gold"
                     :is-active="isCurrentOrParentUrl(item.href)"
                     :tooltip="item.title"
                 >
@@ -42,9 +37,15 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
                         "
                     >
                         <component :is="item.icon" aria-hidden="true" />
-                        <span class="group-data-[collapsible=icon]:hidden">{{
-                            item.title
-                        }}</span>
+                        <span
+                            class="flex-1 group-data-[collapsible=icon]:hidden"
+                            >{{ item.title }}</span
+                        >
+                        <span
+                            v-if="isCurrentOrParentUrl(item.href)"
+                            class="size-[7px] shrink-0 rounded-full bg-brand-gold group-data-[collapsible=icon]:hidden"
+                            aria-hidden="true"
+                        />
                     </Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>

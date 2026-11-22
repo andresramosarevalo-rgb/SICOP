@@ -87,15 +87,17 @@ const mainNavItems = computed<NavItem[]>(() => [
 </script>
 
 <template>
-    <Sidebar collapsible="icon" variant="sidebar">
-        <SidebarHeader
-            class="relative border-b border-sidebar-border px-4 py-5"
-        >
+    <Sidebar
+        collapsible="icon"
+        variant="sidebar"
+        class="group-data-[side=left]:border-r-0"
+    >
+        <SidebarHeader class="relative px-4 pt-6 pb-0">
             <SidebarMenu :class="{ 'pr-12': isMobile }">
                 <SidebarMenuItem>
                     <SidebarMenuButton
                         size="lg"
-                        class="h-12 gap-3 p-0"
+                        class="h-11 gap-3 px-2 py-0 text-brand-cream hover:bg-transparent hover:text-brand-cream"
                         tooltip="Inicio"
                         as-child
                     >
@@ -113,10 +115,10 @@ const mainNavItems = computed<NavItem[]>(() => [
                                 alt=""
                                 width="100"
                                 height="100"
-                                class="size-12 shrink-0"
+                                class="size-11 shrink-0"
                             />
                             <span
-                                class="font-heading text-2xl font-bold tracking-wide group-data-[collapsible=icon]:hidden"
+                                class="font-heading text-[26px] leading-[normal] font-bold tracking-[0.08em] group-data-[collapsible=icon]:hidden"
                             >
                                 SICOP
                             </span>
@@ -130,13 +132,11 @@ const mainNavItems = computed<NavItem[]>(() => [
             />
         </SidebarHeader>
 
-        <SidebarContent class="py-5">
+        <SidebarContent class="px-4 pt-7">
             <NavMain :items="mainNavItems" />
         </SidebarContent>
 
-        <SidebarFooter
-            class="border-t border-sidebar-border p-3 group-data-[collapsible=icon]:p-4"
-        >
+        <SidebarFooter class="px-4 pt-7 pb-6">
             <NavUser />
         </SidebarFooter>
     </Sidebar>

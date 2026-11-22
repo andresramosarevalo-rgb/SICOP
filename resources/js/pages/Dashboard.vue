@@ -1,18 +1,25 @@
 <script setup lang="ts">
 import { Head, Link, usePage, usePoll } from '@inertiajs/vue3';
 import {
+    ArrowRight,
+    ArrowUpRight,
     Banknote,
     CarFront,
     ClipboardList,
     GraduationCap,
     HandCoins,
+    ShieldCheck,
+    Store,
     Users,
     Wallet,
 } from '@lucide/vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed } from 'vue';
 import ContadorAnimado from '@/components/ContadorAnimado.vue';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { formatearPesos } from '@/lib/formato';
 import { dashboard } from '@/routes';
+import rutasAdmin from '@/routes/admin';
 import rutasNomina from '@/routes/nomina';
 import rutasPos from '@/routes/pos';
 
@@ -54,8 +61,6 @@ const page = usePage();
  */
 usePoll(5000, { only: ['pos', 'nomina'] });
 
-const barrasVisibles = ref(false);
-onMounted(() => requestAnimationFrame(() => (barrasVisibles.value = true)));
 const nombre = computed(() => page.props.auth.user.name);
 
 const formatoMes = new Intl.DateTimeFormat('es-CO', {
@@ -82,7 +87,7 @@ const tendencia = computed(() => {
     const meses = props.pos?.tendencia ?? [];
     const maximo = Math.max(
         1,
-        ...meses.map((mes) => Number(mes.cursos) + Number(mes.soats)),
+        ...meses.flatMap((mes) => [Number(mes.cursos), Number(mes.soats)]),
     );
 
     return meses.map((mes) => ({
@@ -100,31 +105,238 @@ const hayVentasEnLaTendencia = computed(() =>
 );
 
 const sinModulos = computed(() => props.pos === null && props.nomina === null);
+
+const tarjetasPos = computed(() =>
+    props.pos
+        ? [
+              {
+                  titulo: 'Cursos del mes',
+                  icono: GraduationCap,
+                  href: rutasPos.cursos.index(),
+                  valor: props.pos.cursos.cantidad,
+                  detalleValor: props.pos.cursos.valor,
+              },
+              {
+                  titulo: 'SOAT del mes',
+                  icono: CarFront,
+                  href: rutasPos.soats.index(),
+                  valor: props.pos.soats.cantidad,
+                  detalleValor: props.pos.soats.valor,
+              },
+              {
+                  titulo: 'Cierres de caja del mes',
+                  icono: Wallet,
+                  href: rutasPos.cierres.index(),
+                  valor: props.pos.cierres_cerrados_mes,
+                  prefijo: 'Ventas: ',
+                  detalleValor: totalVentasMes.value,
+              },
+              {
+                  titulo: 'Saldo por consignar',
+                  icono: HandCoins,
+                  href: rutasPos.consignaciones.index(),
+                  valor: props.pos.saldo_por_consignar,
+                  moneda: true,
+                  detalle: `${props.pos.dias_sin_consignar} ${
+                      props.pos.dias_sin_consignar === 1
+                          ? 'día sin consignar'
+                          : 'días sin consignar'
+                  }`,
+              },
+          ]
+        : [],
+);
+
+const tarjetasNomina = computed(() =>
+    props.nomina
+        ? [
+              {
+                  titulo: 'Empleados activos',
+                  icono: Users,
+                  href: rutasNomina.empleados.index(),
+                  valor: props.nomina.empleados_activos,
+              },
+              {
+                  titulo: 'Periodos sin cerrar',
+                  icono: Banknote,
+                  href: rutasNomina.periodos.index(),
+                  valor: props.nomina.periodos_abiertos,
+              },
+              {
+                  titulo: 'Novedades sin liquidar',
+                  icono: ClipboardList,
+                  href: rutasNomina.novedades.index(),
+                  valor: props.nomina.novedades_sin_liquidar,
+              },
+          ]
+        : [],
+);
+
+const permisos = computed(() => page.props.auth.permisos);
+
+const accesoPrincipal = computed(() => {
+    if (props.pos) {
+        return { texto: 'Ir al punto de venta', href: rutasPos.inicio.index() };
+    }
+
+    return props.nomina
+        ? { texto: 'Ir a nómina', href: rutasNomina.inicio.index() }
+        : null;
+});
+
+const modulos = computed(() => [
+    ...(permisos.value.usarPos
+        ? [
+              {
+                  titulo: 'Punto de venta',
+                  icono: Store,
+                  href: rutasPos.inicio.index(),
+              },
+          ]
+        : []),
+    ...(permisos.value.gestionarNomina
+        ? [
+              {
+                  titulo: 'Nómina',
+                  icono: Wallet,
+                  href: rutasNomina.inicio.index(),
+              },
+          ]
+        : []),
+    ...(permisos.value.verAuditoria
+        ? [
+              {
+                  titulo: 'Auditoría',
+                  icono: ShieldCheck,
+                  href: rutasAdmin.auditoria.index(),
+              },
+          ]
+        : []),
+    ...(permisos.value.gestionarUsuarios
+        ? [
+              {
+                  titulo: 'Usuarios',
+                  icono: Users,
+                  href: rutasAdmin.usuarios.index(),
+              },
+          ]
+        : []),
+]);
 </script>
 
 <template>
     <Head title="Inicio" />
 
     <div
-        class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8"
+        class="mx-auto flex w-full max-w-[1280px] flex-1 flex-col gap-7 px-4 pt-7 pb-12 md:px-10"
     >
-        <header class="space-y-2 border-b border-border pb-6">
-            <p class="text-sm font-medium text-muted-foreground">
-                SICOP · Inicio
-            </p>
-            <h1
-                class="text-2xl leading-tight font-semibold break-words sm:text-3xl"
+        <section
+            class="rv relative flex min-h-60 items-center overflow-hidden rounded-3xl bg-linear-to-br from-brand-navy to-[#1f4575] p-8 text-brand-cream md:p-11"
+            style="--i: 1"
+        >
+            <div class="relative z-10 flex max-w-xl flex-col gap-3">
+                <p
+                    class="text-[13px] font-bold tracking-[0.16em] text-brand-gold uppercase"
+                >
+                    SICOP · Inicio
+                </p>
+                <h1
+                    class="font-heading text-3xl leading-[1.12] font-extrabold break-words md:text-[40px]"
+                >
+                    Hola, {{ nombre }}
+                </h1>
+                <p class="text-[17px] leading-[1.6] text-brand-cream/[.86]">
+                    Bienvenido al Sistema Integral COVIACOL de Operaciones.
+                </p>
+                <Button
+                    v-if="accesoPrincipal"
+                    as-child
+                    size="lg"
+                    class="boton-inicio mt-2.5 h-12 gap-2.5 self-start rounded-full bg-brand-gold px-6 text-[15px] font-bold text-brand-navy hover:bg-brand-gold"
+                >
+                    <Link :href="accesoPrincipal.href">
+                        {{ accesoPrincipal.texto }}
+                        <span class="go inline-flex"
+                            ><ArrowRight
+                                class="size-[18px]"
+                                :stroke-width="2.2"
+                                aria-hidden="true"
+                        /></span>
+                    </Link>
+                </Button>
+            </div>
+            <svg
+                class="absolute top-1/2 right-12 hidden -translate-y-1/2 opacity-95 min-[861px]:block"
+                width="320"
+                height="320"
+                viewBox="0 0 300 300"
+                fill="none"
+                aria-hidden="true"
             >
-                Hola, {{ nombre }}
-            </h1>
-            <p class="text-sm leading-relaxed text-muted-foreground">
-                Bienvenido al Sistema Integral COVIACOL de Operaciones.
-            </p>
-        </header>
+                <circle
+                    cx="150"
+                    cy="150"
+                    r="128"
+                    stroke="#9cadc4"
+                    stroke-opacity=".22"
+                />
+                <circle
+                    cx="150"
+                    cy="150"
+                    r="84"
+                    stroke="#9cadc4"
+                    stroke-opacity=".32"
+                />
+                <g
+                    stroke="#9cadc4"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-opacity=".7"
+                >
+                    <path d="M150 66V150" />
+                    <path d="M66 150H150" />
+                    <path d="M150 150H234" />
+                    <path d="M150 150V234" />
+                </g>
+                <g fill="#ecc254">
+                    <circle class="flota" cx="150" cy="62" r="15" />
+                    <circle
+                        class="flota"
+                        style="animation-delay: -1.5s"
+                        cx="62"
+                        cy="150"
+                        r="15"
+                    />
+                    <circle
+                        class="flota"
+                        style="animation-delay: -3s"
+                        cx="238"
+                        cy="150"
+                        r="15"
+                    />
+                    <circle
+                        class="flota"
+                        style="animation-delay: -4.5s"
+                        cx="150"
+                        cy="238"
+                        r="15"
+                    />
+                </g>
+                <circle
+                    cx="150"
+                    cy="150"
+                    r="22"
+                    fill="#0d2038"
+                    stroke="#f3eedd"
+                    stroke-width="3"
+                />
+            </svg>
+        </section>
 
         <p
             v-if="sinModulos"
-            class="rounded-xl border bg-card p-6 text-sm leading-relaxed text-muted-foreground"
+            class="rv rounded-2xl border bg-card p-6 text-sm leading-relaxed text-muted-foreground"
+            style="--i: 2"
         >
             Tu cuenta no tiene indicadores en este inicio. Usa el menú de
             navegación para consultar los módulos a los que tienes acceso.
@@ -132,12 +344,18 @@ const sinModulos = computed(() => props.pos === null && props.nomina === null);
 
         <section
             v-if="pos"
-            class="space-y-4"
+            class="flex flex-col gap-4"
             aria-labelledby="indicadores-pos-title"
         >
-            <div>
-                <h2 id="indicadores-pos-title" class="text-lg font-semibold">
-                    Punto de venta
+            <div
+                class="rv flex flex-wrap items-baseline gap-x-3"
+                style="--i: 2"
+            >
+                <h2
+                    id="indicadores-pos-title"
+                    class="font-heading text-xl font-bold"
+                >
+                    Resumen de operaciones
                 </h2>
                 <p class="text-sm text-muted-foreground first-letter:uppercase">
                     {{ mesActual }}
@@ -146,104 +364,71 @@ const sinModulos = computed(() => props.pos === null && props.nomina === null);
 
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <Link
-                    :href="rutasPos.cursos.index()"
-                    class="rounded-xl border bg-card p-5 shadow-sm transition hover:border-primary/50"
+                    v-for="(tarjeta, indice) in tarjetasPos"
+                    :key="tarjeta.titulo"
+                    :href="tarjeta.href"
+                    class="lift rv flex flex-col gap-4 rounded-[18px] border bg-card p-[22px]"
+                    :style="{ '--i': indice + 3 }"
                 >
-                    <GraduationCap
-                        class="mb-3 size-5 text-primary"
-                        aria-hidden="true"
-                    />
-                    <p class="text-sm text-muted-foreground">Cursos del mes</p>
-                    <p class="mt-1 text-2xl font-semibold">
-                        <ContadorAnimado :valor="pos.cursos.cantidad" />
-                    </p>
-                    <p class="text-sm text-muted-foreground">
-                        <ContadorAnimado :valor="pos.cursos.valor" moneda />
-                    </p>
-                </Link>
-
-                <Link
-                    :href="rutasPos.soats.index()"
-                    class="rounded-xl border bg-card p-5 shadow-sm transition hover:border-primary/50"
-                >
-                    <CarFront
-                        class="mb-3 size-5 text-primary"
-                        aria-hidden="true"
-                    />
-                    <p class="text-sm text-muted-foreground">SOAT del mes</p>
-                    <p class="mt-1 text-2xl font-semibold">
-                        <ContadorAnimado :valor="pos.soats.cantidad" />
-                    </p>
-                    <p class="text-sm text-muted-foreground">
-                        <ContadorAnimado :valor="pos.soats.valor" moneda />
-                    </p>
-                </Link>
-
-                <Link
-                    :href="rutasPos.cierres.index()"
-                    class="rounded-xl border bg-card p-5 shadow-sm transition hover:border-primary/50"
-                >
-                    <Wallet
-                        class="mb-3 size-5 text-primary"
-                        aria-hidden="true"
-                    />
-                    <p class="text-sm text-muted-foreground">
-                        Cierres de caja del mes
-                    </p>
-                    <p class="mt-1 text-2xl font-semibold">
-                        <ContadorAnimado :valor="pos.cierres_cerrados_mes" />
-                    </p>
-                    <p class="text-sm text-muted-foreground">
-                        Ventas:
-                        <ContadorAnimado :valor="totalVentasMes" moneda />
-                    </p>
-                </Link>
-
-                <Link
-                    :href="rutasPos.consignaciones.index()"
-                    class="rounded-xl border bg-card p-5 shadow-sm transition hover:border-primary/50"
-                >
-                    <HandCoins
-                        class="mb-3 size-5 text-primary"
-                        aria-hidden="true"
-                    />
-                    <p class="text-sm text-muted-foreground">
-                        Saldo por consignar
-                    </p>
-                    <p class="mt-1 text-2xl font-semibold">
-                        <ContadorAnimado
-                            :valor="pos.saldo_por_consignar"
-                            moneda
+                    <span
+                        class="bub flex size-11 items-center justify-center rounded-xl bg-secondary text-foreground"
+                    >
+                        <component
+                            :is="tarjeta.icono"
+                            class="size-[22px]"
+                            aria-hidden="true"
                         />
-                    </p>
-                    <p class="text-sm text-muted-foreground">
-                        <ContadorAnimado :valor="pos.dias_sin_consignar" />
-                        {{
-                            pos.dias_sin_consignar === 1
-                                ? 'día sin consignar'
-                                : 'días sin consignar'
-                        }}
-                    </p>
+                    </span>
+                    <div>
+                        <p class="text-sm text-muted-foreground">
+                            {{ tarjeta.titulo }}
+                        </p>
+                        <p
+                            class="mt-1 font-heading text-[34px] leading-[normal] font-bold"
+                        >
+                            <ContadorAnimado
+                                :valor="tarjeta.valor"
+                                :moneda="tarjeta.moneda"
+                            />
+                        </p>
+                        <p class="text-sm text-muted-foreground">
+                            {{ tarjeta.prefijo }}
+                            <ContadorAnimado
+                                v-if="tarjeta.detalleValor !== undefined"
+                                :valor="tarjeta.detalleValor"
+                                moneda
+                            />
+                            <template v-else>{{ tarjeta.detalle }}</template>
+                        </p>
+                    </div>
                 </Link>
             </div>
+        </section>
 
-            <div class="rounded-xl border bg-card p-5 shadow-sm">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <h3 class="text-base font-semibold">
+        <div class="flex flex-wrap items-stretch gap-6">
+            <Card
+                v-if="pos"
+                class="rv min-w-0 flex-[2_1_520px] gap-6 rounded-[20px] p-7"
+                style="--i: 7"
+                aria-labelledby="grafica-ventas-title"
+            >
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <h2
+                        id="grafica-ventas-title"
+                        class="font-heading text-lg font-bold"
+                    >
                         Ventas de los últimos 6 meses
-                    </h3>
+                    </h2>
                     <ul
-                        class="flex gap-4 text-xs text-muted-foreground"
+                        class="flex gap-[18px] text-[13px] text-muted-foreground"
                         aria-hidden="true"
                     >
-                        <li class="flex items-center gap-1.5">
-                            <span
-                                class="size-2.5 rounded-sm bg-primary dark:bg-chart-3"
-                            />
+                        <li class="inline-flex items-center gap-2">
+                            <span class="size-3 rounded bg-bar-a" />
                             Cursos
                         </li>
-                        <li class="flex items-center gap-1.5">
-                            <span class="size-2.5 rounded-sm bg-brand-gold" />
+                        <li class="inline-flex items-center gap-2">
+                            <span class="size-3 rounded bg-bar-b" />
                             SOAT
                         </li>
                     </ul>
@@ -258,31 +443,42 @@ const sinModulos = computed(() => props.pos === null && props.nomina === null);
 
                 <template v-else>
                     <div
-                        class="mt-6 grid h-48 grid-cols-6 items-end gap-3 sm:gap-6"
+                        class="relative flex h-60 items-end justify-around gap-3 border-b px-2"
+                        style="
+                            background: repeating-linear-gradient(
+                                to top,
+                                transparent 0,
+                                transparent 59px,
+                                var(--line-faint) 59px,
+                                var(--line-faint) 60px
+                            );
+                        "
                         aria-hidden="true"
                     >
                         <div
-                            v-for="mes in tendencia"
+                            v-for="(mes, indice) in tendencia"
                             :key="mes.etiqueta"
-                            class="flex h-full flex-col justify-end"
+                            class="flex h-full items-end gap-1.5"
                             :title="`${mes.etiqueta}: ${formatearPesos(mes.total)}`"
                         >
                             <div
-                                class="w-full bg-brand-gold transition-[height] duration-1000 ease-out motion-reduce:transition-none"
+                                class="bar-grow w-4 rounded-t-lg bg-bar-a sm:w-6"
                                 :style="{
-                                    height: `${barrasVisibles ? mes.alturaSoats : 0}%`,
+                                    '--i': indice * 2,
+                                    height: `${mes.alturaCursos}%`,
                                 }"
                             />
                             <div
-                                class="w-full rounded-t-sm bg-primary transition-[height] duration-1000 ease-out motion-reduce:transition-none dark:bg-chart-3"
+                                class="bar-grow w-4 rounded-t-lg bg-bar-b sm:w-6"
                                 :style="{
-                                    height: `${barrasVisibles ? mes.alturaCursos : 0}%`,
+                                    '--i': indice * 2 + 1,
+                                    height: `${mes.alturaSoats}%`,
                                 }"
                             />
                         </div>
                     </div>
                     <div
-                        class="mt-2 grid grid-cols-6 gap-3 text-center text-xs text-muted-foreground capitalize sm:gap-6"
+                        class="-mt-3 flex justify-around gap-3 text-[13px] text-muted-foreground capitalize"
                         aria-hidden="true"
                     >
                         <span v-for="mes in tendencia" :key="mes.etiqueta">
@@ -310,67 +506,96 @@ const sinModulos = computed(() => props.pos === null && props.nomina === null);
                         </tbody>
                     </table>
                 </template>
-            </div>
-        </section>
+            </Card>
+
+            <aside
+                v-if="modulos.length > 0"
+                class="rv flex min-w-0 flex-[1_1_320px] flex-col gap-[18px] rounded-[20px] border border-brand-gold/55 bg-cream p-7"
+                style="--i: 8"
+                aria-labelledby="espacio-title"
+            >
+                <div>
+                    <h2
+                        id="espacio-title"
+                        class="font-heading text-lg font-bold"
+                    >
+                        Tu espacio de trabajo
+                    </h2>
+                    <p
+                        class="mt-2 text-sm leading-relaxed text-muted-foreground"
+                    >
+                        El menú reúne los módulos disponibles para tu cuenta.
+                        Selecciona uno para continuar.
+                    </p>
+                </div>
+                <div class="flex flex-col gap-2.5">
+                    <Link
+                        v-for="modulo in modulos"
+                        :key="modulo.titulo"
+                        :href="modulo.href"
+                        class="lift flex items-center gap-3.5 rounded-[14px] border border-line-cream bg-card px-4 py-3.5"
+                    >
+                        <span
+                            class="bub flex size-10 items-center justify-center rounded-[10px] bg-secondary text-foreground"
+                        >
+                            <component
+                                :is="modulo.icono"
+                                class="size-5"
+                                aria-hidden="true"
+                            />
+                        </span>
+                        <span class="flex-1 text-[15px] font-semibold">
+                            {{ modulo.titulo }}
+                        </span>
+                        <ArrowUpRight
+                            class="arr size-[18px] text-muted-foreground"
+                            aria-hidden="true"
+                        />
+                    </Link>
+                </div>
+            </aside>
+        </div>
 
         <section
             v-if="nomina"
-            class="space-y-4"
+            class="flex flex-col gap-4"
             aria-labelledby="indicadores-nomina-title"
         >
-            <h2 id="indicadores-nomina-title" class="text-lg font-semibold">
+            <h2
+                id="indicadores-nomina-title"
+                class="rv font-heading text-xl font-bold"
+                style="--i: 9"
+            >
                 Nómina
             </h2>
 
             <div class="grid gap-4 sm:grid-cols-3">
                 <Link
-                    :href="rutasNomina.empleados.index()"
-                    class="rounded-xl border bg-card p-5 shadow-sm transition hover:border-primary/50"
+                    v-for="(tarjeta, indice) in tarjetasNomina"
+                    :key="tarjeta.titulo"
+                    :href="tarjeta.href"
+                    class="lift rv flex flex-col gap-4 rounded-[18px] border bg-card p-[22px]"
+                    :style="{ '--i': indice + 10 }"
                 >
-                    <Users
-                        class="mb-3 size-5 text-primary"
-                        aria-hidden="true"
-                    />
-                    <p class="text-sm text-muted-foreground">
-                        Empleados activos
-                    </p>
-                    <p class="mt-1 text-2xl font-semibold">
-                        <ContadorAnimado :valor="nomina.empleados_activos" />
-                    </p>
-                </Link>
-
-                <Link
-                    :href="rutasNomina.periodos.index()"
-                    class="rounded-xl border bg-card p-5 shadow-sm transition hover:border-primary/50"
-                >
-                    <Banknote
-                        class="mb-3 size-5 text-primary"
-                        aria-hidden="true"
-                    />
-                    <p class="text-sm text-muted-foreground">
-                        Periodos sin cerrar
-                    </p>
-                    <p class="mt-1 text-2xl font-semibold">
-                        <ContadorAnimado :valor="nomina.periodos_abiertos" />
-                    </p>
-                </Link>
-
-                <Link
-                    :href="rutasNomina.novedades.index()"
-                    class="rounded-xl border bg-card p-5 shadow-sm transition hover:border-primary/50"
-                >
-                    <ClipboardList
-                        class="mb-3 size-5 text-primary"
-                        aria-hidden="true"
-                    />
-                    <p class="text-sm text-muted-foreground">
-                        Novedades sin liquidar
-                    </p>
-                    <p class="mt-1 text-2xl font-semibold">
-                        <ContadorAnimado
-                            :valor="nomina.novedades_sin_liquidar"
+                    <span
+                        class="bub flex size-11 items-center justify-center rounded-xl bg-secondary text-foreground"
+                    >
+                        <component
+                            :is="tarjeta.icono"
+                            class="size-[22px]"
+                            aria-hidden="true"
                         />
-                    </p>
+                    </span>
+                    <div>
+                        <p class="text-sm text-muted-foreground">
+                            {{ tarjeta.titulo }}
+                        </p>
+                        <p
+                            class="mt-1 font-heading text-[34px] leading-[normal] font-bold"
+                        >
+                            <ContadorAnimado :valor="tarjeta.valor" />
+                        </p>
+                    </div>
                 </Link>
             </div>
         </section>
