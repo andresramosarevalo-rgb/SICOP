@@ -187,7 +187,7 @@ test('el soporte solo lo descarga quien opera la sede', function () {
     $this->actingAs($this->gerente)->get(route('pos.cierre.gastos.soporte', $gasto))->assertOk();
     $this->actingAs(User::factory()->paraSede($this->sede)->create())->get(route('pos.cierre.gastos.soporte', $gasto))->assertOk();
     $this->actingAs(User::factory()->paraSede(Sede::factory()->create())->create())->get(route('pos.cierre.gastos.soporte', $gasto))->assertForbidden();
-    $this->actingAs(User::factory()->conRol(Rol::Contador)->create())->get(route('pos.cierre.gastos.soporte', $gasto))->assertForbidden();
+    $this->actingAs(User::factory()->conRol(Rol::AuxiliarNomina)->create())->get(route('pos.cierre.gastos.soporte', $gasto))->assertForbidden();
 });
 
 // Issue #76, criterio 2

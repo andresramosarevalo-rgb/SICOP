@@ -7,7 +7,6 @@ enum Rol: string
     case SuperAdmin = 'super_admin';
     case Administrador = 'administrador';
     case AuxiliarNomina = 'auxiliar_nomina';
-    case Contador = 'contador';
     case Cajero = 'cajero';
 
     /**
@@ -38,6 +37,14 @@ enum Rol: string
      * Indica si el rol puede gestionar el módulo de punto de venta.
      */
     public function puedeGestionarPos(): bool
+    {
+        return in_array($this, [self::SuperAdmin, self::Administrador], true);
+    }
+
+    /**
+     * Indica si el rol puede reabrir un periodo de nómina cerrado para corregirlo.
+     */
+    public function puedeReabrirPeriodoNomina(): bool
     {
         return in_array($this, [self::SuperAdmin, self::Administrador], true);
     }

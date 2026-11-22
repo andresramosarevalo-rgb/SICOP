@@ -63,7 +63,7 @@ test('no permite registrar un correo existente', function () {
             'email' => 'repetido@example.com',
             'password' => 'ClaveSegura123!',
             'password_confirmation' => 'ClaveSegura123!',
-            'rol' => Rol::Contador->value,
+            'rol' => Rol::Cajero->value,
             'sede_id' => Sede::factory()->create()->id,
         ],
     )->assertSessionHasErrors('email');
@@ -122,7 +122,6 @@ test('el auxiliar registrado solo accede al modulo permitido', function () {
 test('los usuarios no administradores no gestionan usuarios', function () {
     foreach ([
         Rol::AuxiliarNomina,
-        Rol::Contador,
         Rol::Cajero,
     ] as $rol) {
         $usuario = User::factory()->enSede(Sede::factory()->create(), $rol)->create();
@@ -186,7 +185,7 @@ test('el super administrador registra un usuario eligiendo la sede', function ()
     $sede = Sede::factory()->create();
     $superAdmin = User::factory()->superAdmin()->create();
 
-    foreach ([Rol::Administrador, Rol::Contador, Rol::AuxiliarNomina, Rol::Cajero] as $rol) {
+    foreach ([Rol::Administrador, Rol::AuxiliarNomina, Rol::Cajero] as $rol) {
         $datos = [
             'name' => "Usuario {$rol->value}",
             'email' => "{$rol->value}@example.com",
@@ -232,7 +231,7 @@ test('el administrador de sede registra solo en su sede y no crea super administ
     $sedeA = Sede::factory()->create();
     $sedeB = Sede::factory()->create();
     $administrador = User::factory()->enSede($sedeA)->create();
-    User::factory()->enSede($sedeB, Rol::Contador)->create(['name' => 'De otra sede']);
+    User::factory()->enSede($sedeB, Rol::Cajero)->create(['name' => 'De otra sede']);
 
     $datos = [
         'name' => 'Auxiliar de A',

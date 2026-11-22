@@ -140,6 +140,7 @@ export type Novedad = {
     valor_eventual: string | null;
     observacion: string | null;
     esta_liquidada?: boolean;
+    esta_bloqueada?: boolean;
 };
 
 export type PeriodoNomina = {
@@ -149,7 +150,7 @@ export type PeriodoNomina = {
     periodicidad_pago: 'semanal' | 'quincenal' | 'mensual';
     fecha_inicio: string;
     fecha_fin: string;
-    estado: 'borrador' | 'liquidado' | 'cerrado';
+    estado: 'borrador' | 'liquidado' | 'cerrado' | 'reabierto';
     fecha_liquidacion: string | null;
     fecha_cierre: string | null;
     liquidador?: { id: number; name: string } | null;
@@ -171,6 +172,8 @@ export type ReciboNomina = {
     valor_total_deducciones: string;
     valor_neto: string;
     fecha_envio: string | null;
+    es_vigente: boolean;
+    reemplazado_en: string | null;
 };
 
 export type DetalleReciboNomina = {

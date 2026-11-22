@@ -35,12 +35,7 @@ export type UsuarioAdministrativo = {
     id: number;
     name: string;
     email: string;
-    rol:
-        | 'super_admin'
-        | 'administrador'
-        | 'auxiliar_nomina'
-        | 'contador'
-        | 'cajero';
+    rol: 'super_admin' | 'administrador' | 'auxiliar_nomina' | 'cajero';
     sede: { id: number; nombre: string } | null;
     es_activo: boolean;
     puede_gestionar?: boolean;

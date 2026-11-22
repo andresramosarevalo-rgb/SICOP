@@ -127,7 +127,7 @@ test('liquidar y reliquidar la nómina conserva el saldo de vacaciones', functio
     $saldoAntes = $calcularSaldo->ejecutar($this->empleado);
 
     app(LiquidarPeriodoNomina::class)->ejecutar($periodo, $this->superAdmin);
-    $valoresPrimeraLiquidacion = ReciboNomina::sole()->only([
+    $valoresPrimeraLiquidacion = ReciboNomina::vigentes()->sole()->only([
         'dias_liquidados', 'valor_total_devengado', 'valor_total_deducciones', 'valor_neto',
     ]);
 
@@ -138,8 +138,8 @@ test('liquidar y reliquidar la nómina conserva el saldo de vacaciones', functio
 
     expect($calcularSaldo->ejecutar($this->empleado))->toBe($saldoAntes)
         ->and(Novedad::count())->toBe(1)
-        ->and(ReciboNomina::count())->toBe(1)
-        ->and(ReciboNomina::sole()->only(array_keys($valoresPrimeraLiquidacion)))->toBe($valoresPrimeraLiquidacion);
+        ->and(ReciboNomina::vigentes()->count())->toBe(1)
+        ->and(ReciboNomina::vigentes()->sole()->only(array_keys($valoresPrimeraLiquidacion)))->toBe($valoresPrimeraLiquidacion);
 
     $this->actingAs($this->superAdmin)
         ->get(route('nomina.empleados.show', $this->empleado))
@@ -214,7 +214,6 @@ test('los roles sin permiso de nómina no consultan saldos de vacaciones', funct
     $this->actingAs($usuario)
         ->get(route('nomina.empleados.show', $this->empleado))->assertForbidden();
 })->with([
-    'contador' => Rol::Contador,
     'cajero' => Rol::Cajero,
     'sin rol' => null,
 ]);

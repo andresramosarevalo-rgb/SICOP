@@ -1,6 +1,6 @@
 # Estándares del equipo — SICOP
 
-**Proyecto:** SICOP — Sistema Integral COVIACOL de Operaciones (POS, contabilidad y nómina)
+**Proyecto:** SICOP — Sistema Integral COVIACOL de Operaciones (POS y nómina)
 **Versión:** 1.0 — 30 de septiembre de 2026
 **Stack:** PHP · Laravel · Inertia.js · Vue 3 · PostgreSQL · Docker (Laravel Sail)
 
@@ -85,7 +85,7 @@ sail npm run format:check   # Vue/JS (formato)
 | Componente Vue          | PascalCase, mínimo dos palabras                                                                                                                                                  | `TablaFacturas.vue`, `ModalCierreCaja.vue` |
 | Props y eventos Vue     | camelCase en `<script>`, kebab-case en `<template>`                                                                                                                              | `valorTotal` / `:valor-total`              |
 
-Módulos válidos para `<Modulo>`: `Pos`, `Contabilidad`, `Nomina`, `Admin`. Se exceptúan las páginas generadas por el starter kit (`auth/`, `settings/`, `Dashboard.vue` y `Welcome.vue`).
+Módulos válidos para `<Modulo>`: `Pos`, `Nomina`, `Admin`. Se exceptúan las páginas generadas por el starter kit (`auth/`, `settings/`, `Dashboard.vue` y `Welcome.vue`).
 
 ### 1.5 Reglas propias de nombres
 
@@ -139,8 +139,8 @@ Ejemplos:
 ```
 feat(cierreCaja): agregar arqueo por medio de pago
 fix(liquidacionNomina): corregir cálculo de horas extra nocturnas
-refactor(planCuentas): extraer validación de código PUC a Form Request
-feat(facturacion)!: reemplazar columna total por valor_total
+refactor(liquidacionNomina): extraer validación de fechas a Form Request
+feat(cierreCaja)!: reemplazar columna total por valor_total
 docs(estandaresEquipo): agregar documento de estándares del equipo
 ```
 
@@ -161,7 +161,7 @@ docs(estandaresEquipo): agregar documento de estándares del equipo
 
 ### 2.3 Alcances permitidos (camelCase)
 
-`pos`, `cierreCaja`, `facturacion`, `contabilidad`, `planCuentas`, `comprobantes`, `nomina`, `liquidacionNomina`, `empleados`, `auth`, `usuarios`, `auditoria`, `baseDatos`, `docker`, `dependencias`, `ci`, `estandaresEquipo`.
+`pos`, `cierreCaja`, `nomina`, `liquidacionNomina`, `empleados`, `auth`, `usuarios`, `auditoria`, `baseDatos`, `docker`, `dependencias`, `ci`, `estandaresEquipo`.
 
 Agregar un alcance nuevo requiere un commit `docs(estandaresEquipo)` que modifique esta lista y la de `commitlint.config.js`.
 
@@ -184,9 +184,9 @@ Agregar un alcance nuevo requiere un commit `docs(estandaresEquipo)` que modifiq
 
 Una historia puede entrar al sprint solo si su issue cumple todas estas condiciones:
 
-1. **Formato de historia:** el issue está redactado como "Como `<rol>` quiero `<acción>` para `<beneficio>`", con un rol real del sistema (cajero, contador, auxiliar de nómina, administrador).
+1. **Formato de historia:** el issue está redactado como "Como `<rol>` quiero `<acción>` para `<beneficio>`", con un rol real del sistema (cajero, auxiliar de nómina, administrador).
 2. **Criterios de aceptación:** tiene al menos dos criterios en formato _Dado / Cuando / Entonces_.
-3. **Módulo y alcance:** tiene una etiqueta de módulo (`pos`, `contabilidad` o `nomina`) y el alcance de commit que usará, tomado de la lista de 2.3.
+3. **Módulo y alcance:** tiene una etiqueta de módulo (`pos` o `nomina`) y el alcance de commit que usará, tomado de la lista de 2.3.
 4. **Estimación:** tiene una estimación en puntos acordada por el equipo, de máximo 8 puntos; si supera 8, se divide.
 5. **Reglas de negocio confirmadas:** si depende de un dato de COVIACOL (tarifa, cuenta del PUC, concepto de nómina, medio de pago), el dato está escrito en el issue junto con la confirmación de Salomón González (comentario, correo adjunto o acta enlazada).
 6. **Dependencias explícitas:** los issues de los que depende están enlazados y cerrados, o marcados como bloqueantes en el tablero.

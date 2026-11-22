@@ -15,7 +15,6 @@ test('solo administradores y auxiliares de nómina pueden gestionar la nómina',
     'super administrador' => [Rol::SuperAdmin, true],
     'administrador' => [Rol::Administrador, true],
     'auxiliar de nómina' => [Rol::AuxiliarNomina, true],
-    'contador' => [Rol::Contador, false],
     'cajero' => [Rol::Cajero, false],
     'sin rol' => [null, false],
 ]);

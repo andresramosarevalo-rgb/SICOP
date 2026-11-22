@@ -30,10 +30,6 @@ export default {
             [
                 'pos',
                 'cierreCaja',
-                'facturacion',
-                'contabilidad',
-                'planCuentas',
-                'comprobantes',
                 'nomina',
                 'liquidacionNomina',
                 'empleados',

@@ -58,10 +58,6 @@ class UsuarioController extends Controller
                     'etiqueta' => 'Auxiliar de nómina',
                 ],
                 [
-                    'valor' => Rol::Contador->value,
-                    'etiqueta' => 'Contador',
-                ],
-                [
                     'valor' => Rol::Cajero->value,
                     'etiqueta' => 'Cajero',
                 ],

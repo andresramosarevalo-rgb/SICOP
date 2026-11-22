@@ -20,7 +20,6 @@ test('solo el administrador puede ver la auditoría', function (?Rol $rol, bool 
 })->with([
     'administrador' => [Rol::SuperAdmin, true],
     'auxiliar de nómina' => [Rol::AuxiliarNomina, false],
-    'contador' => [Rol::Contador, false],
     'cajero' => [Rol::Cajero, false],
     'sin rol' => [null, false],
 ]);
@@ -36,11 +35,10 @@ test('el administrador ve el historial y el menú de auditoría', function () {
 });
 
 // Issue #81, criterio 5
-test('el usuario de una sede, el contador y el auxiliar reciben 403 y el visitante va al login', function () {
+test('el usuario de una sede y el auxiliar reciben 403 y el visitante va al login', function () {
     $sede = Sede::factory()->create();
 
     $this->actingAs(User::factory()->paraSede($sede)->create())->get(route('admin.auditoria.index'))->assertForbidden();
-    $this->actingAs(User::factory()->conRol(Rol::Contador)->create())->get(route('admin.auditoria.index'))->assertForbidden();
     $this->actingAs(User::factory()->conRol(Rol::AuxiliarNomina)->create())->get(route('admin.auditoria.index'))->assertForbidden();
 
     auth()->logout();

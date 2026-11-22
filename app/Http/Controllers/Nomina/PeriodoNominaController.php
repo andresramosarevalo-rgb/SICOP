@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Nomina;
 
 use App\Actions\Nomina\EnviarRecibosPeriodo;
 use App\Actions\Nomina\LiquidarPeriodoNomina;
+use App\Actions\Nomina\ReabrirPeriodoNomina;
 use App\Enums\EstadoPeriodo;
 use App\Enums\PeriodicidadPago;
 use App\Http\Controllers\Controller;
@@ -60,13 +61,18 @@ class PeriodoNominaController extends Controller
     }
 
     /**
-     * Muestra el periodo con los recibos de su última liquidación.
+     * Muestra el periodo con los recibos de su última liquidación y, aparte, los de las liquidaciones anteriores.
      */
     public function show(PeriodoNomina $periodo): Response
     {
         return Inertia::render('Nomina/Periodos/Show', [
             'periodo' => $periodo->load(['liquidador:id,name', 'sede:id,nombre']),
             'recibos' => $periodo->recibos()->with('empleado:id,nombres,apellidos,numero_documento')->get(),
+            'recibosAnteriores' => $periodo->recibosAnteriores()
+                ->with('empleado:id,nombres,apellidos,numero_documento')
+                ->orderByDesc('reemplazado_en')
+                ->orderBy('empleado_id')
+                ->get(),
         ]);
     }
 
@@ -78,6 +84,18 @@ class PeriodoNominaController extends Controller
         $liquidarPeriodo->ejecutar($periodo, $request->user());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Periodo liquidado.']);
+
+        return to_route('nomina.periodos.show', $periodo);
+    }
+
+    /**
+     * Reabre un periodo cerrado para corregir sus novedades y volver a liquidarlo.
+     */
+    public function reabrir(Request $request, PeriodoNomina $periodo, ReabrirPeriodoNomina $reabrirPeriodo): RedirectResponse
+    {
+        $reabrirPeriodo->ejecutar($periodo, $request->user());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Periodo reabierto. Corrija las novedades y vuelva a liquidarlo.']);
 
         return to_route('nomina.periodos.show', $periodo);
     }

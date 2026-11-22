@@ -25,6 +25,7 @@ defineOptions({
 const props = defineProps<{
     periodo: PeriodoNomina;
     recibos: ReciboNomina[];
+    recibosAnteriores: ReciboNomina[];
 }>();
 
 const page = usePage();
@@ -87,6 +88,21 @@ const claseBotonSecundario =
                         :disabled="processing"
                         :class="claseBotonSecundario"
                         >Enviar comprobantes por correo</Button
+                    >
+                </Form>
+                <Form
+                    v-if="
+                        periodo.estado === 'cerrado' &&
+                        page.props.auth.permisos.reabrirPeriodoNomina
+                    "
+                    v-bind="PeriodoNominaController.reabrir.form(periodo.id)"
+                    v-slot="{ processing }"
+                >
+                    <Button
+                        variant="outline"
+                        :disabled="processing"
+                        :class="claseBotonSecundario"
+                        >Reabrir periodo</Button
                     >
                 </Form>
                 <Form
@@ -242,6 +258,84 @@ const claseBotonSecundario =
                         <td colspan="2"></td>
                     </tr>
                 </tfoot>
+            </table>
+        </PanelTabla>
+
+        <PanelTabla
+            v-if="recibosAnteriores.length > 0"
+            titulo="Liquidaciones anteriores"
+            descripcion="Resultados que una nueva liquidación reemplazó. Se conservan para consultarlos."
+            :indice="6"
+        >
+            <table class="min-w-[900px]">
+                <thead>
+                    <tr>
+                        <th scope="col">Reemplazado el</th>
+                        <th scope="col">Empleado</th>
+                        <th scope="col">Devengado</th>
+                        <th scope="col">Deducciones</th>
+                        <th scope="col">Neto</th>
+                        <th scope="col">Comprobante</th>
+                        <th scope="col">
+                            <span class="sr-only">Acciones</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        v-for="anterior in recibosAnteriores"
+                        :key="anterior.id"
+                    >
+                        <td class="whitespace-nowrap">
+                            {{
+                                anterior.reemplazado_en
+                                    ? formatearFecha(anterior.reemplazado_en)
+                                    : '—'
+                            }}
+                        </td>
+                        <td class="font-semibold">
+                            {{ anterior.empleado?.nombres }}
+                            {{ anterior.empleado?.apellidos }}
+                        </td>
+                        <td class="font-heading whitespace-nowrap">
+                            {{ formatearPesos(anterior.valor_total_devengado) }}
+                        </td>
+                        <td class="font-heading whitespace-nowrap">
+                            {{
+                                formatearPesos(anterior.valor_total_deducciones)
+                            }}
+                        </td>
+                        <td class="font-heading font-bold whitespace-nowrap">
+                            {{ formatearPesos(anterior.valor_neto) }}
+                        </td>
+                        <td>
+                            <span
+                                class="inline-flex rounded-full px-3 py-[5px] text-[13px] leading-[normal] font-semibold"
+                                :class="
+                                    anterior.fecha_envio
+                                        ? 'bg-ok-bg text-success'
+                                        : 'bg-muted text-muted-foreground'
+                                "
+                                >{{
+                                    anterior.fecha_envio
+                                        ? `Enviado ${formatearFecha(anterior.fecha_envio.slice(0, 10))}`
+                                        : 'No se envió'
+                                }}</span
+                            >
+                        </td>
+                        <td>
+                            <Button
+                                variant="outline"
+                                as-child
+                                class="min-h-9 rounded-[10px] border-line-strong bg-transparent px-3.5 text-[13px] font-semibold shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+                            >
+                                <Link :href="nomina.recibos.show(anterior.id)"
+                                    >Ver</Link
+                                >
+                            </Button>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </PanelTabla>
     </PaginaPos>

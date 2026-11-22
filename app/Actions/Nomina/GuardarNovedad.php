@@ -17,8 +17,8 @@ final class GuardarNovedad
     {
         return DB::transaction(function () use ($datos, $editada): Novedad {
             if ($editada !== null) {
-                $editada = Novedad::query()->lockForUpdate()->findOrFail($editada->id);
-                abort_if($editada->estaLiquidada(), 403, 'La novedad ya fue liquidada.');
+                $editada = Novedad::query()->with('periodo:id,estado')->lockForUpdate()->findOrFail($editada->id);
+                abort_if($editada->estaBloqueada(), 403, 'La novedad ya fue liquidada.');
             }
 
             $propuesta = new Novedad($datos);

@@ -17,8 +17,9 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * Liquida un periodo: genera un recibo por cada empleado activo con contrato vigente de la misma
- * periodicidad (y de la sede del periodo, o de todas si el periodo no tiene sede), con sus novedades y conceptos asignados. Si el periodo ya estaba liquidado, reemplaza
- * los recibos anteriores. Las novedades que entran en la liquidación quedan asociadas al periodo.
+ * periodicidad (y de la sede del periodo, o de todas si el periodo no tiene sede), con sus novedades y conceptos asignados. Si el periodo ya estaba liquidado, los recibos
+ * anteriores no se borran: quedan como no vigentes, con sus detalles y su envío, y los nuevos pasan a ser los vigentes. Todo ocurre en una sola transacción, así que un
+ * fallo no deja un historial a medias. Las novedades que entran en la liquidación quedan asociadas al periodo.
  */
 final class LiquidarPeriodoNomina
 {
@@ -44,7 +45,7 @@ final class LiquidarPeriodoNomina
         }
 
         DB::transaction(function () use ($periodo, $usuario, $parametros, $conceptos): void {
-            $periodo->recibos()->delete();
+            $periodo->recibos()->update(['es_vigente' => false, 'reemplazado_en' => now()]);
             $periodo->novedades()->update(['periodo_nomina_id' => null]);
 
             $contratos = Contrato::query()
@@ -55,6 +56,7 @@ final class LiquidarPeriodoNomina
                     ->when($periodo->sede_id, fn (Builder $query, int $sedeId) => $query->where('sede_id', $sedeId)))
                 ->with([
                     'empleado.novedades' => fn (Relation $query) => $query->with('concepto')
+                        ->whereNull('periodo_nomina_id')
                         ->where('fecha_inicio', '<=', $periodo->fecha_fin)
                         ->where(fn (Builder $query) => $query->where('fecha_fin', '>=', $periodo->fecha_inicio)
                             ->orWhere(fn (Builder $query) => $query->whereNull('fecha_fin')->where('fecha_inicio', '>=', $periodo->fecha_inicio))),

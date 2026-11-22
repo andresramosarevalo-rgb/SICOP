@@ -100,10 +100,6 @@ test('cada rol solo recibe los indicadores de los módulos que puede gestionar',
     $this->actingAs(User::factory()->enSede($this->sede, Rol::AuxiliarNomina)->create())
         ->get(route('dashboard'))
         ->assertInertia(fn (Assert $page) => $page->where('pos', null)->has('nomina'));
-
-    $this->actingAs(User::factory()->enSede($this->sede, Rol::Contador)->create())
-        ->get(route('dashboard'))
-        ->assertInertia(fn (Assert $page) => $page->where('pos', null)->where('nomina', null));
 });
 
 test('la recarga parcial del dashboard refleja un curso registrado después de abrirlo', function () {

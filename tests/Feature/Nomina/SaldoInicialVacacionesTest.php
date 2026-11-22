@@ -245,7 +245,7 @@ test('rechaza usuarios sin permiso aunque pertenezcan a la sede', function (?Rol
     $auditorias = Auditoria::count();
     $this->patchJson($this->ruta, [...$this->referencia, 'dias_vacaciones_historicos' => 1])->assertForbidden();
     expect($this->empleado->fresh()->dias_vacaciones_historicos)->toBe(12)->and(Auditoria::count())->toBe($auditorias);
-})->with([Rol::Contador, Rol::Cajero, null]);
+})->with([Rol::Cajero, null]);
 
 // Issue #192, criterio 5.
 test('los visitantes deben iniciar sesión para registrar la referencia', function () {
@@ -343,7 +343,7 @@ test('registrar y corregir el histórico conserva la liquidación monetaria y su
     ]);
     $liquidar = app(LiquidarPeriodoNomina::class);
     $liquidar->ejecutar($periodo, $this->usuario);
-    $recibo = ReciboNomina::sole();
+    $recibo = ReciboNomina::vigentes()->sole();
     $totales = $recibo->only(['dias_liquidados', 'valor_total_devengado', 'valor_total_deducciones', 'valor_neto']);
     $detalles = $recibo->detalles()->with('concepto')->get()
         ->mapWithKeys(fn ($detalle) => [$detalle->concepto->codigo => $detalle->valor_concepto])->all();
@@ -356,8 +356,8 @@ test('registrar y corregir el histórico conserva la liquidación monetaria y su
             'dias_vacaciones_historicos' => $historico, 'fecha_corte_vacaciones' => '2026-02-09',
         ])->assertSessionHasNoErrors();
         $liquidar->ejecutar($periodo->fresh(), $this->usuario);
-        expect(ReciboNomina::sole()->only(array_keys($totales)))->toBe($totales)
-            ->and(ReciboNomina::sole()->detalles()->with('concepto')->get()
+        expect(ReciboNomina::vigentes()->sole()->only(array_keys($totales)))->toBe($totales)
+            ->and(ReciboNomina::vigentes()->sole()->detalles()->with('concepto')->get()
                 ->mapWithKeys(fn ($detalle) => [$detalle->concepto->codigo => $detalle->valor_concepto])->all())->toBe($detalles)
             ->and(($this->saldo)()['diasUtilizados'])->toBe($historico);
     }
