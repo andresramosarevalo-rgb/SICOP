@@ -7,7 +7,6 @@ enum Rol: string
     case SuperAdmin = 'super_admin';
     case Administrador = 'administrador';
     case AuxiliarNomina = 'auxiliar_nomina';
-    case Contador = 'contador';
     case Cajero = 'cajero';
 
     /**

@@ -98,7 +98,6 @@ test('solo el administrador puede gestionar el punto de venta', function (?Rol $
 })->with([
     'administrador' => [Rol::SuperAdmin, true],
     'auxiliar de nómina' => [Rol::AuxiliarNomina, false],
-    'contador' => [Rol::Contador, false],
     'cajero' => [Rol::Cajero, false],
     'sin rol' => [null, false],
 ]);

@@ -39,7 +39,6 @@ export type UsuarioAdministrativo = {
         | 'super_admin'
         | 'administrador'
         | 'auxiliar_nomina'
-        | 'contador'
         | 'cajero';
     sede: { id: number; nombre: string } | null;
     es_activo: boolean;

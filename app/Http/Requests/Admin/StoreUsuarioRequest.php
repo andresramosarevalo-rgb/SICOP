@@ -51,7 +51,7 @@ class StoreUsuarioRequest extends FormRequest
      */
     private function rolesPermitidos(): array
     {
-        $roles = [Rol::Administrador, Rol::AuxiliarNomina, Rol::Contador, Rol::Cajero];
+        $roles = [Rol::Administrador, Rol::AuxiliarNomina, Rol::Cajero];
 
         return $this->user()->esSuperAdmin() ? [Rol::SuperAdmin, ...$roles] : $roles;
     }

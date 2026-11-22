@@ -22,7 +22,6 @@ const etiquetasRol: Record<UsuarioAdministrativo['rol'], string> = {
     super_admin: 'Super administrador',
     administrador: 'Administrador',
     auxiliar_nomina: 'Auxiliar de nómina',
-    contador: 'Contador',
     cajero: 'Cajero',
 };
 

@@ -245,7 +245,7 @@ test('rechaza usuarios sin permiso aunque pertenezcan a la sede', function (?Rol
     $auditorias = Auditoria::count();
     $this->patchJson($this->ruta, [...$this->referencia, 'dias_vacaciones_historicos' => 1])->assertForbidden();
     expect($this->empleado->fresh()->dias_vacaciones_historicos)->toBe(12)->and(Auditoria::count())->toBe($auditorias);
-})->with([Rol::Contador, Rol::Cajero, null]);
+})->with([Rol::Cajero, null]);
 
 // Issue #192, criterio 5.
 test('los visitantes deben iniciar sesión para registrar la referencia', function () {

@@ -214,7 +214,6 @@ test('los roles sin permiso de nómina no consultan saldos de vacaciones', funct
     $this->actingAs($usuario)
         ->get(route('nomina.empleados.show', $this->empleado))->assertForbidden();
 })->with([
-    'contador' => Rol::Contador,
     'cajero' => Rol::Cajero,
     'sin rol' => null,
 ]);

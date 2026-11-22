@@ -367,7 +367,7 @@ test('los roles sin permiso no acceden a los datos bancarios ni los modifican', 
         ->assertForbidden();
 
     expect($empleado->fresh()->banco)->toBe('Banco original')->and(Empleado::count())->toBe(1);
-})->with([Rol::Cajero, Rol::Contador, null]);
+})->with([Rol::Cajero, null]);
 
 // Issue #187, permisos: un visitante no consulta ni registra información bancaria.
 test('un visitante debe iniciar sesión para acceder a empleados', function () {

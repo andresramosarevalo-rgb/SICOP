@@ -229,7 +229,6 @@ test('la consulta de la #191 exige permiso y sede salvo para superadmin', functi
     'administrador sin sede' => [Rol::Administrador, 404],
     'auxiliar sin sede' => [Rol::AuxiliarNomina, 404],
     'cajero' => [Rol::Cajero, 403],
-    'contador' => [Rol::Contador, 403],
     'sin rol' => [null, 403],
 ]);
 

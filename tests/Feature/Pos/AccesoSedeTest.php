@@ -23,7 +23,6 @@ test('solo el administrador y el usuario de una sede pueden usar POS', function 
     'administrador' => [Rol::SuperAdmin, false, true],
     'cajero con sede' => [Rol::Cajero, true, true],
     'cajero sin sede' => [Rol::Cajero, false, false],
-    'contador' => [Rol::Contador, false, false],
     'auxiliar de nómina' => [Rol::AuxiliarNomina, false, false],
 ]);
 
