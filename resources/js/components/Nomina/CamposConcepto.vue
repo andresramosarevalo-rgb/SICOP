@@ -13,15 +13,19 @@ const props = defineProps<{
 
 const formaCalculo = ref(props.concepto?.forma_calculo ?? 'valor_fijo');
 
-const claseSelect =
-    'h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm dark:bg-input/30';
+const claseSelect = 'campo-sicop';
+
+const claseEtiqueta = 'text-sm leading-[normal] font-semibold';
 </script>
 
 <template>
-    <div class="grid gap-4 sm:grid-cols-2">
-        <div class="grid gap-2">
-            <Label for="codigo">Código</Label>
+    <div
+        class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-5"
+    >
+        <div class="flex flex-col gap-2">
+            <Label for="codigo" :class="claseEtiqueta">Código</Label>
             <Input
+                class="campo-sicop"
                 id="codigo"
                 name="codigo"
                 :default-value="concepto?.codigo"
@@ -30,9 +34,10 @@ const claseSelect =
             />
             <InputError :message="errors.codigo" />
         </div>
-        <div class="grid gap-2">
-            <Label for="nombre">Nombre</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="nombre" :class="claseEtiqueta">Nombre</Label>
             <Input
+                class="campo-sicop"
                 id="nombre"
                 name="nombre"
                 :default-value="concepto?.nombre"
@@ -40,8 +45,8 @@ const claseSelect =
             />
             <InputError :message="errors.nombre" />
         </div>
-        <div class="grid gap-2">
-            <Label for="tipo">Tipo</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="tipo" :class="claseEtiqueta">Tipo</Label>
             <select id="tipo" name="tipo" :class="claseSelect">
                 <option
                     value="devengo"
@@ -58,8 +63,10 @@ const claseSelect =
             </select>
             <InputError :message="errors.tipo" />
         </div>
-        <div class="grid gap-2">
-            <Label for="forma_calculo">Forma de cálculo</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="forma_calculo" :class="claseEtiqueta"
+                >Forma de cálculo</Label
+            >
             <select
                 id="forma_calculo"
                 v-model="formaCalculo"
@@ -71,18 +78,22 @@ const claseSelect =
             </select>
             <InputError :message="errors.forma_calculo" />
         </div>
-        <div v-if="formaCalculo === 'valor_fijo'" class="grid gap-2">
-            <Label for="valor_base">Valor</Label>
+        <div v-if="formaCalculo === 'valor_fijo'" class="flex flex-col gap-2">
+            <Label for="valor_base" :class="claseEtiqueta">Valor</Label>
             <InputDinero
+                class="campo-sicop"
                 id="valor_base"
                 name="valor_base"
                 :default-value="concepto?.valor_base ?? ''"
             />
             <InputError :message="errors.valor_base" />
         </div>
-        <div v-else class="grid gap-2">
-            <Label for="porcentaje_base">Porcentaje (%)</Label>
+        <div v-else class="flex flex-col gap-2">
+            <Label for="porcentaje_base" :class="claseEtiqueta"
+                >Porcentaje (%)</Label
+            >
             <Input
+                class="campo-sicop"
                 id="porcentaje_base"
                 name="porcentaje_base"
                 type="number"

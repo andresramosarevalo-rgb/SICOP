@@ -28,17 +28,22 @@ function id(campo: string): string {
     return props.prefijo ? `${props.prefijo}_${campo}` : campo;
 }
 
-const claseSelect =
-    'h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm dark:bg-input/30';
+const claseSelect = 'campo-sicop';
+
+const claseEtiqueta = 'text-sm leading-[normal] font-semibold';
 </script>
 
 <template>
-    <div class="grid gap-4 sm:grid-cols-2">
-        <p class="text-sm text-muted-foreground sm:col-span-2">
+    <div
+        class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-5"
+    >
+        <p class="col-span-full text-sm text-muted-foreground">
             En contratos a término fijo, la fecha de fin es obligatoria.
         </p>
         <div class="flex min-w-0 flex-col gap-2">
-            <Label :for="id('tipo_contrato')">Tipo de contrato</Label>
+            <Label :for="id('tipo_contrato')" :class="claseEtiqueta"
+                >Tipo de contrato</Label
+            >
             <select
                 :id="id('tipo_contrato')"
                 :name="nombre('tipo_contrato')"
@@ -66,7 +71,9 @@ const claseSelect =
             />
         </div>
         <div class="flex min-w-0 flex-col gap-2">
-            <Label :for="id('periodicidad_pago')">Periodicidad de pago</Label>
+            <Label :for="id('periodicidad_pago')" :class="claseEtiqueta"
+                >Periodicidad de pago</Label
+            >
             <select
                 :id="id('periodicidad_pago')"
                 :name="nombre('periodicidad_pago')"
@@ -94,8 +101,11 @@ const claseSelect =
             />
         </div>
         <div class="flex min-w-0 flex-col gap-2">
-            <Label :for="id('fecha_inicio')">Fecha de inicio</Label>
+            <Label :for="id('fecha_inicio')" :class="claseEtiqueta"
+                >Fecha de inicio</Label
+            >
             <Input
+                class="campo-sicop"
                 :id="id('fecha_inicio')"
                 :name="nombre('fecha_inicio')"
                 :aria-invalid="!!error('fecha_inicio')"
@@ -112,8 +122,11 @@ const claseSelect =
             />
         </div>
         <div class="flex min-w-0 flex-col gap-2">
-            <Label :for="id('fecha_fin')">Fecha de fin</Label>
+            <Label :for="id('fecha_fin')" :class="claseEtiqueta"
+                >Fecha de fin</Label
+            >
             <Input
+                class="campo-sicop"
                 :id="id('fecha_fin')"
                 :name="nombre('fecha_fin')"
                 :aria-invalid="!!error('fecha_fin')"
@@ -129,8 +142,11 @@ const claseSelect =
             />
         </div>
         <div class="flex min-w-0 flex-col gap-2">
-            <Label :for="id('valor_salario_base')">Salario base mensual</Label>
+            <Label :for="id('valor_salario_base')" :class="claseEtiqueta"
+                >Salario base mensual</Label
+            >
             <InputDinero
+                class="campo-sicop"
                 :id="id('valor_salario_base')"
                 :name="nombre('valor_salario_base')"
                 :aria-invalid="!!error('valor_salario_base')"

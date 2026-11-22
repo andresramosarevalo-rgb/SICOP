@@ -23,8 +23,9 @@ const tipoDocumentoSeleccionado = ref(
     props.empleado?.tipo_documento ?? props.tiposDocumento[0]?.valor ?? '',
 );
 
-const claseSelect =
-    'h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm dark:bg-input/30';
+const claseSelect = 'campo-sicop';
+
+const claseEtiqueta = 'text-sm leading-[normal] font-semibold';
 
 const camposTexto = [
     {
@@ -65,9 +66,13 @@ const camposTexto = [
 </script>
 
 <template>
-    <div class="grid gap-4 sm:grid-cols-2">
+    <div
+        class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-5"
+    >
         <div class="flex min-w-0 flex-col gap-2">
-            <Label for="tipo_documento">Tipo de documento</Label>
+            <Label for="tipo_documento" :class="claseEtiqueta"
+                >Tipo de documento</Label
+            >
             <select
                 id="tipo_documento"
                 name="tipo_documento"
@@ -99,8 +104,11 @@ const camposTexto = [
             :key="campo.nombre"
             class="flex min-w-0 flex-col gap-2"
         >
-            <Label :for="campo.nombre">{{ campo.etiqueta }}</Label>
+            <Label :for="campo.nombre" :class="claseEtiqueta">{{
+                campo.etiqueta
+            }}</Label>
             <Input
+                class="campo-sicop"
                 :id="campo.nombre"
                 :name="campo.nombre"
                 :aria-invalid="!!errors[campo.nombre]"
@@ -120,7 +128,9 @@ const camposTexto = [
         </div>
 
         <div class="flex min-w-0 flex-col gap-2">
-            <Label for="tipo_cuenta_bancaria">Tipo de cuenta bancaria</Label>
+            <Label for="tipo_cuenta_bancaria" :class="claseEtiqueta"
+                >Tipo de cuenta bancaria</Label
+            >
             <select
                 id="tipo_cuenta_bancaria"
                 name="tipo_cuenta_bancaria"
@@ -157,7 +167,7 @@ const camposTexto = [
         </div>
 
         <div v-if="puedeElegirSede" class="flex min-w-0 flex-col gap-2">
-            <Label for="sede_id">Sede</Label>
+            <Label for="sede_id" :class="claseEtiqueta">Sede</Label>
             <select
                 id="sede_id"
                 name="sede_id"
@@ -190,7 +200,7 @@ const camposTexto = [
         </p>
 
         <div class="flex min-w-0 flex-col gap-2">
-            <Label for="area_id">Área</Label>
+            <Label for="area_id" :class="claseEtiqueta">Área</Label>
             <select
                 id="area_id"
                 name="area_id"

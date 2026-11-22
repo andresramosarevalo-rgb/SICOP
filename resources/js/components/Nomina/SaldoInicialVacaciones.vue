@@ -14,13 +14,17 @@ defineProps<{
 }>();
 
 const esEdicion = ref(false);
+
+const claseEtiqueta = 'text-sm leading-[normal] font-semibold';
 </script>
 
 <template>
-    <div class="flex flex-col gap-4 rounded-xl border p-4">
+    <div class="flex flex-col gap-5 rounded-[22px] border bg-card px-7 py-6">
         <div class="flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0 space-y-1">
-                <h3 class="font-medium">Referencia histórica de vacaciones</h3>
+                <h3 class="font-heading text-base leading-[normal] font-bold">
+                    Referencia histórica de vacaciones
+                </h3>
                 <p
                     v-if="empleado.fecha_corte_vacaciones !== null"
                     class="text-sm text-muted-foreground"
@@ -44,6 +48,7 @@ const esEdicion = ref(false);
                 v-if="!esEdicion"
                 type="button"
                 variant="outline"
+                class="boton-plano min-h-9 rounded-[10px] border-line-strong bg-card px-3.5 text-[13px] font-semibold shadow-none hover:bg-card dark:bg-card dark:hover:bg-card"
                 :aria-expanded="esEdicion"
                 aria-controls="formulario-vacaciones-historicas"
                 @click="esEdicion = true"
@@ -65,13 +70,13 @@ const esEdicion = ref(false);
                 )
             "
             :options="{ preserveScroll: true }"
-            class="grid gap-4 sm:grid-cols-2"
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-5"
             v-slot="{ errors, processing }"
             @success="esEdicion = false"
         >
             <p
                 id="ayuda-vacaciones-historicas"
-                class="text-sm leading-relaxed text-muted-foreground sm:col-span-2"
+                class="col-span-full text-sm leading-relaxed text-muted-foreground"
             >
                 Informe el total de días hábiles ya disfrutados hasta el corte,
                 incluidos los que también estén registrados en SICOP. Las
@@ -80,10 +85,11 @@ const esEdicion = ref(false);
                 estos consumos.
             </p>
             <div class="flex min-w-0 flex-col gap-2">
-                <Label for="dias_vacaciones_historicos">
+                <Label for="dias_vacaciones_historicos" :class="claseEtiqueta">
                     Días hábiles disfrutados hasta el corte
                 </Label>
                 <Input
+                    class="campo-sicop"
                     id="dias_vacaciones_historicos"
                     name="dias_vacaciones_historicos"
                     type="number"
@@ -102,10 +108,11 @@ const esEdicion = ref(false);
                 />
             </div>
             <div class="flex min-w-0 flex-col gap-2">
-                <Label for="fecha_corte_vacaciones">
+                <Label for="fecha_corte_vacaciones" :class="claseEtiqueta">
                     Fecha de corte histórico (inclusive)
                 </Label>
                 <Input
+                    class="campo-sicop"
                     id="fecha_corte_vacaciones"
                     name="fecha_corte_vacaciones"
                     type="date"
@@ -123,11 +130,16 @@ const esEdicion = ref(false);
                     :message="errors.fecha_corte_vacaciones"
                 />
             </div>
-            <div class="flex flex-wrap gap-2 sm:col-span-2">
-                <Button :disabled="processing">Guardar referencia</Button>
+            <div class="col-span-full flex flex-wrap gap-2">
+                <Button
+                    :disabled="processing"
+                    class="boton-plano h-12 rounded-full px-[26px] text-[15px] font-bold hover:bg-primary"
+                    >Guardar referencia</Button
+                >
                 <Button
                     type="button"
                     variant="outline"
+                    class="boton-plano h-12 rounded-full border-line-strong bg-card px-[22px] text-[15px] font-semibold shadow-none hover:bg-card dark:bg-card dark:hover:bg-card"
                     :disabled="processing"
                     @click="esEdicion = false"
                 >

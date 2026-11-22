@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
-import { FileText } from '@lucide/vue';
 import { computed } from 'vue';
 import PeriodoNominaController from '@/actions/App/Http/Controllers/Nomina/PeriodoNominaController';
 import ReciboNominaController from '@/actions/App/Http/Controllers/Nomina/ReciboNominaController';
-import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
-import BotonAtras from '@/components/Nomina/BotonAtras.vue';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
+import PanelTabla from '@/components/Pos/PanelTabla.vue';
 import EstadoPeriodo from '@/components/Nomina/EstadoPeriodo.vue';
 import { Button } from '@/components/ui/button';
-import { formatearPesos } from '@/lib/formato';
+import { formatearFecha, formatearPesos } from '@/lib/formato';
 import nomina from '@/routes/nomina';
 import type { PeriodoNomina, ReciboNomina } from '@/types';
 
@@ -30,49 +29,52 @@ const props = defineProps<{
 
 const page = usePage();
 
-const totalNeto = computed(() =>
-    props.recibos.reduce(
-        (total, recibo) => total + Number(recibo.valor_neto),
-        0,
-    ),
-);
+const sumar = (
+    campo: 'valor_total_devengado' | 'valor_total_deducciones' | 'valor_neto',
+) => props.recibos.reduce((total, recibo) => total + Number(recibo[campo]), 0);
+
+const totalNeto = computed(() => sumar('valor_neto'));
+
+const resumen = computed(() => [
+    { titulo: 'Total devengado', valor: sumar('valor_total_devengado') },
+    { titulo: 'Total deducciones', valor: sumar('valor_total_deducciones') },
+    { titulo: 'Neto a pagar', valor: totalNeto.value },
+]);
+
+const claseBotonSecundario =
+    'boton-plano h-12 rounded-full border-line-strong bg-card px-[22px] text-[15px] font-semibold shadow-none hover:bg-card dark:bg-card dark:hover:bg-card';
 </script>
 
 <template>
     <Head title="Periodo de nómina" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-4">
-        <BotonAtras :respaldo="nomina.periodos.index()" />
-
-        <div class="flex flex-wrap items-start justify-between gap-4">
-            <Heading
-                :title="`Periodo ${periodo.fecha_inicio} — ${periodo.fecha_fin}`"
-                :description="`Nómina ${periodo.periodicidad_pago} · ${periodo.sede?.nombre ?? 'todas las sedes'}${periodo.liquidador ? ` · liquidada por ${periodo.liquidador.name}` : ''}`"
-            />
-            <EstadoPeriodo :estado="periodo.estado" />
-        </div>
-
-        <p class="rounded-xl border bg-muted/50 p-4 text-sm">
-            <template v-if="periodo.estado === 'borrador'">
-                <strong>Paso siguiente:</strong> presione
-                <strong>Liquidar periodo</strong> para calcular la nómina de los
-                empleados con contrato {{ periodo.periodicidad_pago }} vigente.
-            </template>
-            <template v-else-if="periodo.estado === 'liquidado'">
-                <strong>Paso siguiente:</strong> revise cada comprobante con el
-                botón <strong>Abrir</strong>. Si algo no cuadra, corrija el
-                contrato o las novedades y vuelva a liquidar. Cuando esté
-                conforme, presione <strong>Cerrar periodo</strong>; después ya
-                no se podrá reliquidar.
-            </template>
-            <template v-else>
-                <strong>Periodo cerrado.</strong> Envíe los comprobantes a cada
-                empleado con <strong>Enviar comprobantes por correo</strong>.
-            </template>
-        </p>
-
-        <div class="flex flex-col gap-2">
-            <div class="flex flex-wrap gap-2">
+    <PaginaPos>
+        <div
+            class="rv flex flex-wrap items-start justify-between gap-5 rounded-[22px] border border-brand-gold/55 bg-cream px-7 py-6"
+            style="--i: 1"
+        >
+            <div class="flex flex-col gap-2.5">
+                <div class="flex flex-wrap items-center gap-3">
+                    <h1
+                        class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+                    >
+                        Periodo de nómina
+                    </h1>
+                    <EstadoPeriodo :estado="periodo.estado" />
+                </div>
+                <p class="text-base leading-[1.6] text-muted-foreground">
+                    {{ formatearFecha(periodo.fecha_inicio) }} –
+                    {{ formatearFecha(periodo.fecha_fin) }} ·
+                    {{ periodo.sede?.nombre ?? 'Todas las sedes' }} ·
+                    <span class="capitalize">{{
+                        periodo.periodicidad_pago
+                    }}</span
+                    ><template v-if="periodo.liquidador">
+                        · Liquidada por {{ periodo.liquidador.name }}</template
+                    >
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-2.5">
                 <Form
                     v-if="periodo.estado === 'cerrado'"
                     v-bind="
@@ -80,7 +82,10 @@ const totalNeto = computed(() =>
                     "
                     v-slot="{ processing }"
                 >
-                    <Button :disabled="processing"
+                    <Button
+                        variant="outline"
+                        :disabled="processing"
+                        :class="claseBotonSecundario"
                         >Enviar comprobantes por correo</Button
                     >
                 </Form>
@@ -89,7 +94,11 @@ const totalNeto = computed(() =>
                     v-bind="PeriodoNominaController.liquidar.form(periodo.id)"
                     v-slot="{ processing }"
                 >
-                    <Button :disabled="processing">
+                    <Button
+                        variant="outline"
+                        :disabled="processing"
+                        :class="claseBotonSecundario"
+                    >
                         {{
                             periodo.estado === 'borrador'
                                 ? 'Liquidar periodo'
@@ -102,78 +111,99 @@ const totalNeto = computed(() =>
                     v-bind="PeriodoNominaController.cerrar.form(periodo.id)"
                     v-slot="{ processing }"
                 >
-                    <Button variant="outline" :disabled="processing"
+                    <Button
+                        :disabled="processing"
+                        class="boton-plano h-12 rounded-full px-6 text-[15px] font-bold hover:bg-primary"
                         >Cerrar periodo</Button
                     >
                 </Form>
             </div>
-            <InputError :message="page.props.errors.periodo" />
         </div>
 
-        <div v-if="recibos.length" class="overflow-x-auto rounded-xl border">
-            <table class="w-full text-left text-sm">
-                <thead class="border-b bg-muted/50 text-muted-foreground">
+        <InputError :message="page.props.errors.periodo" />
+
+        <div
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-4"
+        >
+            <div
+                v-for="(dato, indice) in resumen"
+                :key="dato.titulo"
+                class="lift rv rounded-[18px] border bg-card p-[22px]"
+                :style="{ '--i': indice + 2 }"
+            >
+                <p class="text-sm text-muted-foreground">{{ dato.titulo }}</p>
+                <p
+                    class="mt-1.5 font-heading text-[28px] leading-[normal] font-bold"
+                >
+                    {{ formatearPesos(dato.valor) }}
+                </p>
+            </div>
+        </div>
+
+        <PanelTabla titulo="Recibos del periodo" :indice="5">
+            <table class="min-w-[900px]">
+                <thead>
                     <tr>
-                        <th class="px-4 py-2 font-medium">Empleado</th>
-                        <th class="px-4 py-2 text-right font-medium">Días</th>
-                        <th class="px-4 py-2 text-right font-medium">
-                            Devengado
-                        </th>
-                        <th class="px-4 py-2 text-right font-medium">
-                            Deducciones
-                        </th>
-                        <th class="px-4 py-2 text-right font-medium">
-                            Neto a pagar
-                        </th>
-                        <th class="px-4 py-2 font-medium">Comprobante</th>
-                        <th
-                            v-if="periodo.estado === 'cerrado'"
-                            class="px-4 py-2 font-medium"
-                        >
-                            Correo
+                        <th scope="col">Empleado</th>
+                        <th scope="col">Días</th>
+                        <th scope="col">Devengado</th>
+                        <th scope="col">Deducciones</th>
+                        <th scope="col">Neto</th>
+                        <th scope="col">Comprobante</th>
+                        <th scope="col">
+                            <span class="sr-only">Acciones</span>
                         </th>
                     </tr>
                 </thead>
-                <tbody class="divide-y">
+                <tbody>
                     <tr v-for="recibo in recibos" :key="recibo.id">
-                        <td class="px-4 py-2 font-medium">
-                            {{ recibo.empleado?.apellidos }},
+                        <td class="font-semibold">
                             {{ recibo.empleado?.nombres }}
+                            {{ recibo.empleado?.apellidos }}
                         </td>
-                        <td class="px-4 py-2 text-right">
-                            {{ recibo.dias_liquidados }}
-                        </td>
-                        <td class="px-4 py-2 text-right">
+                        <td>{{ recibo.dias_liquidados }}</td>
+                        <td class="font-heading whitespace-nowrap">
                             {{ formatearPesos(recibo.valor_total_devengado) }}
                         </td>
-                        <td class="px-4 py-2 text-right">
+                        <td class="font-heading whitespace-nowrap">
                             {{ formatearPesos(recibo.valor_total_deducciones) }}
                         </td>
-                        <td class="px-4 py-2 text-right font-medium">
+                        <td class="font-heading font-bold whitespace-nowrap">
                             {{ formatearPesos(recibo.valor_neto) }}
                         </td>
-                        <td class="px-4 py-2">
-                            <Button variant="outline" size="sm" as-child>
-                                <Link :href="nomina.recibos.show(recibo.id)">
-                                    <FileText />
-                                    Abrir
-                                </Link>
-                            </Button>
+                        <td>
+                            <span
+                                v-if="periodo.estado === 'cerrado'"
+                                class="inline-flex rounded-full px-3 py-[5px] text-[13px] leading-[normal] font-semibold"
+                                :class="
+                                    recibo.fecha_envio
+                                        ? 'bg-ok-bg text-success'
+                                        : 'bg-cream text-warning'
+                                "
+                                >{{
+                                    recibo.fecha_envio
+                                        ? `Enviado ${formatearFecha(recibo.fecha_envio.slice(0, 10))}`
+                                        : 'Pendiente'
+                                }}</span
+                            >
+                            <span v-else class="text-ink-3">—</span>
                         </td>
-                        <td
-                            v-if="periodo.estado === 'cerrado'"
-                            class="px-4 py-2"
-                        >
-                            <div class="flex items-center gap-2">
-                                <span class="text-muted-foreground">
-                                    {{
-                                        recibo.fecha_envio
-                                            ? `Enviado ${recibo.fecha_envio.slice(0, 10)}`
-                                            : 'Pendiente'
-                                    }}
-                                </span>
+                        <td>
+                            <div class="flex gap-2">
+                                <Button
+                                    variant="outline"
+                                    as-child
+                                    class="min-h-9 rounded-[10px] border-line-strong bg-transparent px-3.5 text-[13px] font-semibold shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+                                >
+                                    <Link :href="nomina.recibos.show(recibo.id)"
+                                        >Ver</Link
+                                    >
+                                </Button>
                                 <Form
-                                    v-if="recibo.fecha_envio"
+                                    v-if="
+                                        periodo.estado === 'cerrado' &&
+                                        recibo.fecha_envio
+                                    "
                                     v-bind="
                                         ReciboNominaController.reenviar.form(
                                             recibo.id,
@@ -182,30 +212,37 @@ const totalNeto = computed(() =>
                                     v-slot="{ processing }"
                                 >
                                     <Button
-                                        variant="ghost"
-                                        size="sm"
+                                        variant="outline"
                                         :disabled="processing"
+                                        class="boton-plano min-h-9 rounded-[10px] border-line-strong bg-card px-3.5 text-[13px] font-semibold shadow-none hover:bg-card dark:bg-card dark:hover:bg-card"
                                         >Reenviar</Button
                                     >
                                 </Form>
                             </div>
                         </td>
                     </tr>
+                    <tr v-if="recibos.length === 0">
+                        <td
+                            colspan="7"
+                            class="px-4 py-6 text-center text-muted-foreground"
+                        >
+                            El periodo aún no tiene comprobantes. Liquídelo para
+                            generarlos.
+                        </td>
+                    </tr>
                 </tbody>
-                <tfoot class="border-t font-medium">
+                <tfoot v-if="recibos.length > 0" class="border-t bg-secondary">
                     <tr>
-                        <td class="px-4 py-2" colspan="4">Total a pagar</td>
-                        <td class="px-4 py-2 text-right">
+                        <td colspan="4" class="py-4 font-bold">
+                            Total a pagar
+                        </td>
+                        <td class="py-4 font-heading">
                             {{ formatearPesos(totalNeto) }}
                         </td>
-                        <td></td>
-                        <td v-if="periodo.estado === 'cerrado'"></td>
+                        <td colspan="2"></td>
                     </tr>
                 </tfoot>
             </table>
-        </div>
-        <p v-else class="text-sm text-muted-foreground">
-            El periodo aún no tiene comprobantes. Liquídelo para generarlos.
-        </p>
-    </div>
+        </PanelTabla>
+    </PaginaPos>
 </template>

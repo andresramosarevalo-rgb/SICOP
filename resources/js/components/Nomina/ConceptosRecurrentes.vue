@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3';
 import AsignacionConceptoController from '@/actions/App/Http/Controllers/Nomina/AsignacionConceptoController';
-import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import InputDinero from '@/components/InputDinero.vue';
@@ -26,26 +25,34 @@ function describirValor(asignacion: AsignacionConcepto): string {
         : formatearPesos(asignacion.concepto.valor_base ?? 0);
 }
 
-const claseSelect =
-    'h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm dark:bg-input/30';
+const claseSelect = 'campo-sicop';
+
+const claseEtiqueta = 'text-sm leading-[normal] font-semibold';
 </script>
 
 <template>
-    <section class="flex flex-col gap-4">
-        <Heading
-            variant="small"
-            title="Conceptos recurrentes"
-            description="Bonos o descuentos que se aplican en cada liquidación mientras estén vigentes."
-        />
+    <section class="flex flex-col gap-3.5">
+        <div class="flex flex-col gap-1">
+            <h2 class="font-heading text-lg leading-[normal] font-bold">
+                Conceptos recurrentes
+            </h2>
+            <p class="text-sm text-muted-foreground">
+                Bonos o descuentos que se aplican en cada liquidación mientras
+                estén vigentes.
+            </p>
+        </div>
 
-        <ul v-if="asignaciones.length" class="divide-y rounded-xl border px-4">
+        <ul
+            v-if="asignaciones.length"
+            class="divide-y divide-line-faint rounded-[22px] border bg-card px-6"
+        >
             <li
                 v-for="asignacion in asignaciones"
                 :key="asignacion.id"
                 class="flex flex-wrap items-center justify-between gap-3 py-3"
             >
                 <div class="min-w-0 flex-1 wrap-anywhere">
-                    <p class="font-medium">
+                    <p class="font-semibold">
                         {{ asignacion.concepto.nombre }} ·
                         {{
                             asignacion.concepto.tipo === 'devengo'
@@ -70,7 +77,10 @@ const claseSelect =
                     :options="{ preserveScroll: true }"
                     v-slot="{ processing }"
                 >
-                    <Button variant="ghost" size="sm" :disabled="processing"
+                    <Button
+                        variant="outline"
+                        :disabled="processing"
+                        class="boton-plano min-h-9 rounded-[10px] border-line-strong bg-card px-3.5 text-[13px] font-semibold text-danger shadow-none hover:bg-card hover:text-danger dark:bg-card dark:hover:bg-card"
                         >Retirar</Button
                     >
                 </Form>
@@ -78,7 +88,7 @@ const claseSelect =
         </ul>
 
         <p
-            class="rounded-lg bg-muted/50 p-4 text-sm leading-relaxed text-muted-foreground"
+            class="rounded-[18px] border border-brand-gold/55 bg-cream px-5 py-4 text-sm leading-relaxed text-muted-foreground"
         >
             Aquí se asignan conceptos personalizados activos. Los conceptos del
             sistema, como salario, salud y pensión, se calculan en la
@@ -101,16 +111,18 @@ const claseSelect =
             v-else
             v-bind="AsignacionConceptoController.store.form(empleadoId)"
             :options="{ preserveScroll: true }"
-            class="grid gap-4 rounded-xl border p-4 sm:grid-cols-2"
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-5 rounded-[22px] border bg-card px-7 py-6"
             reset-on-success
             v-slot="{ errors, processing }"
         >
-            <p class="text-sm text-muted-foreground sm:col-span-2">
+            <p class="col-span-full text-sm text-muted-foreground">
                 Deje el valor vacío para utilizar el valor o porcentaje del
                 concepto.
             </p>
-            <div class="flex min-w-0 flex-col gap-2 sm:col-span-2">
-                <Label for="concepto_nomina_id">Concepto</Label>
+            <div class="col-span-full flex min-w-0 flex-col gap-2">
+                <Label for="concepto_nomina_id" :class="claseEtiqueta"
+                    >Concepto</Label
+                >
                 <select
                     id="concepto_nomina_id"
                     name="concepto_nomina_id"
@@ -139,8 +151,11 @@ const claseSelect =
                 />
             </div>
             <div class="flex min-w-0 flex-col gap-2">
-                <Label for="valor_asignado">Valor (opcional)</Label>
+                <Label for="valor_asignado" :class="claseEtiqueta"
+                    >Valor (opcional)</Label
+                >
                 <InputDinero
+                    class="campo-sicop"
                     id="valor_asignado"
                     name="valor_asignado"
                     :aria-invalid="!!errors.valor_asignado"
@@ -157,8 +172,11 @@ const claseSelect =
                 />
             </div>
             <div class="flex min-w-0 flex-col gap-2">
-                <Label for="fecha_inicio_asignacion">Desde</Label>
+                <Label for="fecha_inicio_asignacion" :class="claseEtiqueta"
+                    >Desde</Label
+                >
                 <Input
+                    class="campo-sicop"
                     id="fecha_inicio_asignacion"
                     name="fecha_inicio"
                     :aria-invalid="!!errors.fecha_inicio"
@@ -177,8 +195,11 @@ const claseSelect =
                 />
             </div>
             <div class="flex min-w-0 flex-col gap-2">
-                <Label for="fecha_fin_asignacion">Hasta (opcional)</Label>
+                <Label for="fecha_fin_asignacion" :class="claseEtiqueta"
+                    >Hasta (opcional)</Label
+                >
                 <Input
+                    class="campo-sicop"
                     id="fecha_fin_asignacion"
                     name="fecha_fin"
                     :aria-invalid="!!errors.fecha_fin"
@@ -195,8 +216,14 @@ const claseSelect =
                     :message="errors.fecha_fin"
                 />
             </div>
-            <div class="self-start sm:pt-[22px]">
-                <Button :disabled="processing">Asignar concepto</Button>
+            <div
+                class="col-span-full flex justify-end border-t border-line-faint pt-3"
+            >
+                <Button
+                    :disabled="processing"
+                    class="boton-plano h-12 rounded-full px-[26px] text-[15px] font-bold hover:bg-primary"
+                    >Asignar concepto</Button
+                >
             </div>
         </Form>
     </section>
