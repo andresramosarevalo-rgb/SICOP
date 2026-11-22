@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import EmpleadoController from '@/actions/App/Http/Controllers/Nomina/EmpleadoController';
-import Heading from '@/components/Heading.vue';
-import BotonAtras from '@/components/Nomina/BotonAtras.vue';
+import FormularioNomina from '@/components/Nomina/FormularioNomina.vue';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import CamposEmpleado from '@/components/Nomina/CamposEmpleado.vue';
 import CambiarEstadoEmpleado from '@/components/Nomina/CambiarEstadoEmpleado.vue';
-import { Button } from '@/components/ui/button';
 import nomina from '@/routes/nomina';
 import type { Area, Empleado, Opcion, OpcionTipoDocumento } from '@/types';
 
@@ -32,34 +31,41 @@ defineProps<{
 <template>
     <Head title="Editar empleado" />
 
-    <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
-        <BotonAtras :respaldo="nomina.empleados.show(empleado.id)" />
-
-        <Heading
-            title="Editar empleado"
-            :description="`${empleado.nombres} ${empleado.apellidos}`"
-        />
-
-        <CambiarEstadoEmpleado :empleado="empleado" />
-
-        <Form
-            v-bind="EmpleadoController.update.form(empleado.id)"
-            :options="{ preserveScroll: 'errors' }"
-            class="flex flex-col gap-6"
-            v-slot="{ errors, processing }"
+    <PaginaPos>
+        <header
+            class="rv flex flex-wrap items-end justify-between gap-5"
+            style="--i: 1"
         >
-            <CamposEmpleado
-                :areas="areas"
-                :tipos-documento="tiposDocumento"
-                :tipos-cuenta-bancaria="tiposCuentaBancaria"
-                :sedes="sedes"
-                :puede-elegir-sede="puedeElegirSede"
-                :errors="errors"
-                :empleado="empleado"
-            />
-            <div>
-                <Button :disabled="processing">Guardar cambios</Button>
+            <div class="flex flex-col gap-2">
+                <h1
+                    class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+                >
+                    Editar empleado
+                </h1>
+                <p class="text-[17px] leading-[1.6] text-muted-foreground">
+                    {{ empleado.nombres }} {{ empleado.apellidos }}
+                </p>
             </div>
-        </Form>
-    </div>
+            <CambiarEstadoEmpleado :empleado="empleado" />
+        </header>
+
+        <FormularioNomina
+            :accion="EmpleadoController.update.form(empleado.id)"
+            :options="{ preserveScroll: 'errors' }"
+            etiqueta-guardar="Guardar cambios"
+            :href-cancelar="nomina.empleados.show(empleado.id)"
+        >
+            <template #default="{ errors }">
+                <CamposEmpleado
+                    :areas="areas"
+                    :tipos-documento="tiposDocumento"
+                    :tipos-cuenta-bancaria="tiposCuentaBancaria"
+                    :sedes="sedes"
+                    :puede-elegir-sede="puedeElegirSede"
+                    :errors="errors"
+                    :empleado="empleado"
+                />
+            </template>
+        </FormularioNomina>
+    </PaginaPos>
 </template>

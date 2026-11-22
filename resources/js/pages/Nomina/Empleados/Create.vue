@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
-import EmpleadoController from '@/actions/App/Http/Controllers/Nomina/EmpleadoController';
-import Heading from '@/components/Heading.vue';
-import BotonAtras from '@/components/Nomina/BotonAtras.vue';
-import CamposContrato from '@/components/Nomina/CamposContrato.vue';
-import CamposEmpleado from '@/components/Nomina/CamposEmpleado.vue';
-import { Button } from '@/components/ui/button';
+import { Head } from '@inertiajs/vue3';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
+import FormularioEmpleado from '@/components/Nomina/FormularioEmpleado.vue';
 import nomina from '@/routes/nomina';
 import type { Area, Opcion, OpcionTipoDocumento } from '@/types';
 
@@ -33,49 +29,27 @@ defineProps<{
 <template>
     <Head title="Registrar empleado" />
 
-    <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
-        <BotonAtras :respaldo="nomina.empleados.index()" />
+    <PaginaPos>
+        <header class="rv flex flex-col gap-2" style="--i: 1">
+            <h1
+                class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+            >
+                Registrar empleado
+            </h1>
+            <p class="text-[17px] leading-[1.6] text-muted-foreground">
+                Primero los datos de la persona y después su primer contrato.
+                Sin contrato no se puede liquidar su nómina.
+            </p>
+        </header>
 
-        <Heading
-            title="Registrar empleado"
-            description="Registre los datos del trabajador y su contrato. Sin contrato no se puede liquidar su nómina."
+        <FormularioEmpleado
+            :areas="areas"
+            :tipos-documento="tiposDocumento"
+            :tipos-cuenta-bancaria="tiposCuentaBancaria"
+            :sedes="sedes"
+            :puede-elegir-sede="puedeElegirSede"
+            :tipos-contrato="tiposContrato"
+            :periodicidades="periodicidades"
         />
-
-        <Form
-            v-bind="EmpleadoController.store.form()"
-            :options="{ preserveScroll: 'errors' }"
-            class="flex flex-col gap-6"
-            v-slot="{ errors, processing }"
-        >
-            <section class="flex flex-col gap-4">
-                <Heading variant="small" title="1. Datos del empleado" />
-                <CamposEmpleado
-                    :areas="areas"
-                    :tipos-documento="tiposDocumento"
-                    :tipos-cuenta-bancaria="tiposCuentaBancaria"
-                    :sedes="sedes"
-                    :puede-elegir-sede="puedeElegirSede"
-                    :errors="errors"
-                />
-            </section>
-            <section class="flex flex-col gap-4 border-t pt-6">
-                <Heading
-                    variant="small"
-                    title="2. Contrato"
-                    description="Define el salario y cada cuánto se le paga (semanal, quincenal o mensual)."
-                />
-                <CamposContrato
-                    prefijo="contrato"
-                    :errors="errors"
-                    :tipos-contrato="tiposContrato"
-                    :periodicidades="periodicidades"
-                />
-            </section>
-            <div>
-                <Button :disabled="processing"
-                    >Registrar empleado y contrato</Button
-                >
-            </div>
-        </Form>
-    </div>
+    </PaginaPos>
 </template>
