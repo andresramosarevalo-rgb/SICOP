@@ -15,17 +15,24 @@ defineProps<{
 
 const hoy = new Date().toLocaleDateString('en-CA');
 
-const claseSelect =
-    'h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm dark:bg-input/30';
+const claseSelect = 'campo-sicop';
+
+const claseEtiqueta = 'text-sm leading-[normal] font-semibold';
 </script>
 
 <template>
-    <div class="grid gap-5 sm:grid-cols-2">
-        <h2 class="border-b pb-3 text-base font-semibold sm:col-span-2">
+    <div
+        class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-5"
+    >
+        <h2
+            class="col-span-full border-b border-line-faint pb-3 font-heading text-base leading-[normal] font-bold"
+        >
             Identificación del cliente
         </h2>
-        <div class="grid gap-2">
-            <Label for="tipo_documento">Tipo de documento</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="tipo_documento" :class="claseEtiqueta"
+                >Tipo de documento</Label
+            >
             <select
                 id="tipo_documento"
                 name="tipo_documento"
@@ -46,9 +53,12 @@ const claseSelect =
             </select>
             <InputError :message="errors.tipo_documento" />
         </div>
-        <div class="grid gap-2">
-            <Label for="numero_documento">Número de documento</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="numero_documento" :class="claseEtiqueta"
+                >Número de documento</Label
+            >
             <Input
+                class="campo-sicop"
                 id="numero_documento"
                 name="numero_documento"
                 :default-value="soat?.numero_documento"
@@ -56,9 +66,12 @@ const claseSelect =
             />
             <InputError :message="errors.numero_documento" />
         </div>
-        <div class="grid gap-2 sm:col-span-2">
-            <Label for="nombre_cliente">Nombre del cliente</Label>
+        <div class="col-span-full flex flex-col gap-2">
+            <Label for="nombre_cliente" :class="claseEtiqueta"
+                >Nombre del cliente</Label
+            >
             <Input
+                class="campo-sicop"
                 id="nombre_cliente"
                 name="nombre_cliente"
                 :default-value="soat?.nombre_cliente"
@@ -66,12 +79,15 @@ const claseSelect =
             />
             <InputError :message="errors.nombre_cliente" />
         </div>
-        <h2 class="mt-2 border-b pb-3 text-base font-semibold sm:col-span-2">
+        <h2
+            class="col-span-full mt-2 border-b border-line-faint pb-3 font-heading text-base leading-[normal] font-bold"
+        >
             SOAT y datos de contacto
         </h2>
-        <div class="grid gap-2">
-            <Label for="fecha">Fecha</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="fecha" :class="claseEtiqueta">Fecha</Label>
             <Input
+                class="campo-sicop"
                 id="fecha"
                 name="fecha"
                 type="date"
@@ -81,9 +97,12 @@ const claseSelect =
             />
             <InputError :message="errors.fecha" />
         </div>
-        <div class="grid gap-2">
-            <Label for="valor_soat">Valor del SOAT</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="valor_soat" :class="claseEtiqueta"
+                >Valor del SOAT</Label
+            >
             <InputDinero
+                class="campo-sicop"
                 id="valor_soat"
                 name="valor_soat"
                 :default-value="soat?.valor_soat"
@@ -91,9 +110,10 @@ const claseSelect =
             />
             <InputError :message="errors.valor_soat" />
         </div>
-        <div class="grid gap-2">
-            <Label for="celular">Celular</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="celular" :class="claseEtiqueta">Celular</Label>
             <Input
+                class="campo-sicop"
                 id="celular"
                 name="celular"
                 type="tel"
@@ -102,9 +122,12 @@ const claseSelect =
             />
             <InputError :message="errors.celular" />
         </div>
-        <div class="grid gap-2">
-            <Label for="correo">Correo electrónico</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="correo" :class="claseEtiqueta"
+                >Correo electrónico</Label
+            >
             <Input
+                class="campo-sicop"
                 id="correo"
                 name="correo"
                 type="email"
@@ -113,12 +136,12 @@ const claseSelect =
             />
             <InputError :message="errors.correo" />
         </div>
-        <div class="grid gap-2">
-            <Label for="placa">Placa del vehículo</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="placa" :class="claseEtiqueta">Placa del vehículo</Label>
             <Input
                 id="placa"
                 name="placa"
-                class="uppercase"
+                class="campo-sicop uppercase"
                 maxlength="10"
                 :default-value="soat?.placa"
                 required
@@ -126,12 +149,14 @@ const claseSelect =
             <InputError :message="errors.placa" />
         </div>
         <fieldset
-            class="mt-2 min-w-0 rounded-lg border bg-muted/30 p-4 sm:col-span-2"
+            class="col-span-full mt-2 min-w-0 rounded-2xl border border-line-cream bg-cream/40 p-5"
         >
-            <legend class="px-2 font-heading text-sm font-semibold">
+            <legend class="px-2 font-heading text-sm font-bold">
                 Información de pago
             </legend>
-            <div class="grid gap-5 sm:grid-cols-2">
+            <div
+                class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-5"
+            >
                 <CamposPago
                     :errors="errors"
                     :formas-pago="formasPago"
