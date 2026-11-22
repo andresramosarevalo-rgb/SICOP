@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import SedeController from '@/actions/App/Http/Controllers/Pos/SedeController';
-import Heading from '@/components/Heading.vue';
 import PaginaPos from '@/components/Pos/PaginaPos.vue';
-import BotonAtras from '@/components/Nomina/BotonAtras.vue';
-import CamposSede from '@/components/Pos/CamposSede.vue';
-import { Button } from '@/components/ui/button';
+import FormularioSede from '@/components/Pos/FormularioSede.vue';
 import pos from '@/routes/pos';
 
 defineOptions({
@@ -22,23 +19,21 @@ defineOptions({
 <template>
     <Head title="Nueva sede" />
 
-    <PaginaPos formulario>
-        <BotonAtras :respaldo="pos.sedes.index()" />
+    <PaginaPos>
+        <header class="rv flex flex-col gap-2" style="--i: 1">
+            <h1
+                class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+            >
+                Nueva sede
+            </h1>
+            <p class="text-[17px] leading-[1.6] text-muted-foreground">
+                Registre la ubicación donde se venderán cursos y SOAT.
+            </p>
+        </header>
 
-        <Heading
-            title="Nueva sede"
-            description="Nombre, ciudad y dirección de la sede."
+        <FormularioSede
+            :accion="SedeController.store.form()"
+            etiqueta-guardar="Guardar sede"
         />
-
-        <Form
-            v-bind="SedeController.store.form()"
-            class="flex flex-col gap-6 rounded-xl border bg-card p-5 shadow-sm sm:p-6"
-            v-slot="{ errors, processing }"
-        >
-            <CamposSede :errors="errors" />
-            <div class="flex justify-end border-t pt-5">
-                <Button :disabled="processing">Guardar</Button>
-            </div>
-        </Form>
     </PaginaPos>
 </template>
