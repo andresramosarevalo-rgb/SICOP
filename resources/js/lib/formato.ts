@@ -103,3 +103,29 @@ export function formatearFecha(fecha: string): string {
 
     return anio && mes && dia ? `${dia}/${mes}/${anio}` : fecha;
 }
+
+/**
+ * Texto de una diferencia del arqueo: `Cuadra`, `Sobrante $ 5.000` o `Faltante $ 5.000`.
+ */
+export function describirDiferencia(valor: string | number): string {
+    const numero = Number(valor);
+
+    if (numero === 0) {
+        return 'Cuadra';
+    }
+
+    return `${numero > 0 ? 'Sobrante' : 'Faltante'} ${formatearPesos(Math.abs(numero))}`;
+}
+
+/**
+ * Color del texto de una diferencia del arqueo: verde si cuadra, rojo si falta y ámbar si sobra.
+ */
+export function claseDiferencia(valor: string | number): string {
+    const numero = Number(valor);
+
+    if (numero === 0) {
+        return 'text-success';
+    }
+
+    return numero < 0 ? 'text-danger' : 'text-warning';
+}

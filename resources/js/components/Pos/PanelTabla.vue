@@ -6,21 +6,33 @@ withDefaults(
         indice?: number;
         relleno?: string;
         ocultarTitulo?: boolean;
+        sinAnimacion?: boolean;
+        compacta?: boolean;
     }>(),
-    { indice: 2, relleno: '14px', ocultarTitulo: false },
+    {
+        indice: 2,
+        relleno: '14px',
+        ocultarTitulo: false,
+        sinAnimacion: false,
+        compacta: false,
+    },
 );
 </script>
 
 <template>
     <section
-        class="rv min-w-0 overflow-hidden rounded-[22px] border bg-card"
+        class="min-w-0 overflow-hidden rounded-[22px] border bg-card"
+        :class="{ rv: !sinAnimacion }"
         :style="{ '--i': indice, '--fila-py': relleno }"
     >
         <header
             :class="
                 ocultarTitulo
                     ? 'sr-only'
-                    : 'flex min-h-[66px] flex-wrap items-center gap-x-3 gap-y-1 border-b border-line-faint px-6 py-5'
+                    : [
+                          'flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line-faint px-6 py-5',
+                          compacta ? '' : 'min-h-[66px]',
+                      ]
             "
         >
             <h2 class="font-heading text-lg leading-[normal] font-bold">
