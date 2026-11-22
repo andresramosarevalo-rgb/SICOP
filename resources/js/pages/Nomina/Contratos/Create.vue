@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import ContratoController from '@/actions/App/Http/Controllers/Nomina/ContratoController';
-import Heading from '@/components/Heading.vue';
-import BotonAtras from '@/components/Nomina/BotonAtras.vue';
+import FormularioNomina from '@/components/Nomina/FormularioNomina.vue';
+import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import CamposContrato from '@/components/Nomina/CamposContrato.vue';
-import { Button } from '@/components/ui/button';
-import { formatearPesos } from '@/lib/formato';
+import { formatearFecha, formatearPesos } from '@/lib/formato';
 import nomina from '@/routes/nomina';
 import type { Contrato, Empleado, Opcion } from '@/types';
 
@@ -28,39 +27,70 @@ defineProps<{
 </script>
 
 <template>
-    <Head title="Nuevo contrato" />
+    <Head title="Registrar contrato" />
 
-    <div class="flex h-full max-w-3xl flex-1 flex-col gap-6 p-4">
-        <BotonAtras :respaldo="nomina.empleados.show(empleado.id)" />
+    <PaginaPos>
+        <header class="rv flex flex-col gap-2" style="--i: 1">
+            <h1
+                class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+            >
+                Registrar contrato
+            </h1>
+            <p class="text-[17px] leading-[1.6] text-muted-foreground">
+                {{ empleado.nombres }} {{ empleado.apellidos }}
+            </p>
+        </header>
 
-        <Heading
-            title="Nuevo contrato"
-            :description="`${empleado.nombres} ${empleado.apellidos}`"
-        />
-
-        <p
-            v-if="contratoVigente"
-            class="rounded-xl border bg-muted/50 p-4 text-sm"
-        >
-            El contrato vigente (desde {{ contratoVigente.fecha_inicio }},
-            salario {{ formatearPesos(contratoVigente.valor_salario_base) }}) se
-            cerrará el día anterior al inicio del nuevo.
-        </p>
-
-        <Form
-            v-bind="ContratoController.store.form(empleado.id)"
+        <FormularioNomina
+            :accion="ContratoController.store.form(empleado.id)"
             :options="{ preserveScroll: 'errors' }"
-            class="flex flex-col gap-6"
-            v-slot="{ errors, processing }"
+            etiqueta-guardar="Registrar contrato"
+            :href-cancelar="nomina.empleados.show(empleado.id)"
         >
-            <CamposContrato
-                :errors="errors"
-                :tipos-contrato="tiposContrato"
-                :periodicidades="periodicidades"
-            />
-            <div>
-                <Button :disabled="processing">Registrar contrato</Button>
-            </div>
-        </Form>
-    </div>
+            <template #default="{ errors }">
+                <CamposContrato
+                    :errors="errors"
+                    :tipos-contrato="tiposContrato"
+                    :periodicidades="periodicidades"
+                />
+            </template>
+            <template #lateral>
+                <aside
+                    class="rv flex min-w-0 flex-[1_1_280px] flex-col gap-3.5 rounded-[22px] border border-brand-gold/55 bg-cream p-7"
+                    style="--i: 3"
+                    aria-labelledby="contrato-vigente-title"
+                >
+                    <h2
+                        id="contrato-vigente-title"
+                        class="font-heading text-lg leading-[normal] font-bold"
+                    >
+                        Contrato vigente
+                    </h2>
+                    <p class="text-sm text-muted-foreground">
+                        Los contratos anteriores se conservan en el expediente
+                        del empleado, el más reciente primero. El contrato
+                        vigente se cerrará el día anterior al inicio del nuevo.
+                    </p>
+                    <div
+                        v-if="contratoVigente"
+                        class="rounded-2xl border border-line-cream bg-card p-4 text-sm"
+                    >
+                        <span class="text-muted-foreground"
+                            >Vigente actual:
+                        </span>
+                        <strong
+                            >Desde
+                            {{ formatearFecha(contratoVigente.fecha_inicio) }} ·
+                            salario
+                            {{
+                                formatearPesos(
+                                    contratoVigente.valor_salario_base,
+                                )
+                            }}</strong
+                        >
+                    </div>
+                </aside>
+            </template>
+        </FormularioNomina>
+    </PaginaPos>
 </template>
