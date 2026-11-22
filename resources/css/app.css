@@ -42,6 +42,8 @@
     --color-ring: var(--ring);
     --color-cream: var(--cream);
     --color-ink-3: var(--ink-3);
+    --color-danger: var(--danger);
+    --color-danger-bg: var(--danger-bg);
     --color-line-strong: var(--line-strong);
     --color-line-faint: var(--line-faint);
     --color-line-cream: var(--line-cream);
@@ -94,6 +96,8 @@
     --chart-5: #0d2038;
     --cream: #f3eedd;
     --ink-3: #6b7c92;
+    --danger: #b42332;
+    --danger-bg: #fbe9eb;
     --line-strong: #c3d0df;
     --line-faint: #eef2f6;
     --line-cream: #e6e0cc;
@@ -139,6 +143,8 @@
     --ring: #ecc254;
     --cream: #1b3555;
     --ink-3: #9cadc4;
+    --danger: #ff8a94;
+    --danger-bg: rgba(255, 138, 148, 0.14);
     --line-strong: #4a6a92;
     --line-faint: #243f60;
     --line-cream: #355275;
@@ -473,6 +479,45 @@
     }
 }
 
+/* Botones planos y campos de formulario de Punto de venta. */
+.boton-plano {
+    transition:
+        transform 0.15s,
+        box-shadow 0.2s,
+        filter 0.2s;
+}
+
+.boton-plano:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+}
+
+.boton-plano:active {
+    transform: scale(0.98);
+}
+
+.campo-sicop {
+    height: var(--alto-campo, 50px);
+    width: 100%;
+    padding: 0 16px;
+    border-radius: 14px;
+    border: 1px solid #8798ad;
+    background: var(--card);
+    color: var(--foreground);
+    font-size: 15px;
+    box-shadow: none;
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+.campo-sicop:focus,
+.campo-sicop:focus-visible {
+    outline: none;
+    border-color: #2c4b75;
+    box-shadow: 0 0 0 4px rgb(44 75 117 / 0.16);
+}
+
 @keyframes sicop-rise {
     from {
         opacity: 0;
@@ -545,6 +590,8 @@
     .fld,
     .ojo,
     .fantasma,
+    .boton-plano,
+    .campo-sicop,
     .fila-usuario:hover,
     .lift .bub,
     .lift .arr,

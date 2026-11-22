@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
+import { computed } from 'vue';
 import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import PanelTabla from '@/components/Pos/PanelTabla.vue';
-import BotonAtras from '@/components/Nomina/BotonAtras.vue';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { formatearPesos } from '@/lib/formato';
+import { formatearFecha, formatearPesos } from '@/lib/formato';
 import pos from '@/routes/pos';
 import type { DiaPorConsignar, FilaSaldoConsignacion } from '@/types';
 
@@ -19,11 +17,15 @@ defineOptions({
     },
 });
 
-defineProps<{
+const props = defineProps<{
     filas: FilaSaldoConsignacion[];
     sedeId: number | null;
     dias: DiaPorConsignar[];
 }>();
+
+const sedeSeleccionada = computed(
+    () => props.filas.find((fila) => fila.sede.id === props.sedeId)?.sede,
+);
 
 function pendiente(fila: FilaSaldoConsignacion): number {
     return Number(fila.valor_a_consignar) - Number(fila.valor_consignado);
@@ -34,73 +36,86 @@ function pendiente(fila: FilaSaldoConsignacion): number {
     <Head title="Consignaciones" />
 
     <PaginaPos>
-        <BotonAtras :respaldo="pos.inicio.index()" />
+        <header class="rv flex flex-col gap-2" style="--i: 1">
+            <h1
+                class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+            >
+                Consignaciones
+            </h1>
+            <p class="text-[17px] leading-[1.6] text-muted-foreground">
+                Lo que cada sede debe consignar según sus cierres de caja y lo
+                que ya consignó.
+            </p>
+        </header>
 
-        <Heading
-            title="Consignaciones"
-            description="Lo que cada sede debe consignar según sus cierres de caja y lo que ya consignó."
-        />
-
-        <PanelTabla titulo="Saldos por sede">
-            <table class="w-full text-left text-sm">
-                <thead class="border-b bg-muted/50 text-muted-foreground">
+        <PanelTabla titulo="Saldos por sede" compacta relleno="16px">
+            <table class="min-w-[900px]">
+                <thead>
                     <tr>
-                        <th class="px-4 py-2 font-medium">Sede</th>
-                        <th class="px-4 py-2 text-right font-medium">
-                            Por consignar
-                        </th>
-                        <th class="px-4 py-2 text-right font-medium">
-                            Consignado
-                        </th>
-                        <th class="px-4 py-2 text-right font-medium">
-                            Saldo pendiente
-                        </th>
-                        <th class="px-4 py-2 font-medium">
-                            Días sin consignar
-                        </th>
-                        <th class="px-4 py-2">
+                        <th scope="col">Sede</th>
+                        <th scope="col" class="text-right">Por consignar</th>
+                        <th scope="col" class="text-right">Consignado</th>
+                        <th scope="col" class="text-right">Saldo pendiente</th>
+                        <th scope="col">Días sin consignar</th>
+                        <th scope="col">
                             <span class="sr-only">Acciones</span>
                         </th>
                     </tr>
                 </thead>
-                <tbody class="divide-y">
+                <tbody>
                     <tr
                         v-for="fila in filas"
                         :key="fila.sede.id"
-                        :class="{ 'bg-muted/50': fila.sede.id === sedeId }"
+                        :class="{ 'bg-hover-row': fila.sede.id === sedeId }"
                     >
-                        <td class="px-4 py-2">{{ fila.sede.nombre }}</td>
-                        <td
-                            class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
-                        >
+                        <td class="font-semibold">{{ fila.sede.nombre }}</td>
+                        <td class="text-right font-heading whitespace-nowrap">
                             {{ formatearPesos(fila.valor_a_consignar) }}
                         </td>
-                        <td
-                            class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
-                        >
+                        <td class="text-right font-heading whitespace-nowrap">
                             {{ formatearPesos(fila.valor_consignado) }}
                         </td>
-                        <td
-                            class="px-4 py-2 text-right font-semibold whitespace-nowrap tabular-nums"
-                        >
-                            {{ formatearPesos(pendiente(fila)) }}
+                        <td class="text-right whitespace-nowrap">
+                            <span
+                                class="font-heading font-bold"
+                                :class="
+                                    pendiente(fila) > 0
+                                        ? 'text-warning'
+                                        : 'text-success'
+                                "
+                                >{{ formatearPesos(pendiente(fila)) }}</span
+                            >
                         </td>
-                        <td class="px-4 py-2">{{ fila.dias_sin_consignar }}</td>
-                        <td class="px-4 py-2">
-                            <div class="flex justify-end">
-                                <Button variant="outline" size="sm" as-child>
-                                    <Link
-                                        :href="
-                                            pos.consignaciones.index({
-                                                query: {
-                                                    sede_id: fila.sede.id,
-                                                },
-                                            })
-                                        "
-                                        >Ver días</Link
-                                    >
-                                </Button>
-                            </div>
+                        <td>
+                            <span
+                                v-if="fila.dias_sin_consignar > 0"
+                                class="inline-flex rounded-full bg-cream px-3 py-[5px] text-[13px] leading-[normal] font-semibold text-warning"
+                                >{{ fila.dias_sin_consignar }}
+                                {{
+                                    fila.dias_sin_consignar === 1
+                                        ? 'día'
+                                        : 'días'
+                                }}</span
+                            >
+                            <span v-else class="font-semibold text-success"
+                                >Ninguno</span
+                            >
+                        </td>
+                        <td>
+                            <Button
+                                variant="outline"
+                                as-child
+                                class="min-h-9 rounded-[10px] border-line-strong bg-transparent px-3.5 text-[13px] font-semibold shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+                            >
+                                <Link
+                                    :href="
+                                        pos.consignaciones.index({
+                                            query: { sede_id: fila.sede.id },
+                                        })
+                                    "
+                                    >Ver días</Link
+                                >
+                            </Button>
                         </td>
                     </tr>
                     <tr v-if="filas.length === 0">
@@ -115,94 +130,82 @@ function pendiente(fila: FilaSaldoConsignacion): number {
             </table>
         </PanelTabla>
 
-        <section v-if="sedeId" class="flex flex-col gap-3">
-            <PanelTabla titulo="Días cerrados de la sede">
-                <table class="w-full text-left text-sm">
-                    <thead class="border-b bg-muted/50 text-muted-foreground">
-                        <tr>
-                            <th class="px-4 py-2 font-medium">Día</th>
-                            <th class="px-4 py-2 text-right font-medium">
-                                Por consignar
-                            </th>
-                            <th class="px-4 py-2 font-medium">Estado</th>
-                            <th class="px-4 py-2 font-medium">Referencia</th>
-                            <th class="px-4 py-2">
-                                <span class="sr-only">Acciones</span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y">
-                        <tr v-for="dia in dias" :key="dia.id">
-                            <td class="px-4 py-2 whitespace-nowrap">
-                                {{ dia.fecha }}
-                            </td>
-                            <td
-                                class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
+        <PanelTabla
+            v-if="sedeId"
+            :titulo="`Días cerrados de la sede · ${sedeSeleccionada?.nombre ?? ''}`"
+            :indice="3"
+            compacta
+        >
+            <table class="min-w-[800px]">
+                <thead>
+                    <tr>
+                        <th scope="col">Día</th>
+                        <th scope="col" class="text-right">Valor</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Referencia</th>
+                        <th scope="col">
+                            <span class="sr-only">Acciones</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="dia in dias" :key="dia.id">
+                        <td class="whitespace-nowrap">
+                            {{ formatearFecha(dia.fecha) }}
+                        </td>
+                        <td class="text-right font-heading whitespace-nowrap">
+                            {{ formatearPesos(dia.valor_a_consignar) }}
+                        </td>
+                        <td>
+                            <span
+                                class="inline-flex rounded-full px-3 py-[5px] text-[13px] leading-[normal] font-semibold"
+                                :class="
+                                    dia.consignacion ||
+                                    Number(dia.valor_a_consignar) <= 0
+                                        ? 'bg-ok-bg text-success'
+                                        : 'bg-cream text-warning'
+                                "
+                                >{{
+                                    dia.consignacion
+                                        ? 'Consignado'
+                                        : Number(dia.valor_a_consignar) <= 0
+                                          ? 'Nada por consignar'
+                                          : 'Pendiente'
+                                }}</span
                             >
-                                {{ formatearPesos(dia.valor_a_consignar) }}
-                            </td>
-                            <td class="px-4 py-2">
-                                <Badge
-                                    :class="
-                                        dia.consignacion ||
-                                        Number(dia.valor_a_consignar) <= 0
-                                            ? 'border-success/20 bg-success/10 text-success'
-                                            : 'border-warning/20 bg-warning/10 text-warning'
-                                    "
-                                    :variant="
-                                        dia.consignacion ||
-                                        Number(dia.valor_a_consignar) <= 0
-                                            ? 'default'
-                                            : 'outline'
+                        </td>
+                        <td :class="dia.consignacion ? '' : 'text-ink-3'">
+                            {{ dia.consignacion?.referencia ?? '—' }}
+                        </td>
+                        <td>
+                            <Button
+                                variant="outline"
+                                as-child
+                                class="min-h-9 rounded-[10px] border-line-strong bg-transparent px-3.5 text-[13px] font-semibold shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+                            >
+                                <Link
+                                    :href="
+                                        pos.sedes.cierre.show(sedeId, {
+                                            query: { fecha: dia.fecha },
+                                        })
                                     "
                                     >{{
-                                        dia.consignacion
-                                            ? 'Consignado'
-                                            : Number(dia.valor_a_consignar) <= 0
-                                              ? 'Nada por consignar'
-                                              : 'Pendiente'
-                                    }}</Badge
+                                        dia.consignacion ? 'Ver' : 'Consignar'
+                                    }}</Link
                                 >
-                            </td>
-                            <td class="px-4 py-2">
-                                {{ dia.consignacion?.referencia ?? '—' }}
-                            </td>
-                            <td class="px-4 py-2">
-                                <div class="flex justify-end">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        as-child
-                                    >
-                                        <Link
-                                            :href="
-                                                pos.sedes.cierre.show(sedeId, {
-                                                    query: {
-                                                        fecha: dia.fecha,
-                                                    },
-                                                })
-                                            "
-                                            >{{
-                                                dia.consignacion
-                                                    ? 'Ver'
-                                                    : 'Registrar'
-                                            }}</Link
-                                        >
-                                    </Button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr v-if="dias.length === 0">
-                            <td
-                                colspan="5"
-                                class="px-4 py-6 text-center text-muted-foreground"
-                            >
-                                Esta sede aún no tiene días cerrados.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </PanelTabla>
-        </section>
+                            </Button>
+                        </td>
+                    </tr>
+                    <tr v-if="dias.length === 0">
+                        <td
+                            colspan="5"
+                            class="px-4 py-6 text-center text-muted-foreground"
+                        >
+                            Esta sede aún no tiene días cerrados.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </PanelTabla>
     </PaginaPos>
 </template>

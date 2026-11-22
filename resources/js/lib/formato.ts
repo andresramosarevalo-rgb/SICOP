@@ -94,3 +94,38 @@ export function formatearMiles(valor: string): string {
 
     return decimales === undefined ? conPuntos : `${conPuntos},${decimales}`;
 }
+
+/**
+ * Fecha guardada como `2026-11-21` lista para mostrar, por ejemplo `21/11/2026`.
+ */
+export function formatearFecha(fecha: string): string {
+    const [anio, mes, dia] = fecha.split('-');
+
+    return anio && mes && dia ? `${dia}/${mes}/${anio}` : fecha;
+}
+
+/**
+ * Texto de una diferencia del arqueo: `Cuadra`, `Sobrante $ 5.000` o `Faltante $ 5.000`.
+ */
+export function describirDiferencia(valor: string | number): string {
+    const numero = Number(valor);
+
+    if (numero === 0) {
+        return 'Cuadra';
+    }
+
+    return `${numero > 0 ? 'Sobrante' : 'Faltante'} ${formatearPesos(Math.abs(numero))}`;
+}
+
+/**
+ * Color del texto de una diferencia del arqueo: verde si cuadra, rojo si falta y ámbar si sobra.
+ */
+export function claseDiferencia(valor: string | number): string {
+    const numero = Number(valor);
+
+    if (numero === 0) {
+        return 'text-success';
+    }
+
+    return numero < 0 ? 'text-danger' : 'text-warning';
+}

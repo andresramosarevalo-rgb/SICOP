@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
 import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import PanelTabla from '@/components/Pos/PanelTabla.vue';
-import BotonAtras from '@/components/Nomina/BotonAtras.vue';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { formatearPesos } from '@/lib/formato';
+import {
+    claseDiferencia,
+    describirDiferencia,
+    formatearPesos,
+} from '@/lib/formato';
 import pos from '@/routes/pos';
 import type { FilaCierreCaja } from '@/types';
 
@@ -32,95 +33,122 @@ function filtrarPorDia(fecha: string | number): void {
         router.get(pos.cierres.index(), { fecha }, { preserveScroll: true });
     }
 }
-
-function describir(valor: string): string {
-    const numero = Number(valor);
-
-    if (numero === 0) {
-        return 'Cuadra';
-    }
-
-    return `${numero > 0 ? 'Sobrante' : 'Faltante'} ${formatearPesos(Math.abs(numero))}`;
-}
 </script>
 
 <template>
     <Head title="Cierres de caja" />
 
     <PaginaPos>
-        <BotonAtras :respaldo="pos.inicio.index()" />
-
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <Heading
-                title="Cierres de caja"
-                description="Estado del cierre y arqueo de cada sede en el día seleccionado."
-            />
-            <div class="flex flex-wrap items-end gap-3">
-                <Button variant="outline" as-child>
-                    <a :href="pos.cierres.exportar.url({ query: { fecha } })"
-                        >Descargar CSV</a
+        <header
+            class="rv flex flex-wrap items-end justify-between gap-5"
+            style="--i: 1"
+        >
+            <div class="flex flex-col gap-2">
+                <h1
+                    class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+                >
+                    Cierres de caja
+                </h1>
+                <p class="text-[17px] leading-[1.6] text-muted-foreground">
+                    Estado del cierre y arqueo de cada sede en el día
+                    seleccionado.
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-2.5">
+                <Button
+                    variant="outline"
+                    as-child
+                    class="boton-plano h-12 rounded-full border-line-strong bg-card px-[22px] text-[15px] font-semibold shadow-none hover:bg-card dark:bg-card dark:hover:bg-card"
+                >
+                    <Link :href="pos.consignaciones.index()"
+                        >Consignaciones</Link
                     >
                 </Button>
-                <div class="grid gap-2">
-                    <Label for="fecha">Día</Label>
-                    <Input
-                        id="fecha"
-                        type="date"
-                        :model-value="fecha"
-                        @update:model-value="filtrarPorDia"
-                    />
-                </div>
+                <Button
+                    variant="outline"
+                    as-child
+                    class="boton-plano h-12 rounded-full border-line-strong bg-card px-[22px] text-[15px] font-semibold shadow-none hover:bg-card dark:bg-card dark:hover:bg-card"
+                >
+                    <a
+                        :href="pos.cierres.exportar.url({ query: { fecha } })"
+                        title="Descargar CSV"
+                        >Exportar</a
+                    >
+                </Button>
+            </div>
+        </header>
+
+        <div
+            class="rv flex flex-wrap items-end justify-between gap-4"
+            style="--i: 2"
+        >
+            <div class="flex min-w-[220px] flex-col gap-2">
+                <Label
+                    for="fecha"
+                    class="text-sm leading-[normal] font-semibold"
+                    >Día</Label
+                >
+                <Input
+                    id="fecha"
+                    type="date"
+                    class="campo-sicop"
+                    :model-value="fecha"
+                    @update:model-value="filtrarPorDia"
+                />
+            </div>
+            <div
+                class="flex items-center gap-3.5 rounded-[18px] border border-brand-gold/55 bg-cream px-[22px] py-4"
+            >
+                <span class="text-sm text-muted-foreground"
+                    >Total a consignar de las sedes cerradas:</span
+                >
+                <span
+                    class="font-heading text-2xl leading-[normal] font-extrabold"
+                    >{{ formatearPesos(valorTotalAConsignar) }}</span
+                >
             </div>
         </div>
 
-        <p
-            class="rounded-xl border border-brand-gold/30 bg-accent/50 px-5 py-4 text-sm"
+        <PanelTabla
+            titulo="Arqueos por sede"
+            :indice="3"
+            relleno="16px"
+            ocultar-titulo
         >
-            Total a consignar de las sedes cerradas:
-            <span class="font-semibold text-foreground">{{
-                formatearPesos(valorTotalAConsignar)
-            }}</span>
-        </p>
-
-        <PanelTabla titulo="Arqueos por sede">
-            <table class="w-full text-left text-sm">
-                <thead class="border-b bg-muted/50 text-muted-foreground">
+            <table class="min-w-[1000px]">
+                <thead>
                     <tr>
-                        <th class="px-4 py-2 font-medium">Sede</th>
-                        <th class="px-4 py-2 font-medium">Estado</th>
-                        <th class="px-4 py-2 text-right font-medium">
-                            Efectivo contado
-                        </th>
-                        <th class="px-4 py-2 font-medium">Arqueo efectivo</th>
-                        <th class="px-4 py-2 font-medium">Arqueo datáfono</th>
-                        <th class="px-4 py-2 font-medium">Arqueo QR</th>
-                        <th class="px-4 py-2 text-right font-medium">
-                            A consignar
-                        </th>
-                        <th class="px-4 py-2">
+                        <th scope="col">Sede</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col" class="text-right">Efectivo contado</th>
+                        <th scope="col">Arqueo efectivo</th>
+                        <th scope="col">Arqueo datáfono</th>
+                        <th scope="col">Arqueo QR</th>
+                        <th scope="col" class="text-right">A consignar</th>
+                        <th scope="col">
                             <span class="sr-only">Acciones</span>
                         </th>
                     </tr>
                 </thead>
-                <tbody class="divide-y">
+                <tbody>
                     <tr v-for="fila in filas" :key="fila.sede.id">
-                        <td class="px-4 py-2">{{ fila.sede.nombre }}</td>
-                        <td class="px-4 py-2">
-                            <Badge
+                        <td class="font-semibold">{{ fila.sede.nombre }}</td>
+                        <td>
+                            <span
+                                class="inline-flex rounded-full px-3 py-[5px] text-[13px] leading-[normal] font-semibold"
                                 :class="
                                     fila.cierre
-                                        ? 'border-success/20 bg-success/10 text-success'
-                                        : 'border-warning/20 bg-warning/10 text-warning'
+                                        ? 'bg-ok-bg text-success'
+                                        : 'bg-cream text-warning'
                                 "
-                                :variant="fila.cierre ? 'default' : 'outline'"
                                 >{{
                                     fila.cierre ? 'Cerrado' : 'Sin cerrar'
-                                }}</Badge
+                                }}</span
                             >
                         </td>
                         <template v-if="fila.cierre">
                             <td
-                                class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
+                                class="text-right font-heading whitespace-nowrap"
                             >
                                 {{
                                     formatearPesos(
@@ -129,64 +157,49 @@ function describir(valor: string): string {
                                 }}
                             </td>
                             <td
-                                class="px-4 py-2"
+                                class="font-semibold"
                                 :class="
-                                    Number(
+                                    claseDiferencia(
                                         fila.cierre.valor_diferencia_efectivo,
-                                    ) === 0
-                                        ? 'text-success'
-                                        : Number(
-                                                fila.cierre
-                                                    .valor_diferencia_efectivo,
-                                            ) < 0
-                                          ? 'text-destructive'
-                                          : 'text-warning'
+                                    )
                                 "
                             >
                                 {{
-                                    describir(
+                                    describirDiferencia(
                                         fila.cierre.valor_diferencia_efectivo,
                                     )
                                 }}
                             </td>
                             <td
-                                class="px-4 py-2"
+                                class="font-semibold"
                                 :class="
-                                    Number(
+                                    claseDiferencia(
                                         fila.cierre.valor_diferencia_datafono,
-                                    ) === 0
-                                        ? 'text-success'
-                                        : Number(
-                                                fila.cierre
-                                                    .valor_diferencia_datafono,
-                                            ) < 0
-                                          ? 'text-destructive'
-                                          : 'text-warning'
+                                    )
                                 "
                             >
                                 {{
-                                    describir(
+                                    describirDiferencia(
                                         fila.cierre.valor_diferencia_datafono,
                                     )
                                 }}
                             </td>
                             <td
-                                class="px-4 py-2"
+                                class="font-semibold"
                                 :class="
-                                    Number(fila.cierre.valor_diferencia_qr) ===
-                                    0
-                                        ? 'text-success'
-                                        : Number(
-                                                fila.cierre.valor_diferencia_qr,
-                                            ) < 0
-                                          ? 'text-destructive'
-                                          : 'text-warning'
+                                    claseDiferencia(
+                                        fila.cierre.valor_diferencia_qr,
+                                    )
                                 "
                             >
-                                {{ describir(fila.cierre.valor_diferencia_qr) }}
+                                {{
+                                    describirDiferencia(
+                                        fila.cierre.valor_diferencia_qr,
+                                    )
+                                }}
                             </td>
                             <td
-                                class="px-4 py-2 text-right font-semibold whitespace-nowrap tabular-nums"
+                                class="text-right font-heading whitespace-nowrap"
                             >
                                 {{
                                     formatearPesos(
@@ -195,29 +208,24 @@ function describir(valor: string): string {
                                 }}
                             </td>
                         </template>
-                        <td
-                            v-else
-                            colspan="5"
-                            class="px-4 py-2 text-muted-foreground"
-                        >
+                        <td v-else colspan="5" class="text-muted-foreground">
                             —
                         </td>
-                        <td class="px-4 py-2">
-                            <div class="flex justify-end">
-                                <Button variant="outline" size="sm" as-child>
-                                    <Link
-                                        :href="
-                                            pos.sedes.cierre.show(
-                                                fila.sede.id,
-                                                {
-                                                    query: { fecha },
-                                                },
-                                            )
-                                        "
-                                        >Ver</Link
-                                    >
-                                </Button>
-                            </div>
+                        <td>
+                            <Button
+                                variant="outline"
+                                as-child
+                                class="min-h-9 rounded-[10px] border-line-strong bg-transparent px-3.5 text-[13px] font-semibold shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+                            >
+                                <Link
+                                    :href="
+                                        pos.sedes.cierre.show(fila.sede.id, {
+                                            query: { fecha },
+                                        })
+                                    "
+                                    >Ver</Link
+                                >
+                            </Button>
                         </td>
                     </tr>
                     <tr v-if="filas.length === 0">

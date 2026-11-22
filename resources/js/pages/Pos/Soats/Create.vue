@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import SoatController from '@/actions/App/Http/Controllers/Pos/SoatController';
-import Heading from '@/components/Heading.vue';
 import PaginaPos from '@/components/Pos/PaginaPos.vue';
-import BotonAtras from '@/components/Nomina/BotonAtras.vue';
-import CamposSoat from '@/components/Pos/CamposSoat.vue';
-import { Button } from '@/components/ui/button';
+import FormularioSoat from '@/components/Pos/FormularioSoat.vue';
 import pos from '@/routes/pos';
 import type { Opcion, OpcionTipoDocumento, Sede } from '@/types';
 
@@ -29,24 +26,24 @@ defineOptions({
 <template>
     <Head title="Registrar SOAT" />
 
-    <PaginaPos formulario>
-        <BotonAtras :respaldo="pos.sedes.soats.index(props.sede.id)" />
+    <PaginaPos>
+        <header class="rv flex flex-col gap-2" style="--i: 1">
+            <h1
+                class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+            >
+                Registrar SOAT
+            </h1>
+            <p class="text-[17px] leading-[1.6] text-muted-foreground">
+                {{ props.sede.nombre }} · {{ props.sede.ciudad }}
+            </p>
+        </header>
 
-        <Heading title="Registrar SOAT" :description="props.sede.nombre" />
-
-        <Form
-            v-bind="SoatController.store.form(props.sede.id)"
-            class="flex flex-col gap-6 rounded-xl border bg-card p-5 shadow-sm sm:p-6"
-            v-slot="{ errors, processing }"
-        >
-            <CamposSoat
-                :errors="errors"
-                :tipos-documento="props.tiposDocumento"
-                :formas-pago="props.formasPago"
-            />
-            <div class="flex justify-end border-t pt-5">
-                <Button :disabled="processing">Guardar</Button>
-            </div>
-        </Form>
+        <FormularioSoat
+            :accion="SoatController.store.form(props.sede.id)"
+            :sede="props.sede"
+            :tipos-documento="props.tiposDocumento"
+            :formas-pago="props.formasPago"
+            etiqueta-guardar="Guardar"
+        />
     </PaginaPos>
 </template>

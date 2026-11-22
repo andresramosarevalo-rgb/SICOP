@@ -16,35 +16,60 @@ defineProps<{
 <template>
     <Form
         v-bind="GastoCajaController.store.form(sedeId)"
-        class="grid gap-5 rounded-xl border bg-card p-5 shadow-sm sm:grid-cols-2 sm:p-6"
+        class="grid grid-cols-1 gap-5 rounded-[22px] border bg-card px-7 py-6 sm:grid-cols-2"
         :reset-on-success="true"
         v-slot="{ errors, processing }"
     >
-        <h3 class="text-base font-semibold sm:col-span-2">Registrar gasto</h3>
+        <h3
+            class="col-span-full font-heading text-lg leading-[normal] font-bold"
+        >
+            Registrar gasto
+        </h3>
         <input type="hidden" name="fecha" :value="fecha" />
-        <div class="grid gap-2 sm:col-span-2">
-            <Label for="concepto">Concepto</Label>
-            <Input id="concepto" name="concepto" required />
+        <div class="col-span-full flex flex-col gap-2">
+            <Label for="concepto" class="text-sm leading-[normal] font-semibold"
+                >Concepto</Label
+            >
+            <Input id="concepto" name="concepto" class="campo-sicop" required />
             <InputError :message="errors.concepto" />
         </div>
-        <div class="grid gap-2">
-            <Label for="valor_gasto">Valor</Label>
-            <InputDinero id="valor_gasto" name="valor_gasto" required />
+        <div class="flex flex-col gap-2">
+            <Label
+                for="valor_gasto"
+                class="text-sm leading-[normal] font-semibold"
+                >Valor</Label
+            >
+            <InputDinero
+                id="valor_gasto"
+                name="valor_gasto"
+                class="campo-sicop"
+                placeholder="$ 0"
+                required
+            />
             <InputError :message="errors.valor_gasto" />
         </div>
-        <div class="grid gap-2">
-            <Label for="soporte">Soporte (JPG, PNG o PDF)</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="soporte" class="text-sm leading-[normal] font-semibold"
+                >Soporte (JPG, PNG o PDF)</Label
+            >
             <Input
                 id="soporte"
                 name="soporte"
                 type="file"
                 accept=".jpg,.jpeg,.png,.pdf"
+                class="campo-sicop pt-3"
                 required
             />
             <InputError :message="errors.soporte" />
         </div>
-        <div class="flex justify-end border-t pt-4 sm:col-span-2">
-            <Button :disabled="processing">Agregar gasto</Button>
+        <div
+            class="col-span-full flex justify-end border-t border-line-faint pt-3"
+        >
+            <Button
+                :disabled="processing"
+                class="boton-plano h-12 rounded-full px-[26px] text-[15px] font-bold hover:bg-primary"
+                >Agregar gasto</Button
+            >
         </div>
     </Form>
 </template>

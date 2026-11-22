@@ -18,17 +18,24 @@ defineProps<{
 
 const hoy = new Date().toLocaleDateString('en-CA');
 
-const claseSelect =
-    'h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm dark:bg-input/30';
+const claseSelect = 'campo-sicop';
+
+const claseEtiqueta = 'text-sm leading-[normal] font-semibold';
 </script>
 
 <template>
-    <div class="grid gap-5 sm:grid-cols-2">
-        <h2 class="border-b pb-3 text-base font-semibold sm:col-span-2">
+    <div
+        class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-5"
+    >
+        <h2
+            class="col-span-full border-b border-line-faint pb-3 font-heading text-base leading-[normal] font-bold"
+        >
             Identificación del cliente
         </h2>
-        <div class="grid gap-2">
-            <Label for="tipo_documento">Tipo de documento</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="tipo_documento" :class="claseEtiqueta"
+                >Tipo de documento</Label
+            >
             <select
                 id="tipo_documento"
                 name="tipo_documento"
@@ -49,9 +56,12 @@ const claseSelect =
             </select>
             <InputError :message="errors.tipo_documento" />
         </div>
-        <div class="grid gap-2">
-            <Label for="numero_documento">Número de documento</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="numero_documento" :class="claseEtiqueta"
+                >Número de documento</Label
+            >
             <Input
+                class="campo-sicop"
                 id="numero_documento"
                 name="numero_documento"
                 :default-value="curso?.numero_documento"
@@ -59,9 +69,12 @@ const claseSelect =
             />
             <InputError :message="errors.numero_documento" />
         </div>
-        <div class="grid gap-2 sm:col-span-2">
-            <Label for="nombre_cliente">Nombre del cliente</Label>
+        <div class="col-span-full flex flex-col gap-2">
+            <Label for="nombre_cliente" :class="claseEtiqueta"
+                >Nombre del cliente</Label
+            >
             <Input
+                class="campo-sicop"
                 id="nombre_cliente"
                 name="nombre_cliente"
                 :default-value="curso?.nombre_cliente"
@@ -69,12 +82,15 @@ const claseSelect =
             />
             <InputError :message="errors.nombre_cliente" />
         </div>
-        <h2 class="mt-2 border-b pb-3 text-base font-semibold sm:col-span-2">
+        <h2
+            class="col-span-full mt-2 border-b border-line-faint pb-3 font-heading text-base leading-[normal] font-bold"
+        >
             Curso y datos de contacto
         </h2>
-        <div class="grid gap-2">
-            <Label for="fecha">Fecha</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="fecha" :class="claseEtiqueta">Fecha</Label>
             <Input
+                class="campo-sicop"
                 id="fecha"
                 name="fecha"
                 type="date"
@@ -84,8 +100,10 @@ const claseSelect =
             />
             <InputError :message="errors.fecha" />
         </div>
-        <div class="grid gap-2">
-            <Label for="codigo_infraccion">Tipo de comparendo</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="codigo_infraccion" :class="claseEtiqueta"
+                >Tipo de comparendo</Label
+            >
             <select
                 id="codigo_infraccion"
                 name="codigo_infraccion"
@@ -106,9 +124,12 @@ const claseSelect =
             </select>
             <InputError :message="errors.codigo_infraccion" />
         </div>
-        <div class="grid gap-2">
-            <Label for="valor_curso">Valor del curso</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="valor_curso" :class="claseEtiqueta"
+                >Valor del curso</Label
+            >
             <InputDinero
+                class="campo-sicop"
                 id="valor_curso"
                 name="valor_curso"
                 :default-value="curso?.valor_curso"
@@ -116,8 +137,10 @@ const claseSelect =
             />
             <InputError :message="errors.valor_curso" />
         </div>
-        <div class="grid gap-2">
-            <Label for="porcentaje_descuento">Descuento obtenido</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="porcentaje_descuento" :class="claseEtiqueta"
+                >Descuento obtenido</Label
+            >
             <select
                 id="porcentaje_descuento"
                 name="porcentaje_descuento"
@@ -140,9 +163,10 @@ const claseSelect =
             </select>
             <InputError :message="errors.porcentaje_descuento" />
         </div>
-        <div class="grid gap-2">
-            <Label for="celular">Celular</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="celular" :class="claseEtiqueta">Celular</Label>
             <Input
+                class="campo-sicop"
                 id="celular"
                 name="celular"
                 type="tel"
@@ -151,9 +175,12 @@ const claseSelect =
             />
             <InputError :message="errors.celular" />
         </div>
-        <div class="grid gap-2">
-            <Label for="correo">Correo electrónico</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="correo" :class="claseEtiqueta"
+                >Correo electrónico</Label
+            >
             <Input
+                class="campo-sicop"
                 id="correo"
                 name="correo"
                 type="email"
@@ -162,9 +189,12 @@ const claseSelect =
             />
             <InputError :message="errors.correo" />
         </div>
-        <div class="grid gap-2">
-            <Label for="numero_certificado">Número de certificado</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="numero_certificado" :class="claseEtiqueta"
+                >Número de certificado</Label
+            >
             <Input
+                class="campo-sicop"
                 id="numero_certificado"
                 name="numero_certificado"
                 :default-value="curso?.numero_certificado"
@@ -172,9 +202,12 @@ const claseSelect =
             />
             <InputError :message="errors.numero_certificado" />
         </div>
-        <div class="grid gap-2">
-            <Label for="numero_comparendo">Número de comparendo</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="numero_comparendo" :class="claseEtiqueta"
+                >Número de comparendo</Label
+            >
             <Input
+                class="campo-sicop"
                 id="numero_comparendo"
                 name="numero_comparendo"
                 :default-value="curso?.numero_comparendo"
@@ -182,9 +215,12 @@ const claseSelect =
             />
             <InputError :message="errors.numero_comparendo" />
         </div>
-        <div class="grid gap-2">
-            <Label for="secretaria_transito">Secretaría de tránsito</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="secretaria_transito" :class="claseEtiqueta"
+                >Secretaría de tránsito</Label
+            >
             <Input
+                class="campo-sicop"
                 id="secretaria_transito"
                 name="secretaria_transito"
                 :default-value="curso?.secretaria_transito"
@@ -192,9 +228,12 @@ const claseSelect =
             />
             <InputError :message="errors.secretaria_transito" />
         </div>
-        <div class="grid gap-2">
-            <Label for="hora_inicio">Hora de inicio</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="hora_inicio" :class="claseEtiqueta"
+                >Hora de inicio</Label
+            >
             <Input
+                class="campo-sicop"
                 id="hora_inicio"
                 name="hora_inicio"
                 type="time"
@@ -203,9 +242,10 @@ const claseSelect =
             />
             <InputError :message="errors.hora_inicio" />
         </div>
-        <div class="grid gap-2">
-            <Label for="hora_fin">Hora de fin</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="hora_fin" :class="claseEtiqueta">Hora de fin</Label>
             <Input
+                class="campo-sicop"
                 id="hora_fin"
                 name="hora_fin"
                 type="time"
@@ -214,8 +254,8 @@ const claseSelect =
             />
             <InputError :message="errors.hora_fin" />
         </div>
-        <div class="grid gap-2">
-            <Label for="referido">Referido</Label>
+        <div class="flex flex-col gap-2">
+            <Label for="referido" :class="claseEtiqueta">Referido</Label>
             <select id="referido" name="referido" :class="claseSelect">
                 <option value="" :selected="!curso?.referido">
                     Sin referido
@@ -232,12 +272,14 @@ const claseSelect =
             <InputError :message="errors.referido" />
         </div>
         <fieldset
-            class="mt-2 min-w-0 rounded-lg border bg-muted/30 p-4 sm:col-span-2"
+            class="col-span-full mt-2 min-w-0 rounded-2xl border border-line-cream bg-cream/40 p-5"
         >
-            <legend class="px-2 font-heading text-sm font-semibold">
+            <legend class="px-2 font-heading text-sm font-bold">
                 Información de pago
             </legend>
-            <div class="grid gap-5 sm:grid-cols-2">
+            <div
+                class="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-5"
+            >
                 <CamposPago
                     :errors="errors"
                     :formas-pago="formasPago"
