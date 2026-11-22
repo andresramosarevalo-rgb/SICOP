@@ -171,6 +171,8 @@ export type ReciboNomina = {
     valor_total_deducciones: string;
     valor_neto: string;
     fecha_envio: string | null;
+    es_vigente: boolean;
+    reemplazado_en: string | null;
 };
 
 export type DetalleReciboNomina = {

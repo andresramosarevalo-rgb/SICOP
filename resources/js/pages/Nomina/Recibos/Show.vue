@@ -91,7 +91,11 @@ function imprimir(): void {
                     >Imprimir</Button
                 >
                 <Form
-                    v-if="periodo.estado === 'cerrado' && recibo.fecha_envio"
+                    v-if="
+                        periodo.estado === 'cerrado' &&
+                        recibo.fecha_envio &&
+                        recibo.es_vigente
+                    "
                     v-bind="ReciboNominaController.reenviar.form(recibo.id)"
                     v-slot="{ processing }"
                 >
@@ -103,6 +107,20 @@ function imprimir(): void {
                 </Form>
             </div>
         </header>
+
+        <p
+            v-if="!recibo.es_vigente"
+            class="rv rounded-[18px] border border-brand-gold/55 bg-cream px-5 py-4 text-sm leading-[1.6]"
+            style="--i: 2"
+        >
+            <strong>Liquidación anterior.</strong> Este comprobante fue
+            reemplazado
+            <template v-if="recibo.reemplazado_en"
+                >el {{ formatearFecha(recibo.reemplazado_en) }}</template
+            >
+            por una nueva liquidación del periodo y se conserva solo para
+            consulta. El comprobante vigente está en el periodo.
+        </p>
 
         <section
             class="rv rounded-[22px] border bg-card px-7 py-6"

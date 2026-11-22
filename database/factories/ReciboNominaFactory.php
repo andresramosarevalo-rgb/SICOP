@@ -30,4 +30,15 @@ class ReciboNominaFactory extends Factory
             'valor_neto' => '1859928.00',
         ];
     }
+
+    /**
+     * Indica que el recibo es de una liquidación anterior, reemplazada por otra.
+     */
+    public function anterior(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'es_vigente' => false,
+            'reemplazado_en' => now(),
+        ]);
+    }
 }

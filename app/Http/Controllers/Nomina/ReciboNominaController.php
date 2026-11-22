@@ -25,7 +25,7 @@ class ReciboNominaController extends Controller
         return Inertia::render('Nomina/Recibos/Show', [
             'recibo' => $recibo->only([
                 'id', 'valor_salario_base', 'dias_liquidados', 'valor_total_devengado',
-                'valor_total_deducciones', 'valor_neto', 'fecha_envio',
+                'valor_total_deducciones', 'valor_neto', 'fecha_envio', 'es_vigente', 'reemplazado_en',
             ]),
             'periodo' => $recibo->periodo->only(['id', 'periodicidad_pago', 'fecha_inicio', 'fecha_fin', 'estado']),
             'empleado' => [

@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Concerns\FiltraPorSedeDelEmpleado;
 use Database\Factories\ReciboNominaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,6 +26,8 @@ use Illuminate\Support\Carbon;
  * @property numeric-string $valor_total_deducciones
  * @property numeric-string $valor_neto
  * @property Carbon|null $fecha_envio
+ * @property bool $es_vigente
+ * @property Carbon|null $reemplazado_en
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -42,6 +46,17 @@ class ReciboNomina extends Model
      * @var string
      */
     protected $table = 'recibos_nomina';
+
+    /**
+     * Solo los recibos de la liquidación vigente, sin los que una nueva liquidación reemplazó.
+     *
+     * @param  Builder<static>  $query
+     */
+    #[Scope]
+    protected function vigentes(Builder $query): void
+    {
+        $query->where($query->qualifyColumn('es_vigente'), true);
+    }
 
     /**
      * Periodo al que pertenece el recibo.
@@ -87,6 +102,8 @@ class ReciboNomina extends Model
             'valor_total_deducciones' => 'decimal:2',
             'valor_neto' => 'decimal:2',
             'fecha_envio' => 'datetime',
+            'es_vigente' => 'boolean',
+            'reemplazado_en' => 'datetime',
         ];
     }
 }

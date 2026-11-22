@@ -26,7 +26,7 @@ beforeEach(function () {
  */
 function valoresDelRecibo(): array
 {
-    return ReciboNomina::sole()->detalles()->with('concepto')->get()
+    return ReciboNomina::vigentes()->sole()->detalles()->with('concepto')->get()
         ->mapWithKeys(fn ($detalle) => [$detalle->concepto->codigo => $detalle->valor_concepto])->all();
 }
 
@@ -42,7 +42,7 @@ test('la liquidación aplica las horas extra y las ausencias registradas del emp
             ConceptoSistema::HoraExtraDiurna->value => '25000.00',
             ConceptoSistema::Salario->value => '2030000.00',
         ])
-        ->and(ReciboNomina::sole()->dias_liquidados)->toBe(29);
+        ->and(ReciboNomina::vigentes()->sole()->dias_liquidados)->toBe(29);
 });
 
 // Issue #14, criterio 4

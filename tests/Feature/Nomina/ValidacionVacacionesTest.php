@@ -265,7 +265,7 @@ test('liquidar y reliquidar preserva importes calendario y consumo hábil sin de
     ]);
 
     app(LiquidarPeriodoNomina::class)->ejecutar($periodo, $this->usuario);
-    $recibo = ReciboNomina::sole();
+    $recibo = ReciboNomina::vigentes()->sole();
     $valores = $recibo->detalles()->with('concepto')->get()
         ->mapWithKeys(fn ($detalle) => [$detalle->concepto->codigo => $detalle->valor_concepto])->all();
     expect($valores)->toMatchArray([
@@ -276,7 +276,7 @@ test('liquidar y reliquidar preserva importes calendario y consumo hábil sin de
 
     app(LiquidarPeriodoNomina::class)->ejecutar($periodo->fresh(), $this->usuario);
     expect(($this->saldo)())->toBe($saldo)
-        ->and(ReciboNomina::sole()->only(array_keys($totales)))->toBe($totales)
+        ->and(ReciboNomina::vigentes()->sole()->only(array_keys($totales)))->toBe($totales)
         ->and(Novedad::count())->toBe(1);
 
     $this->get(route('nomina.novedades.edit', $novedad))->assertForbidden();
