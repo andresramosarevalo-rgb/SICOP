@@ -96,10 +96,11 @@ export function formatearMiles(valor: string): string {
 }
 
 /**
- * Fecha guardada como `2026-11-21` lista para mostrar, por ejemplo `21/11/2026`.
+ * Fecha guardada como `2026-11-21` o con hora (`2026-11-21T00:00:00.000000Z`) lista para mostrar,
+ * por ejemplo `21/11/2026`.
  */
 export function formatearFecha(fecha: string): string {
-    const [anio, mes, dia] = fecha.split('-');
+    const [anio, mes, dia] = fecha.slice(0, 10).split('-');
 
     return anio && mes && dia ? `${dia}/${mes}/${anio}` : fecha;
 }
