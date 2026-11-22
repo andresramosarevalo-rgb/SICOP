@@ -499,7 +499,9 @@
 .campo-sicop {
     height: var(--alto-campo, 50px);
     width: var(--ancho-campo, 100%);
-    padding: 0 16px;
+    padding-block: 0;
+    padding-inline: var(--relleno-campo, 16px)
+        var(--relleno-campo-der, var(--relleno-campo, 16px));
     border-radius: 14px;
     border: 1px solid #8798ad;
     background: var(--card);
