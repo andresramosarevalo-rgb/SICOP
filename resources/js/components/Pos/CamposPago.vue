@@ -37,13 +37,14 @@ const medios = [
     },
 ].filter((medio) => props.formasPago.some((o) => o.valor === medio.forma));
 
-const claseSelect =
-    'h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:text-sm dark:bg-input/30';
+const claseSelect = 'campo-sicop';
+
+const claseEtiqueta = 'text-sm leading-[normal] font-semibold';
 </script>
 
 <template>
-    <div class="grid gap-2">
-        <Label for="forma_pago">Forma de pago</Label>
+    <div class="flex flex-col gap-2">
+        <Label for="forma_pago" :class="claseEtiqueta">Forma de pago</Label>
         <select
             id="forma_pago"
             v-model="forma"
@@ -62,9 +63,16 @@ const claseSelect =
         <InputError :message="errors.forma_pago" />
     </div>
     <template v-if="forma === 'mixto'">
-        <div v-for="medio in medios" :key="medio.campo" class="grid gap-2">
-            <Label :for="medio.campo">{{ medio.etiqueta }}</Label>
+        <div
+            v-for="medio in medios"
+            :key="medio.campo"
+            class="flex flex-col gap-2"
+        >
+            <Label :for="medio.campo" :class="claseEtiqueta">{{
+                medio.etiqueta
+            }}</Label>
             <InputDinero
+                class="campo-sicop"
                 :id="medio.campo"
                 :name="medio.campo"
                 :default-value="Number(medio.valor ?? 0)"
