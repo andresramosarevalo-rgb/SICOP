@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
+import InputDinero from '@/components/InputDinero.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Sede } from '@/types';
@@ -45,12 +46,9 @@ defineProps<{
         </div>
         <div class="grid gap-2">
             <Label for="valor_base_caja">Base de caja</Label>
-            <Input
+            <InputDinero
                 id="valor_base_caja"
                 name="valor_base_caja"
-                type="number"
-                min="0"
-                step="0.01"
                 :default-value="sede?.valor_base_caja ?? 0"
                 required
             />

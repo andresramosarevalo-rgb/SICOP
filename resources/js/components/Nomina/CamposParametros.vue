@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import InputDinero from '@/components/InputDinero.vue';
 import InputError from '@/components/InputError.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -73,7 +74,15 @@ const campos: {
     <div class="grid gap-4 sm:grid-cols-2">
         <div v-for="campo in campos" :key="campo.nombre" class="grid gap-2">
             <Label :for="campo.nombre">{{ campo.etiqueta }}</Label>
+            <InputDinero
+                v-if="campo.nombre.startsWith('valor_')"
+                :id="campo.nombre"
+                :name="campo.nombre"
+                :default-value="parametro?.[campo.nombre]"
+                required
+            />
             <Input
+                v-else
                 :id="campo.nombre"
                 :name="campo.nombre"
                 type="number"

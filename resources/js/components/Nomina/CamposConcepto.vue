@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import InputError from '@/components/InputError.vue';
+import InputDinero from '@/components/InputDinero.vue';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { ConceptoNomina } from '@/types';
@@ -72,12 +73,9 @@ const claseSelect =
         </div>
         <div v-if="formaCalculo === 'valor_fijo'" class="grid gap-2">
             <Label for="valor_base">Valor</Label>
-            <Input
+            <InputDinero
                 id="valor_base"
                 name="valor_base"
-                type="number"
-                min="0"
-                step="0.01"
                 :default-value="concepto?.valor_base ?? ''"
             />
             <InputError :message="errors.valor_base" />
