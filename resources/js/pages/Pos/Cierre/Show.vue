@@ -3,20 +3,17 @@ import { Form, Head, router, usePage } from '@inertiajs/vue3';
 import CierreCajaController from '@/actions/App/Http/Controllers/Pos/CierreCajaController';
 import ConsignacionController from '@/actions/App/Http/Controllers/Pos/ConsignacionController';
 import GastoCajaController from '@/actions/App/Http/Controllers/Pos/GastoCajaController';
-import Heading from '@/components/Heading.vue';
 import PaginaPos from '@/components/Pos/PaginaPos.vue';
 import PanelTabla from '@/components/Pos/PanelTabla.vue';
-import BotonAtras from '@/components/Nomina/BotonAtras.vue';
 import FormularioConsignacion from '@/components/Pos/FormularioConsignacion.vue';
 import FormularioArqueo from '@/components/Pos/FormularioArqueo.vue';
 import FormularioGasto from '@/components/Pos/FormularioGasto.vue';
 import ResultadoArqueo from '@/components/Pos/ResultadoArqueo.vue';
 import ResumenCaja from '@/components/Pos/ResumenCaja.vue';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { formatearPesos } from '@/lib/formato';
+import { formatearFecha, formatearPesos } from '@/lib/formato';
 import pos from '@/routes/pos';
 import type {
     CierreCaja,
@@ -65,46 +62,67 @@ function cambiarDia(fecha: string | number): void {
     <Head :title="`Cierre de caja · ${sede.nombre}`" />
 
     <PaginaPos>
-        <BotonAtras
-            :respaldo="
-                page.props.auth.permisos.gestionarPos
-                    ? pos.cierres.index({ query: { fecha } })
-                    : pos.sedes.cursos.index(sede.id)
-            "
-        />
-
-        <div
-            class="flex flex-wrap items-end justify-between gap-4 rounded-xl border border-brand-gold/30 bg-accent/50 p-5"
+        <header
+            class="rv flex flex-wrap items-end justify-between gap-5"
+            style="--i: 1"
         >
-            <Heading
-                title="Cierre de caja"
-                :description="`${sede.nombre} · ${sede.ciudad}`"
-            />
+            <div class="flex flex-col gap-2.5">
+                <div class="flex flex-wrap items-center gap-3">
+                    <h1
+                        class="font-heading text-3xl leading-[1.15] font-extrabold md:text-[34px]"
+                    >
+                        Cierre de caja
+                    </h1>
+                    <span
+                        class="inline-flex rounded-full px-3 py-[5px] text-[13px] leading-[normal] font-semibold"
+                        :class="
+                            estaCerrado
+                                ? 'bg-ok-bg text-success'
+                                : 'bg-cream text-warning'
+                        "
+                        >{{ estaCerrado ? 'Día cerrado' : 'Día abierto' }}</span
+                    >
+                </div>
+                <p class="text-[17px] leading-[1.6] text-muted-foreground">
+                    {{ sede.nombre }} · {{ sede.ciudad }}
+                </p>
+            </div>
             <div class="flex flex-wrap items-end gap-3">
-                <Badge
-                    v-if="estaCerrado"
-                    variant="outline"
-                    class="border-success/20 bg-success/10 text-success"
-                    >Día cerrado</Badge
-                >
-                <Badge
-                    v-else
-                    variant="outline"
-                    class="border-warning/20 bg-warning/10 text-warning"
-                    >Día abierto</Badge
-                >
-                <div class="grid gap-2">
-                    <Label for="fecha">Día</Label>
+                <div class="flex min-w-[200px] flex-col gap-2">
+                    <Label
+                        for="fecha"
+                        class="text-sm leading-[normal] font-semibold"
+                        >Día</Label
+                    >
                     <Input
                         id="fecha"
                         type="date"
+                        class="campo-sicop"
                         :max="new Date().toLocaleDateString('en-CA')"
                         :model-value="fecha"
                         @update:model-value="cambiarDia"
                     />
                 </div>
+                <Form
+                    v-if="
+                        cierre &&
+                        !consignacion &&
+                        page.props.auth.permisos.gestionarPos
+                    "
+                    v-bind="CierreCajaController.reabrir.form(sede.id)"
+                    v-slot="{ processing }"
+                >
+                    <input type="hidden" name="fecha" :value="fecha" />
+                    <Button
+                        variant="outline"
+                        :disabled="processing"
+                        title="Descarta el arqueo para corregir y volver a cerrar."
+                        class="boton-plano h-[50px] rounded-full border-line-strong bg-card px-[22px] text-[15px] font-semibold shadow-none hover:bg-card dark:bg-card dark:hover:bg-card"
+                        >Reabrir el día</Button
+                    >
+                </Form>
             </div>
-        </div>
+        </header>
 
         <ResumenCaja
             :resumen="resumen"
@@ -112,39 +130,40 @@ function cambiarDia(fecha: string | number): void {
             :valor-efectivo-esperado="valorEfectivoEsperado"
         />
 
-        <section class="flex flex-col gap-4">
-            <PanelTabla titulo="Gastos del día">
-                <table class="w-full text-left text-sm">
-                    <thead class="border-b bg-muted/50 text-muted-foreground">
+        <section class="rv flex flex-col gap-3.5" style="--i: 3">
+            <h2 class="font-heading text-lg leading-[normal] font-bold">
+                Gastos del día
+            </h2>
+            <PanelTabla titulo="Gastos del día" sin-animacion ocultar-titulo>
+                <table class="min-w-0">
+                    <thead>
                         <tr>
-                            <th class="px-4 py-2 font-medium">Concepto</th>
-                            <th class="px-4 py-2 text-right font-medium">
-                                Valor
-                            </th>
-                            <th class="px-4 py-2 font-medium">Soporte</th>
-                            <th class="px-4 py-2">
+                            <th scope="col">Concepto</th>
+                            <th scope="col" class="text-right">Valor</th>
+                            <th scope="col">Soporte</th>
+                            <th scope="col">
                                 <span class="sr-only">Acciones</span>
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y">
+                    <tbody>
                         <tr v-for="gasto in gastos" :key="gasto.id">
-                            <td class="px-4 py-2">{{ gasto.concepto }}</td>
+                            <td>{{ gasto.concepto }}</td>
                             <td
-                                class="px-4 py-2 text-right whitespace-nowrap tabular-nums"
+                                class="text-right font-heading whitespace-nowrap"
                             >
                                 {{ formatearPesos(gasto.valor_gasto) }}
                             </td>
-                            <td class="px-4 py-2">
+                            <td>
                                 <a
                                     :href="
                                         pos.cierre.gastos.soporte.url(gasto.id)
                                     "
-                                    class="rounded-sm font-medium text-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+                                    class="rounded-sm font-semibold text-success hover:underline"
                                     >{{ gasto.nombre_soporte }}</a
                                 >
                             </td>
-                            <td class="px-4 py-2">
+                            <td>
                                 <Form
                                     v-if="!estaCerrado"
                                     v-bind="
@@ -156,10 +175,9 @@ function cambiarDia(fecha: string | number): void {
                                     v-slot="{ processing }"
                                 >
                                     <Button
-                                        variant="ghost"
-                                        class="text-destructive hover:text-destructive"
-                                        size="sm"
+                                        variant="outline"
                                         :disabled="processing"
+                                        class="boton-plano min-h-9 rounded-[10px] border-line-strong bg-card px-3.5 text-[13px] font-semibold text-danger shadow-none hover:bg-card hover:text-danger dark:bg-card dark:hover:bg-card"
                                         >Eliminar</Button
                                     >
                                 </Form>
@@ -188,20 +206,24 @@ function cambiarDia(fecha: string | number): void {
 
         <section
             v-if="cierre"
-            class="flex flex-col gap-5 rounded-xl border bg-card p-5 shadow-sm sm:p-6"
+            class="rv flex flex-col gap-[18px] rounded-[22px] border bg-card px-7 py-6"
+            style="--i: 5"
         >
-            <h2 class="text-base font-semibold">Consignación</h2>
+            <h2 class="font-heading text-lg leading-[normal] font-bold">
+                Consignación
+            </h2>
 
             <div v-if="consignacion" class="flex flex-col gap-2 text-sm">
                 <p>
                     {{ formatearPesos(consignacion.valor_consignado) }}
-                    consignados el {{ consignacion.fecha_consignacion }} ·
+                    consignados el
+                    {{ formatearFecha(consignacion.fecha_consignacion) }} ·
                     referencia {{ consignacion.referencia }}
                 </p>
                 <p>
                     <a
                         :href="pos.consignaciones.soporte.url(consignacion.id)"
-                        class="rounded-sm font-medium text-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+                        class="rounded-sm font-semibold text-success hover:underline"
                         >{{ consignacion.nombre_soporte }}</a
                     >
                 </p>
@@ -228,10 +250,9 @@ function cambiarDia(fecha: string | number): void {
                     v-slot="{ processing }"
                 >
                     <Button
-                        variant="ghost"
-                        size="sm"
-                        class="self-start text-destructive hover:text-destructive"
+                        variant="outline"
                         :disabled="processing"
+                        class="boton-plano mt-1 min-h-9 rounded-[10px] border-line-strong bg-card px-3.5 text-[13px] font-semibold text-danger shadow-none hover:bg-card hover:text-danger dark:bg-card dark:hover:bg-card"
                         >Eliminar consignación</Button
                     >
                 </Form>
@@ -246,8 +267,9 @@ function cambiarDia(fecha: string | number): void {
                 </p>
                 <template v-else>
                     <p class="text-sm text-muted-foreground">
+                        Aún no hay consignación registrada para este día.
                         Pendiente de consignar:
-                        <span class="font-semibold text-foreground">{{
+                        <span class="font-heading font-bold text-foreground">{{
                             formatearPesos(cierre.valor_a_consignar)
                         }}</span>
                     </p>
@@ -260,28 +282,14 @@ function cambiarDia(fecha: string | number): void {
             </template>
         </section>
 
-        <Form
-            v-if="
-                cierre && !consignacion && page.props.auth.permisos.gestionarPos
-            "
-            v-bind="CierreCajaController.reabrir.form(sede.id)"
-            class="flex flex-wrap items-center gap-3 rounded-xl border bg-card p-5"
-            v-slot="{ processing }"
-        >
-            <input type="hidden" name="fecha" :value="fecha" />
-            <Button variant="outline" :disabled="processing"
-                >Reabrir el día</Button
-            >
-            <p class="text-sm text-muted-foreground">
-                Descarta el arqueo para corregir y volver a cerrar.
-            </p>
-        </Form>
-
         <section
-            v-else-if="!estaCerrado && sede.es_activa"
-            class="flex flex-col gap-5 rounded-xl border bg-card p-5 shadow-sm sm:p-6"
+            v-if="!cierre && !estaCerrado && sede.es_activa"
+            class="rv flex flex-col gap-[18px] rounded-[22px] border bg-card px-7 py-6"
+            style="--i: 5"
         >
-            <h2 class="text-base font-semibold">Cerrar el día</h2>
+            <h2 class="font-heading text-lg leading-[normal] font-bold">
+                Cerrar el día
+            </h2>
             <FormularioArqueo :sede-id="sede.id" :fecha="fecha" />
         </section>
     </PaginaPos>

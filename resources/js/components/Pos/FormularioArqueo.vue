@@ -16,7 +16,11 @@ defineProps<{
         v-slot="{ processing }"
     >
         <input type="hidden" name="fecha" :value="fecha" />
-        <Button :disabled="processing">Cerrar día</Button>
+        <Button
+            :disabled="processing"
+            class="boton-plano h-12 rounded-full px-[26px] text-[15px] font-bold hover:bg-primary"
+            >Cerrar día</Button
+        >
         <p class="text-sm text-muted-foreground">
             Congela las cifras del día para consignar el efectivo.
         </p>

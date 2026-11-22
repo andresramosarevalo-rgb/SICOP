@@ -18,49 +18,85 @@ const hoy = new Date().toLocaleDateString('en-CA');
 <template>
     <Form
         v-bind="ConsignacionController.store.form(cierreId)"
-        class="grid gap-5 sm:grid-cols-2"
+        class="flex flex-col gap-[18px]"
         v-slot="{ errors, processing }"
     >
-        <div class="grid gap-2">
-            <Label for="fecha_consignacion">Fecha de la consignación</Label>
-            <Input
-                id="fecha_consignacion"
-                name="fecha_consignacion"
-                type="date"
-                :max="hoy"
-                :default-value="hoy"
-                required
-            />
-            <InputError :message="errors.fecha_consignacion" />
+        <div
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-5"
+        >
+            <div class="flex flex-col gap-2">
+                <Label
+                    for="fecha_consignacion"
+                    class="text-sm leading-[normal] font-semibold"
+                    >Fecha de la consignación</Label
+                >
+                <Input
+                    id="fecha_consignacion"
+                    name="fecha_consignacion"
+                    type="date"
+                    class="campo-sicop"
+                    :max="hoy"
+                    :default-value="hoy"
+                    required
+                />
+                <InputError :message="errors.fecha_consignacion" />
+            </div>
+            <div class="flex flex-col gap-2">
+                <Label
+                    for="valor_consignado"
+                    class="text-sm leading-[normal] font-semibold"
+                    >Valor consignado</Label
+                >
+                <Input
+                    id="valor_consignado"
+                    name="valor_consignado"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    class="campo-sicop"
+                    :default-value="Number(valorAConsignar)"
+                    required
+                />
+                <InputError :message="errors.valor_consignado" />
+            </div>
+            <div class="flex flex-col gap-2">
+                <Label
+                    for="referencia"
+                    class="text-sm leading-[normal] font-semibold"
+                    >Referencia del banco</Label
+                >
+                <Input
+                    id="referencia"
+                    name="referencia"
+                    class="campo-sicop"
+                    placeholder="Número de referencia"
+                    required
+                />
+                <InputError :message="errors.referencia" />
+            </div>
+            <div class="flex flex-col gap-2">
+                <Label
+                    for="soporte"
+                    class="text-sm leading-[normal] font-semibold"
+                    >Comprobante (JPG, PNG o PDF)</Label
+                >
+                <Input
+                    id="soporte"
+                    name="soporte"
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    class="campo-sicop pt-3"
+                    required
+                />
+                <InputError :message="errors.soporte" />
+            </div>
         </div>
-        <div class="grid gap-2">
-            <Label for="valor_consignado">Valor consignado</Label>
-            <InputDinero
-                id="valor_consignado"
-                name="valor_consignado"
-                :default-value="Number(valorAConsignar)"
-                required
-            />
-            <InputError :message="errors.valor_consignado" />
-        </div>
-        <div class="grid gap-2">
-            <Label for="referencia">Referencia del banco</Label>
-            <Input id="referencia" name="referencia" required />
-            <InputError :message="errors.referencia" />
-        </div>
-        <div class="grid gap-2">
-            <Label for="soporte">Comprobante (JPG, PNG o PDF)</Label>
-            <Input
-                id="soporte"
-                name="soporte"
-                type="file"
-                accept=".jpg,.jpeg,.png,.pdf"
-                required
-            />
-            <InputError :message="errors.soporte" />
-        </div>
-        <div class="flex justify-end border-t pt-4 sm:col-span-2">
-            <Button :disabled="processing">Registrar consignación</Button>
+        <div class="flex justify-end">
+            <Button
+                :disabled="processing"
+                class="boton-plano h-12 rounded-full px-[26px] text-[15px] font-bold hover:bg-primary"
+                >Guardar consignación</Button
+            >
         </div>
     </Form>
 </template>
