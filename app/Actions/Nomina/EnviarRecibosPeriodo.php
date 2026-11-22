@@ -33,11 +33,16 @@ final class EnviarRecibosPeriodo
     /**
      * Envía (o reenvía) un recibo, aunque ya se haya enviado antes.
      *
-     * @throws ValidationException si el periodo del recibo no está cerrado.
+     * @throws ValidationException si el periodo del recibo no está cerrado o si el recibo es de una liquidación anterior.
      */
     public function reenviar(ReciboNomina $recibo): void
     {
         $this->asegurarCerrado($recibo->periodo);
+
+        if (! $recibo->es_vigente) {
+            throw ValidationException::withMessages(['periodo' => 'Este comprobante es de una liquidación anterior y no se puede reenviar.']);
+        }
+
         $this->enviar($recibo->loadMissing('empleado'));
     }
 

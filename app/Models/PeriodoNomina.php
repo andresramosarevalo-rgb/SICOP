@@ -62,13 +62,23 @@ class PeriodoNomina extends Model
     ];
 
     /**
-     * Recibos generados en la última liquidación del periodo.
+     * Recibos vigentes: los de la última liquidación del periodo.
      *
      * @return HasMany<ReciboNomina, $this>
      */
     public function recibos(): HasMany
     {
-        return $this->hasMany(ReciboNomina::class);
+        return $this->hasMany(ReciboNomina::class)->where('es_vigente', true);
+    }
+
+    /**
+     * Recibos de liquidaciones anteriores, que una nueva liquidación reemplazó pero se conservan.
+     *
+     * @return HasMany<ReciboNomina, $this>
+     */
+    public function recibosAnteriores(): HasMany
+    {
+        return $this->hasMany(ReciboNomina::class)->where('es_vigente', false);
     }
 
     /**

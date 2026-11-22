@@ -60,13 +60,18 @@ class PeriodoNominaController extends Controller
     }
 
     /**
-     * Muestra el periodo con los recibos de su última liquidación.
+     * Muestra el periodo con los recibos de su última liquidación y, aparte, los de las liquidaciones anteriores.
      */
     public function show(PeriodoNomina $periodo): Response
     {
         return Inertia::render('Nomina/Periodos/Show', [
             'periodo' => $periodo->load(['liquidador:id,name', 'sede:id,nombre']),
             'recibos' => $periodo->recibos()->with('empleado:id,nombres,apellidos,numero_documento')->get(),
+            'recibosAnteriores' => $periodo->recibosAnteriores()
+                ->with('empleado:id,nombres,apellidos,numero_documento')
+                ->orderByDesc('reemplazado_en')
+                ->orderBy('empleado_id')
+                ->get(),
         ]);
     }
 
