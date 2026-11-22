@@ -1,13 +1,31 @@
 <script setup lang="ts">
-defineProps<{ titulo: string; descripcion?: string }>();
+withDefaults(
+    defineProps<{
+        titulo: string;
+        descripcion?: string;
+        indice?: number;
+        relleno?: string;
+        ocultarTitulo?: boolean;
+    }>(),
+    { indice: 2, relleno: '14px', ocultarTitulo: false },
+);
 </script>
 
 <template>
     <section
-        class="min-w-0 overflow-hidden rounded-xl border bg-card shadow-sm"
+        class="rv min-w-0 overflow-hidden rounded-[22px] border bg-card"
+        :style="{ '--i': indice, '--fila-py': relleno }"
     >
-        <header class="space-y-1 border-b px-5 py-4">
-            <h2 class="text-base font-semibold">{{ titulo }}</h2>
+        <header
+            :class="
+                ocultarTitulo
+                    ? 'sr-only'
+                    : 'flex min-h-[66px] flex-wrap items-center gap-x-3 gap-y-1 border-b border-line-faint px-6 py-5'
+            "
+        >
+            <h2 class="font-heading text-lg leading-[normal] font-bold">
+                {{ titulo }}
+            </h2>
             <p v-if="descripcion" class="text-sm text-muted-foreground">
                 {{ descripcion }}
             </p>
@@ -27,22 +45,41 @@ defineProps<{ titulo: string; descripcion?: string }>();
 .tabla-pos :deep(table) {
     width: 100%;
     min-width: 42rem;
-    font-size: 0.875rem;
+    border-collapse: collapse;
+    font-size: 14px;
+    text-align: left;
 }
 .tabla-pos :deep(thead) {
-    background: var(--secondary);
+    line-height: normal;
+    background: var(--background);
     color: var(--muted-foreground);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
 }
 .tabla-pos :deep(th),
 .tabla-pos :deep(td) {
-    padding: 0.875rem 1rem;
+    padding: var(--fila-py, 14px) 16px;
 }
 .tabla-pos :deep(th) {
-    font-weight: 600;
+    font-weight: 700;
     white-space: nowrap;
 }
+.tabla-pos :deep(th) {
+    padding-block: 14px;
+}
+.tabla-pos :deep(th:first-child),
+.tabla-pos :deep(td:first-child),
+.tabla-pos :deep(th:last-child),
+.tabla-pos :deep(td:last-child) {
+    padding-inline: 24px;
+}
+.tabla-pos :deep(tbody tr) {
+    border-top: 1px solid var(--line-faint);
+    transition: background 0.2s;
+}
 .tabla-pos :deep(tbody tr:hover) {
-    background: color-mix(in srgb, var(--muted) 50%, transparent);
+    background: var(--hover-row);
 }
 .tabla-pos :deep(td[colspan].text-center) {
     padding: 2.5rem 1rem;
@@ -54,5 +91,10 @@ defineProps<{ titulo: string; descripcion?: string }>();
 .tabla-pos
     :deep(table:has(tbody > tr:only-child > td[colspan].text-center) thead) {
     display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+    .tabla-pos :deep(tbody tr) {
+        transition: none;
+    }
 }
 </style>

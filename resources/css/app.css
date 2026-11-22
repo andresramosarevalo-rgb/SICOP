@@ -473,6 +473,45 @@
     }
 }
 
+/* Botones planos y campos de formulario de Punto de venta. */
+.boton-plano {
+    transition:
+        transform 0.15s,
+        box-shadow 0.2s,
+        filter 0.2s;
+}
+
+.boton-plano:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+}
+
+.boton-plano:active {
+    transform: scale(0.98);
+}
+
+.campo-sicop {
+    height: 50px;
+    width: 100%;
+    padding: 0 16px;
+    border-radius: 14px;
+    border: 1px solid #8798ad;
+    background: var(--card);
+    color: var(--foreground);
+    font-size: 15px;
+    box-shadow: none;
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+.campo-sicop:focus,
+.campo-sicop:focus-visible {
+    outline: none;
+    border-color: #2c4b75;
+    box-shadow: 0 0 0 4px rgb(44 75 117 / 0.16);
+}
+
 @keyframes sicop-rise {
     from {
         opacity: 0;
@@ -545,6 +584,8 @@
     .fld,
     .ojo,
     .fantasma,
+    .boton-plano,
+    .campo-sicop,
     .fila-usuario:hover,
     .lift .bub,
     .lift .arr,

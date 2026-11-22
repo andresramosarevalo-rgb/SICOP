@@ -94,3 +94,12 @@ export function formatearMiles(valor: string): string {
 
     return decimales === undefined ? conPuntos : `${conPuntos},${decimales}`;
 }
+
+/**
+ * Fecha guardada como `2026-11-21` lista para mostrar, por ejemplo `21/11/2026`.
+ */
+export function formatearFecha(fecha: string): string {
+    const [anio, mes, dia] = fecha.split('-');
+
+    return anio && mes && dia ? `${dia}/${mes}/${anio}` : fecha;
+}
